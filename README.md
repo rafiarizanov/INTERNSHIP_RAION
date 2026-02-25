@@ -1,4 +1,6 @@
 <<<<<<< HEAD
+
+test 1 dua tiga
 # bersihin
 
 A new Flutter project.
