@@ -1,39 +1,38 @@
 import 'package:flutter/material.dart';
+import 'onboarding_page_1.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true),
-      home: const MyHomePage(),
-    );
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 5), () {
+      // Pindah ke halaman baru dan hapus splash screen dari riwayat back
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          // Sesuaikan nama class ini dengan nama class di file onboarding teman Anda
+          builder: (context) => const OnboardingPage1(), 
+        ),
+      );
+    });
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal:93, vertical: 290),
-        child: Column(
+      body: Center(
+      child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               width: 208,
@@ -53,16 +52,14 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 20),
             Container(
-                child: Text(
+                child: const Text(
                   'Nama Apps (Text)',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ),
           ],
         ),
-      ),
-      ),
-     
+      ),     
     );
   }
 }

@@ -1,39 +1,23 @@
 import 'package:flutter/material.dart';
+import 'onboarding_page_3.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class OnboardingPage2 extends StatefulWidget {
+  const OnboardingPage2({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true),
-      home: const MyHomePage(),
-    );
-  }
+  State<OnboardingPage2> createState() => _OnboardingPage2State();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _OnboardingPage2State extends State<OnboardingPage2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal:20, vertical: 50),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+      body: Center(
+      child: SingleChildScrollView(  
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
               const SizedBox(height:96),
             Container(
@@ -48,7 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   const SizedBox(height: 10),
                   const Center ( 
                     child: Text(
-                    'Gambar/ Icons yang nantinya sesuai feature',
+                    'Gambar/ Icons yang PAGE 2',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   ),
@@ -103,7 +87,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
             ),
           const SizedBox(height:200),
-          Container( 
+          GestureDetector(
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const OnboardingPage3(),),);
+            },
+            child : Container( 
             width: 185,
             height: 31,
             decoration: BoxDecoration(
@@ -117,11 +107,12 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             )
           ),
+          )
+          
           ],
         ),
       ),
       ),
-     
     );
   }
 }
