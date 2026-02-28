@@ -15,100 +15,96 @@ class _OnboardingPage3State extends State<OnboardingPage3> {
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 96),
-              Container(
-                width: 210,
-                height: 150,
-                color: Colors.grey[300],
-                child: Column(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 50),
+                Image.asset(
+                  'assets/image/onboarding_3.png',
+                  height: 300,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 300,
+                      width: double.infinity,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
+                    );
+                  },
+                ),
+                const SizedBox(height: 40),
+                const Text(
+                  'Laporkan Air Kotor dengan Cepat',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'Temukan air keruh atau berbau? Laporkan langsung melalui aplikasi dan pantau status penanganannya.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Icon(Icons.image, size: 75, color: Colors.black54),
-                    const SizedBox(height: 10),
-                    const Center(
-                      child: Text(
-                        'Gambar/ Icons yang PAGE 3',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    const CircleAvatar(radius: 4, backgroundColor: Colors.grey),
+                    const SizedBox(width: 8),
+                    const CircleAvatar(radius: 4, backgroundColor: Colors.grey),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 30,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF004D56),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 20),
-              const SizedBox(height: 30),
-
-              Container(
-                width: 274,
-                height: 38,
-                color: Colors.grey[300],
-                child: const Center(
-                  child: Text(
-                    'Judul Fitur (Teks)',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-
-              Container(
-                width: 262,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Center(
-                  child: Text(
-                    'teks penjelasan fitur',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Container(
-                width: 341,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              const SizedBox(height: 200),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ChoosingPage(),
+                const SizedBox(height: 60),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ChoosingPage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF004D56),
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                  );
-                },
-                child: Container(
-                  width: 185,
-                  height: 31,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Next (Button)',
-                      style: TextStyle(fontSize: 14),
+                    child: const Center(
+                      child: Text(
+                        'Mulai Sekarang',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

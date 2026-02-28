@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// Import halaman registrasi jika ingin pindah ke sana
 import 'w_registration_email.dart';
 
 class WSignIn extends StatefulWidget {
@@ -10,31 +9,32 @@ class WSignIn extends StatefulWidget {
 }
 
 class _WSignInState extends State<WSignIn> {
-  bool _ingatSaya = false; // Untuk status checkbox "Ingat saya"
+  bool _ingatSaya = false;
 
-  // Widget bantuan untuk Box Input
   Widget _buildInputBox(String label, {bool isPassword = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 14, 
+            fontWeight: FontWeight.w600, 
+            color: Color(0xFF004D56)
+          ),
         ),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(10),
+            color: const Color(0xFFB0E6F3).withOpacity(0.3),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: const Color(0xFFB0E6F3)),
           ),
           child: TextField(
             obscureText: isPassword,
             decoration: const InputDecoration(
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
         ),
@@ -50,7 +50,7 @@ class _WSignInState extends State<WSignIn> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF004D56), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -59,21 +59,23 @@ class _WSignInState extends State<WSignIn> {
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 10),
               const Text(
                 'Masuk',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 28, 
+                  fontWeight: FontWeight.bold, 
+                  color: Color(0xFF004D56)
+                ),
               ),
               const SizedBox(height: 40),
 
-              // Input Fields
               _buildInputBox('Email atau Nomor telepon'),
               const SizedBox(height: 20),
               _buildInputBox('Kata sandi', isPassword: true),
 
               const SizedBox(height: 15),
 
-              // Baris Ingat Saya & Lupa Kata Sandi
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -83,6 +85,7 @@ class _WSignInState extends State<WSignIn> {
                         height: 24,
                         width: 24,
                         child: Checkbox(
+                          activeColor: const Color(0xFF004D56),
                           value: _ingatSaya,
                           onChanged: (value) {
                             setState(() {
@@ -92,18 +95,17 @@ class _WSignInState extends State<WSignIn> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text('Ingat saya', style: TextStyle(fontSize: 12)),
+                      const Text('Ingat saya', style: TextStyle(fontSize: 13, color: Colors.grey)),
                     ],
                   ),
                   GestureDetector(
-                    onTap: () {
-                      print("Ke Halaman Lupa Kata Sandi");
-                    },
+                    onTap: () {},
                     child: const Text(
                       'Lupa kata sandi?',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF004D56),
                       ),
                     ),
                   ),
@@ -112,60 +114,56 @@ class _WSignInState extends State<WSignIn> {
 
               const SizedBox(height: 50),
 
-              // Tombol Masuk
               GestureDetector(
                 onTap: () {
                   print("Proses Login...");
                 },
                 child: Container(
                   width: double.infinity,
-                  height: 50,
+                  height: 55,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFF004D56),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: const Center(
                     child: Text(
                       'Masuk',
                       style: TextStyle(
+                        color: Colors.white,
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
 
-              // Teks Belum punya akun? Daftar
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Belum punya akun? ',
-                    style: TextStyle(fontSize: 12),
-                  ),
+                  const Text('Belum punya akun? ', style: TextStyle(fontSize: 13)),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const WRegistrationEmail(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const WRegistrationEmail()),
                       );
                     },
                     child: const Text(
                       'Daftar',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xFF004D56),
                         decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 30),
             ],
           ),
         ),

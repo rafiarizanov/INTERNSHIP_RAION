@@ -14,104 +14,114 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-      child: SingleChildScrollView(  
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-              const SizedBox(height:96),
-            Container(
-              width: 210,
-              height: 150,
-              color: Colors.grey[300],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Icon(Icons.image, size: 75, color: Colors.black54),
-                  const SizedBox(height: 10),
-                  const Center ( 
-                    child: Text(
-                    'Gambar/ Icons yang PAGE 2',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                  )
-                  
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-              const SizedBox(height: 30,),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+              
+                const SizedBox(height: 50),
 
-              Container(
-                width: 274,
-                height: 38,
-                color: Colors.grey[300],
-                child: const Center ( 
-                  child: Text( 
-                  'Judul Fitur (Teks)',
+                // --- 1. GAMBAR UTAMA (UKURAN IDENTIK) ---
+                Image.asset(
+                  'assets/image/onboarding_2.png', 
+                  height: 300, 
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 300,
+                      width: double.infinity,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 40),
+
+                // --- 2. JUDUL ---
+                const Text(
+                  'Belajar Jaga Air Lebih Mudah',
                   textAlign: TextAlign.center,
-                  style: TextStyle ( 
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                // --- 3. DESKRIPSI ---
+                const Text(
+                  'Dapatkan edukasi sederhana tentang sanitasi dan cara menjaga air tetap bersih untuk keluarga Anda.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
                     fontSize: 14,
-                    fontWeight:  FontWeight.w500,
-                  ),
-                )
-
-                )
-                
-              ),
-              const SizedBox(height:15),
-
-              Container( 
-                width: 262,
-                height: 16,
-                decoration: BoxDecoration( 
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Center ( 
-                  child: Text ( 
-                    'teks penjelasan fitur',
-                    style: TextStyle(fontSize: 12),
+                    color: Colors.black54,
+                    height: 1.5,
                   ),
                 ),
-              ),
-            const SizedBox(height:15),
-            Container( 
-                width: 341,
-                height: 14,
-                decoration: BoxDecoration( 
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(20),
+
+                const SizedBox(height: 30),
+
+                // --- 4. DOT INDICATOR (PINDAH KE TENGAH) ---
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircleAvatar(radius: 4, backgroundColor: Colors.grey),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 30, // Bar panjang di tengah
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF004D56),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const CircleAvatar(radius: 4, backgroundColor: Colors.grey),
+                  ],
                 ),
+
+                const SizedBox(height: 60),
+
+                // --- 5. TOMBOL NEXT ---
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OnboardingPage3(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 55, // Tinggi tombol disamain
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF004D56),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Lanjut',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
-          const SizedBox(height:200),
-          GestureDetector(
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const OnboardingPage3(),),);
-            },
-            child : Container( 
-            width: 185,
-            height: 31,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Center( 
-              child: Text ( 
-                'Next (Button)',
-                style: TextStyle(fontSize:14),
-              )
-            )
           ),
-          )
-          
-          ],
         ),
-      ),
       ),
     );
   }

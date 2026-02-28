@@ -8,7 +8,6 @@ class WInputName extends StatefulWidget {
 }
 
 class _WInputNameState extends State<WInputName> {
-  // Controller untuk mengambil data input jika diperlukan nanti
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
 
@@ -18,13 +17,18 @@ class _WInputNameState extends State<WInputName> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 14, 
+            fontWeight: FontWeight.w600, 
+            color: Color(0xFF004D56)
+          ),
         ),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(20), // Bentuk lonjong sesuai gambar
+            color: const Color(0xFFB0E6F3).withOpacity(0.3),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: const Color(0xFFB0E6F3)),
           ),
           child: TextField(
             controller: controller,
@@ -46,7 +50,7 @@ class _WInputNameState extends State<WInputName> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF004D56), size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -55,39 +59,40 @@ class _WInputNameState extends State<WInputName> {
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [
-              const SizedBox(height: 60), // Jarak atas agar komposisi pas
+              const SizedBox(height: 60),
               
-              // Input Nama Depan
               _buildInputBox('Nama depan', _firstNameController),
               
               const SizedBox(height: 25),
               
-              // Input Nama Belakang
               _buildInputBox('Nama belakang', _lastNameController),
 
-              const SizedBox(height: 150), // Ruang kosong sesuai desain gambar
+              const SizedBox(height: 150),
 
-              // Tombol Lanjut
               GestureDetector(
                 onTap: () {
-                  // Tambahkan navigasi ke Dashboard atau halaman Utama di sini
                   print("Nama: ${_firstNameController.text} ${_lastNameController.text}");
                 },
                 child: Container(
-                  width: 250, // Ukuran tombol sedikit lebih kecil sesuai gambar
-                  height: 50,
+                  width: double.infinity,
+                  height: 55,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xFF004D56),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: const Center(
                     child: Text(
                       'Lanjut',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16, 
+                        fontWeight: FontWeight.bold
+                      ),
                     ),
                   ),
                 ),
               ),
+              const SizedBox(height: 30),
             ],
           ),
         ),
