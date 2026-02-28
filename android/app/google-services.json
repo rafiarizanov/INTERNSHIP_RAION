@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "631643443788",
+    "project_id": "raionkel6-b9044",
+    "storage_bucket": "raionkel6-b9044.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631643443788:android:8a3d1d1325ee44613adae9",
+        "android_client_info": {
+          "package_name": "com.example.bersihin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRww0Cwryl86CrT2VpLl4jXl5L6gLLN5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
