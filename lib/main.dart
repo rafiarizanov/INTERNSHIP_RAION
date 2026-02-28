@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart'; // Tambahkan ini
-import 'firebase_options.dart'; // Tambahkan ini agar kenal konfigurasi kamu
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart'; // 1. Tambahkan import provider
+import 'auth_provider.dart'; // 2. Tambahkan import file AuthProvider kamu
+import 'firebase_options.dart'; 
 import 'splash_screen.dart';
 
 void main() async {
-  // Tambahkan 'async' di sini
-  // Baris ini wajib ada agar plugin bisa berjalan sebelum aplikasi muncul
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Firebase berdasarkan pengaturan dari CLI tadi
+  // Inisialisasi Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MyApp());
+  // 3. BUNGKUS MyApp DENGAN MULTIPROVIDER DI SINI
+  runApp(
+    MultiProvider(
+      providers: [
+        // Daftarkan AuthProvider agar bisa diakses oleh seluruh halaman
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,13 +30,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'bersih.in',
+      title: 'SadarAir',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       home: const SplashScreen(), 
-      
     );
   }
 }

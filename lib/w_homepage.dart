@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: W_Homepage(),
-  ));
-}
+import 'package:firebase_auth/firebase_auth.dart'; // 1. Tambahkan import Firebase
+import 'w_sign_in.dart'; // 2. Tambahkan import halaman Masuk untuk fitur Logout
 
 class W_Homepage extends StatefulWidget {
   const W_Homepage({super.key});
@@ -15,6 +10,39 @@ class W_Homepage extends StatefulWidget {
 }
 
 class _W_HomepageState extends State<W_Homepage> {
+  // 3. Siapkan variabel untuk menampung nama
+  String _userName = 'User';
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserData(); // 4. Jalankan pengambilan data saat halaman dibuka
+  }
+
+  // Fungsi untuk mengambil nama dari Firebase
+  void _getUserData() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.displayName != null && user.displayName!.isNotEmpty) {
+      setState(() {
+        // Kita ambil kata pertama saja (Nama Depan) agar teksnya tidak terlalu panjang
+        _userName = user.displayName!.split(' ')[0]; 
+      });
+    }
+  }
+
+  // Fungsi untuk Logout
+  void _logout() async {
+    await FirebaseAuth.instance.signOut();
+    if (mounted) {
+      // Hapus riwayat halaman dan tendang balik ke halaman Masuk
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const WSignIn()),
+        (route) => false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +50,7 @@ class _W_HomepageState extends State<W_Homepage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: false, // Menghilangkan tombol back default
         title: Row(
           children: [
             const CircleAvatar(
@@ -30,9 +58,10 @@ class _W_HomepageState extends State<W_Homepage> {
               radius: 20,
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Hello, User!',
-              style: TextStyle(
+            // 5. Ubah teks statis menjadi variabel _userName
+            Text(
+              'Hello, $_userName!', 
+              style: const TextStyle(
                 color: Color(0xFF888888), 
                 fontSize: 14, 
                 fontWeight: FontWeight.w500
@@ -43,20 +72,27 @@ class _W_HomepageState extends State<W_Homepage> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
-            child: Container(
-              width: 35,
-              height: 35,
-              decoration: BoxDecoration(
-                color: Colors.grey[600],
-                borderRadius: BorderRadius.circular(8),
+            // 6. Bungkus tombol kanan atas dengan GestureDetector untuk Logout
+            child: GestureDetector(
+              onTap: () {
+                _logout(); // Panggil fungsi keluar saat diklik
+              },
+              child: Container(
+                width: 35,
+                height: 35,
+                decoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                // Saya ganti ikonnya jadi ikon logout agar lebih pas, 
+                // tapi kamu bisa kembalikan ke Icons.stop kalau mau.
+                child: const Icon(Icons.logout, color: Colors.white, size: 20),
               ),
-              child: const Icon(Icons.stop, color: Colors.white, size: 20),
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        // padding bottom dibuat 0 supaya konten bisa mentok ke bawah
         padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 0),
         child: Column(
           children: [
@@ -169,7 +205,6 @@ class _W_HomepageState extends State<W_Homepage> {
                 ],
               ),
             ),
-            // Hapus atau buat sangat kecil SizedBox terakhir ini
             const SizedBox(height: 5), 
           ],
         ),

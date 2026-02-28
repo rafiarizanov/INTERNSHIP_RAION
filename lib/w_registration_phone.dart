@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'auth_provider.dart';
 import 'w_registration_email.dart';
 import 'w_OTP.dart';
 
@@ -11,16 +13,25 @@ class WRegistrationPhone extends StatefulWidget {
 
 class _WRegistrationPhoneState extends State<WRegistrationPhone> {
   bool isHoverEmail = false;
+  final TextEditingController _phoneController =
+      TextEditingController(); // Controller HP
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
+    final authProv = Provider.of<AuthProvider>(context, listen: false);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF004D56), size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF004D56),
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -34,12 +45,14 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
               const Text(
                 'Daftar',
                 style: TextStyle(
-                  fontSize: 28, 
-                  fontWeight: FontWeight.bold, 
-                  color: Color(0xFF004D56)
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF004D56),
                 ),
               ),
               const SizedBox(height: 30),
+
+              // --- TAB HP / EMAIL SAMA SEPERTI SEBELUMNYA ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -54,8 +67,8 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                       child: Text(
                         'Nomor HP',
                         style: TextStyle(
-                          color: Colors.white, 
-                          fontWeight: FontWeight.bold
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -65,26 +78,30 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                     onEnter: (_) => setState(() => isHoverEmail = true),
                     onExit: (_) => setState(() => isHoverEmail = false),
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const WRegistrationEmail()),
-                        );
-                      },
+                      onTap: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WRegistrationEmail(),
+                        ),
+                      ),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         width: 130,
                         height: 45,
                         decoration: BoxDecoration(
-                          color: isHoverEmail ? const Color(0xFF004E62) : const Color(0xFFB0E6F3),
+                          color: isHoverEmail
+                              ? const Color(0xFF004E62)
+                              : const Color(0xFFB0E6F3),
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: Center(
                           child: Text(
                             'Email',
                             style: TextStyle(
-                              color: isHoverEmail ? Colors.white : const Color(0xFF004D56),
-                              fontWeight: FontWeight.bold
+                              color: isHoverEmail
+                                  ? Colors.white
+                                  : const Color(0xFF004D56),
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -94,6 +111,7 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                 ],
               ),
               const SizedBox(height: 60),
+
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -113,20 +131,48 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(color: const Color(0xFFB0E6F3)),
                 ),
-                child: const TextField(
+                child: TextField(
+                  controller: _phoneController, // Sambungkan controller
                   keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 150),
+
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const WOtp()),
+                  if (_phoneController.text.isEmpty) return;
+
+                  setState(() => _isLoading = true);
+
+                  // Panggil fungsi kirim OTP
+                  authProv.sendPhoneOTP(
+                    phone: _phoneController.text.trim(),
+                    onSuccess: () {
+                      setState(() => _isLoading = false);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              WOtp(phoneNumber: _phoneController.text),
+                        ),
+                      );
+                    },
+                    onError: (pesanError) {
+                      setState(() => _isLoading = false);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(pesanError),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    },
                   );
                 },
                 child: Container(
@@ -136,15 +182,17 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                     color: const Color(0xFF004D56),
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Lanjut',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  child: Center(
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Lanjut',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),
