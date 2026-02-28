@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/home/dhaffa/Data/Kuliah/RAION/Intern/bersihin/linux"
+    "cmake.sourceDirectory": "/home/dhaffa/Data/Kuliah/RAION/Intern/bersihin/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
