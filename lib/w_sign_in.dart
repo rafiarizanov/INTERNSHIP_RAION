@@ -5,7 +5,6 @@ import 'auth_provider.dart';
 import 'w_registration_email.dart';
 import 'w_homepage.dart';
 import 'w_OTP.dart';
-import 'choosing.dart';
 
 class WSignIn extends StatefulWidget {
   const WSignIn({super.key});

@@ -1,10 +1,38 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // Tambahan wajib untuk mendeteksi Web (kIsWeb)
+import 'package:flutter/foundation.dart';
 
 final _fireAuth = FirebaseAuth.instance;
 
 class AuthProvider extends ChangeNotifier {
+  String _namaDaerah = '';
+  String get namaDaerah => _namaDaerah;
+
+  final Map<String, Map<String, String>> _dataPetugas = {
+    '12345678': {'pass': 'petugas123', 'wilayah': 'Kabupaten Malang'},
+    '87654321': {'pass': 'admin456', 'wilayah': 'Kota Surabaya'},
+    '11223344': {'pass': 'petugas01', 'wilayah': 'DKI Jakarta'},
+  };
+
+  // Fungsi untuk mengecek login petugas
+  Future<String?> loginPetugas(String nip, String password) async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Cek apakah NIP terdaftar di data kita
+    if (_dataPetugas.containsKey(nip)) {
+      // Cek apakah kata sandi cocok
+      if (_dataPetugas[nip]!['pass'] == password) {
+        _namaDaerah = _dataPetugas[nip]!['wilayah']!;
+        notifyListeners();
+        return null;
+      } else {
+        return 'Kata sandi salah. Silakan coba lagi.';
+      }
+    } else {
+      return 'NIP tidak ditemukan. Pastikan Anda memasukkan NIP yang benar.';
+    }
+  }
+
   final form = GlobalKey<FormState>();
 
   var islogin = true;
@@ -13,18 +41,14 @@ class AuthProvider extends ChangeNotifier {
   var enteredFirstName = '';
   var enteredLastName = '';
 
-  // === TAMBAHAN UNTUK FITUR OTP ===
   String verificationId = '';
-  ConfirmationResult?
-  webConfirmationResult; // Tambahan khusus untuk menyimpan OTP di Web
+  ConfirmationResult? webConfirmationResult;
 
-  // 1. Fungsi Mengirim OTP (Sudah mendukung Web dan Mobile)
   Future<void> sendPhoneOTP({
     required String phone,
     required Function() onSuccess,
     required Function(String) onError,
   }) async {
-    // Ubah 0812... menjadi +62812... (Format standar Firebase)
     String formattedPhone = phone;
     if (phone.startsWith('0')) {
       formattedPhone = '+62${phone.substring(1)}';
@@ -32,14 +56,11 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       if (kIsWeb) {
-        // --- LOGIKA KHUSUS FLUTTER WEB ---
-        // Di web, kita menggunakan signInWithPhoneNumber (Otomatis memanggil reCAPTCHA)
         webConfirmationResult = await _fireAuth.signInWithPhoneNumber(
           formattedPhone,
         );
         onSuccess();
       } else {
-        // --- LOGIKA KHUSUS ANDROID & IOS ---
         await _fireAuth.verifyPhoneNumber(
           phoneNumber: formattedPhone,
           verificationCompleted: (PhoneAuthCredential credential) async {
@@ -53,8 +74,8 @@ class AuthProvider extends ChangeNotifier {
             onError(e.message ?? 'Gagal mengirim OTP. Pastikan nomor valid.');
           },
           codeSent: (String verId, int? resendToken) {
-            verificationId = verId; // Simpan ID ini untuk dicocokkan nanti
-            onSuccess(); // Pindah ke halaman OTP
+            verificationId = verId;
+            onSuccess();
           },
           codeAutoRetrievalTimeout: (String verId) {
             verificationId = verId;
@@ -64,11 +85,10 @@ class AuthProvider extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       onError(e.message ?? 'Terjadi kesalahan sistem (${e.code})');
     } catch (e) {
-      onError('Error: $e'); // Menangkap error lain jika ada
+      onError('Error: $e');
     }
   }
 
-  // 2. Fungsi Mengecek OTP (Mendeteksi Pengguna Baru/Lama + Mendukung Web)
   Future<String?> verifyOTP(String otp, bool isLoginFlow) async {
     try {
       UserCredential userCredential;
@@ -124,9 +144,7 @@ class AuthProvider extends ChangeNotifier {
       return e.toString();
     }
   }
-  // ================================
 
-  // Fungsi Submit untuk Email (Tetap sama seperti sebelumnya)
   Future<String?> submit() async {
     final isValid = form.currentState!.validate();
     if (!isValid) return "Silakan lengkapi form dengan benar.";
