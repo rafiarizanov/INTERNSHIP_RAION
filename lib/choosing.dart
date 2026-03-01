@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'w_registration_email.dart';
+import 'p_sign_in.dart';
 
 class ChoosingPage extends StatefulWidget {
   const ChoosingPage({super.key});
@@ -9,7 +10,6 @@ class ChoosingPage extends StatefulWidget {
 }
 
 class _ChoosingPageState extends State<ChoosingPage> {
-
   String? selectedRole;
 
   @override
@@ -162,8 +162,12 @@ class _ChoosingPageState extends State<ChoosingPage> {
                         ),
                       );
                     } else if (selectedRole == 'petugas') {
-                      // Ganti dengan halaman login petugas nanti
-                      print("Navigasi ke Halaman Login Petugas");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PSignIn(),
+                        ),
+                      );
                     } else {
                       // Kasih peringatan jika belum pilih peran
                       ScaffoldMessenger.of(context).showSnackBar(
