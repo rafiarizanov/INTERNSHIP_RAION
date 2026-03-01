@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'onboarding_page_1.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -9,19 +10,19 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5), () {
-      // Pindah ke halaman baru dan hapus splash screen dari riwayat back
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          // Sesuaikan nama class ini dengan nama class di file onboarding teman Anda
-          builder: (context) => const OnboardingPage1(), 
-        ),
-      );
+    // Timer 5 detik sebelum pindah ke halaman Onboarding
+    Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OnboardingPage1(),
+          ),
+        );
+      }
     });
   }
 
@@ -30,36 +31,55 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-      child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 208,
-              height: 153,
-              color: Colors.grey[300],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            // --- BAGIAN LOGO ---
+            // Menggunakan SizedBox agar Stack memiliki ruang yang pasti
+            SizedBox(
+              width: 80, 
+              height: 80,
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  const Icon(Icons.image, size: 75, color: Colors.black54),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Logo Apps',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  // 1. Kuncup Hijau (Berada di paling bawah/dasar)
+                  Positioned(
+                    bottom: 15, // Mengatur posisi naik turun kuncup
+                    child: Image.asset(
+                      'assets/image/logo_1.png',
+                      width: 80,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  // 2. Tetesan Air (Ditempelkan di atas kuncup)
+                  Positioned(
+                    bottom: 28, // Menyesuaikan agar tetesan duduk pas di tengah kuncup
+                    child: Image.asset(
+                      'assets/image/logo_2.png',
+                      width: 35,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-                child: const Text(
-                  'Nama Apps (Text)',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
+
+            const SizedBox(width: 12), // Jarak antara logo dan tulisan
+
+            // --- BAGIAN NAMA APPS ---
+            // Menggunakan Padding untuk fine-tuning posisi teks agar sejajar mata
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5), 
+              child: Image.asset(
+                'assets/image/nama.png',
+                height: 35, // Ukuran disesuaikan dengan proporsi logo
+                fit: BoxFit.contain,
               ),
+            ),
           ],
         ),
-      ),     
+      ),
     );
   }
 }
