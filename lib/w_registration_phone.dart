@@ -13,8 +13,7 @@ class WRegistrationPhone extends StatefulWidget {
 
 class _WRegistrationPhoneState extends State<WRegistrationPhone> {
   bool isHoverEmail = false;
-  final TextEditingController _phoneController =
-      TextEditingController(); // Controller HP
+  final TextEditingController _phoneController = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -26,13 +25,22 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF004D56),
-            size: 20,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF004D56),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
           ),
-          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
@@ -41,42 +49,48 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
+              // --- LOGO SESUAI PERMINTAAN ---
+              Image.asset(
+                'assets/image/logo.png',
+                height: 120,
+              ),
+              const SizedBox(height: 30),
               const Text(
-                'Daftar',
+                'Daftar Sebagai Warga',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF004D56),
                 ),
               ),
               const SizedBox(height: 30),
 
-              // --- TAB HP / EMAIL SAMA SEPERTI SEBELUMNYA ---
+              // --- TAB HP / EMAIL ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 130,
-                    height: 45,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF004E62),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Nomor HP',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF004D56),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Gunakan No. Telp',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 15),
-                  MouseRegion(
-                    onEnter: (_) => setState(() => isHoverEmail = true),
-                    onExit: (_) => setState(() => isHoverEmail = false),
+                  Expanded(
                     child: GestureDetector(
                       onTap: () => Navigator.pushReplacement(
                         context,
@@ -84,23 +98,18 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                           builder: (context) => const WRegistrationEmail(),
                         ),
                       ),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 130,
-                        height: 45,
+                      child: Container(
+                        height: 50,
                         decoration: BoxDecoration(
-                          color: isHoverEmail
-                              ? const Color(0xFF004E62)
-                              : const Color(0xFFB0E6F3),
-                          borderRadius: BorderRadius.circular(25),
+                          color: const Color(0xFFB0E6F3),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Center(
+                        child: const Center(
                           child: Text(
-                            'Email',
+                            'Gunakan Email',
                             style: TextStyle(
-                              color: isHoverEmail
-                                  ? Colors.white
-                                  : const Color(0xFF004D56),
+                              color: Color(0xFF004D56),
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -110,48 +119,56 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                   ),
                 ],
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 20),
 
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Nomor HP (Contoh: 0812...)',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF004D56),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
+              // --- INPUT FIELD ---
               Container(
-                height: 50,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFB0E6F3).withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: const Color(0xFFB0E6F3)),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF004D56).withOpacity(0.5)),
                 ),
                 child: TextField(
-                  controller: _phoneController, // Sambungkan controller
+                  controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
+                    hintText: 'Nomor Telepon',
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    prefixIcon: Icon(Icons.phone_outlined, color: Colors.black54),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 15),
                   ),
                 ),
               ),
-              const SizedBox(height: 150),
+              
+              const SizedBox(height: 200), // Spacing buat dorong tombol ke bawah
 
+              // --- FOOTER TEXT ---
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Sudah memiliki akun? ", style: TextStyle(fontSize: 12)),
+                  GestureDetector(
+                    onTap: () {
+                      // Navigasi ke login
+                    },
+                    child: const Text(
+                      "Masuk di sini",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // --- TOMBOL DAFTAR / LANJUT ---
               GestureDetector(
                 onTap: () {
                   if (_phoneController.text.isEmpty) return;
-
                   setState(() => _isLoading = true);
-
-                  // Panggil fungsi kirim OTP
                   authProv.sendPhoneOTP(
                     phone: _phoneController.text.trim(),
                     onSuccess: () {
@@ -159,18 +176,14 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              WOtp(phoneNumber: _phoneController.text),
+                          builder: (context) => WOtp(phoneNumber: _phoneController.text),
                         ),
                       );
                     },
                     onError: (pesanError) {
                       setState(() => _isLoading = false);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(pesanError),
-                          backgroundColor: Colors.red,
-                        ),
+                        SnackBar(content: Text(pesanError), backgroundColor: Colors.red),
                       );
                     },
                   );
@@ -186,7 +199,7 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                            'Lanjut',
+                            'Daftar',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,

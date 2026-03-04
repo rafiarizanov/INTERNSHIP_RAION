@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'auth_provider.dart';
 import 'w_input_name.dart';
-import 'w_homepage.dart'; // Tambahkan import Homepage untuk jalur Login
+import 'w_homepage.dart';
 
 class WOtp extends StatefulWidget {
   final String phoneNumber;
-  final bool isLogin; // Variabel baru untuk mendeteksi mode
+  final bool isLogin;
 
   const WOtp({super.key, required this.phoneNumber, this.isLogin = false});
 
@@ -19,7 +19,6 @@ class _WOtpState extends State<WOtp> {
   Timer? _timer;
   int _start = 59;
 
-  // Siapkan 6 Controller dan FocusNode
   final List<TextEditingController> _otpControllers = List.generate(
     6,
     (index) => TextEditingController(),
@@ -58,11 +57,11 @@ class _WOtpState extends State<WOtp> {
   Widget _buildOtpBox(int index) {
     return Container(
       width: 45,
-      height: 55, // Diperkecil agar muat 6 kotak sejajar
+      height: 55,
       decoration: BoxDecoration(
-        color: const Color(0xFFB0E6F3).withOpacity(0.3),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFB0E6F3)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF709096)),
       ),
       child: TextField(
         controller: _otpControllers[index],
@@ -96,65 +95,68 @@ class _WOtpState extends State<WOtp> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF004D56),
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10),
-              // Judul menyesuaikan, kalau lagi login tulis "Masuk", kalau daftar tulis "Daftar"
-              Text(
-                widget.isLogin ? 'Masuk' : 'Daftar',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF004D56),
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Masukkan Kode Verifikasi\nKami telah mengirimkan kode 6 digit ke nomor ${widget.phoneNumber}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
-                    color: Colors.black87,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF004D56),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.arrow_back_ios_new,
+                            color: Colors.white, size: 18),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 30),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(6, (index) => _buildOtpBox(index)),
-              ),
-
-              const SizedBox(height: 40),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Image.asset(
+                  'assets/image/logo.png',
+                  height: 180,
+                  fit: BoxFit.contain,
+                ),
+                const Text(
+                  'Masukkan Kode Verifikasi',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Kode verifikasi 6 digit telah dikirim ke\n${widget.phoneNumber}. Silakan cek SMS Anda.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF004D56),
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(6, (index) => _buildOtpBox(index)),
+                ),
+                const SizedBox(height: 180),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Tidak menerima kode?',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      'Belum menerima kode? ',
+                      style: TextStyle(fontSize: 13, color: Color(0xFF004D56)),
                     ),
-                    const SizedBox(height: 8),
                     GestureDetector(
                       onTap: _start == 0
                           ? () {
@@ -162,99 +164,76 @@ class _WOtpState extends State<WOtp> {
                                 _start = 59;
                                 startTimer();
                               });
-                              // Bisa panggil ulang fungsi sendPhoneOTP di sini nanti
                             }
                           : null,
                       child: Text(
                         _start == 0
-                            ? 'Kirim ulang kode sekarang'
-                            : 'Kirim ulang kode (00:${_start.toString().padLeft(2, '0')})',
-                        style: TextStyle(
-                          fontSize: 14,
+                            ? 'Kirim ulang'
+                            : 'Kirim ulang dalam 00:${_start.toString().padLeft(2, '0')}',
+                        style: const TextStyle(
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: _start == 0
-                              ? const Color(0xFF004E62)
-                              : Colors.black54,
+                          color: Color(0xFF004D56),
+                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 100),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () async {
+                    String finalOtp = _otpControllers.map((c) => c.text).join();
+                    if (finalOtp.length < 6) return;
 
-              GestureDetector(
-                onTap: () async {
-                  String finalOtp = _otpControllers.map((c) => c.text).join();
-
-                  if (finalOtp.length < 6) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Masukkan 6 digit OTP!'),
-                        backgroundColor: Colors.red,
-                      ),
+                    final error = await authProv.verifyOTP(
+                      finalOtp,
+                      widget.isLogin,
                     );
-                    return;
-                  }
 
-                  // Verifikasi ke Firebase dengan membawa param isLogin
-                  final error = await authProv.verifyOTP(
-                    finalOtp,
-                    widget.isLogin,
-                  );
+                    if (!context.mounted) return;
 
-                  if (!context.mounted) return;
-
-                  if (error == null) {
-                    // --- INI LOGIKA BARUNYA ---
-                    if (widget.isLogin) {
-                      // Jika sedang LOGIN, hapus halaman sebelumnya dan langsung ke Beranda
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const W_Homepage(),
-                        ),
-                        (route) => false,
-                      );
-                    } else {
-                      // Jika sedang DAFTAR, lanjut ke halaman isi nama
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WInputName(),
-                        ),
-                      );
+                    if (error == null) {
+                      if (widget.isLogin) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const W_Homepage(),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WInputName(),
+                          ),
+                        );
+                      }
                     }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(error),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 55,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF004D56),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Lanjut',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF004D56),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Lanjut',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 30),
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

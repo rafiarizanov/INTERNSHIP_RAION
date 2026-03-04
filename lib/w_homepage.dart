@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // 1. Tambahkan import Firebase
-import 'w_sign_in.dart'; // 2. Tambahkan import halaman Masuk untuk fitur Logout
+import 'package:firebase_auth/firebase_auth.dart';
+import 'w_sign_in.dart';
 
 class W_Homepage extends StatefulWidget {
   const W_Homepage({super.key});
@@ -10,31 +10,26 @@ class W_Homepage extends StatefulWidget {
 }
 
 class _W_HomepageState extends State<W_Homepage> {
-  // 3. Siapkan variabel untuk menampung nama
   String _userName = 'User';
 
   @override
   void initState() {
     super.initState();
-    _getUserData(); // 4. Jalankan pengambilan data saat halaman dibuka
+    _getUserData();
   }
 
-  // Fungsi untuk mengambil nama dari Firebase
   void _getUserData() {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && user.displayName != null && user.displayName!.isNotEmpty) {
       setState(() {
-        // Kita ambil kata pertama saja (Nama Depan) agar teksnya tidak terlalu panjang
-        _userName = user.displayName!.split(' ')[0]; 
+        _userName = user.displayName!;
       });
     }
   }
 
-  // Fungsi untuk Logout
   void _logout() async {
     await FirebaseAuth.instance.signOut();
     if (mounted) {
-      // Hapus riwayat halaman dan tendang balik ke halaman Masuk
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const WSignIn()),
@@ -47,180 +42,244 @@ class _W_HomepageState extends State<W_Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        automaticallyImplyLeading: false, // Menghilangkan tombol back default
-        title: Row(
-          children: [
-            const CircleAvatar(
-              backgroundColor: Colors.grey,
-              radius: 20,
-            ),
-            const SizedBox(width: 12),
-            // 5. Ubah teks statis menjadi variabel _userName
-            Text(
-              'Hello, $_userName!', 
-              style: const TextStyle(
-                color: Color(0xFF888888), 
-                fontSize: 14, 
-                fontWeight: FontWeight.w500
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 25,
+                        backgroundColor: Color(0xFFD9D9D9),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Halo,',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF004D56),
+                            ),
+                          ),
+                          Text(
+                            '$_userName!',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF004D56),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Icon(Icons.notifications_none, size: 30, color: Color(0xFF004D56)),
+                ],
               ),
-            ),
+              const SizedBox(height: 25),
+              const Text(
+                'Edukasi Hari Ini',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF004D56),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE0F7FA),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      '3 Tanda Air Sumur Anda Bermasalah 🚨',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF004D56),
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      'Segera laporkan jika air berbau tidak wajar, berubah warna (kuning/coklat/kehijauan), atau terasa licin di kulit.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF004D56)),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 25),
+              const Text(
+                'Tindakan Cepat',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF004D56),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(child: _buildActionCard('Buat Laporan Air')),
+                  const SizedBox(width: 15),
+                  Expanded(child: _buildActionCard('Edukasi Air Bersih')),
+                ],
+              ),
+              const SizedBox(height: 25),
+              const Text(
+                'Laporan Terakhir',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF004D56),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00838F),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            'Keluhan Diproses',
+                            style: TextStyle(color: Colors.white, fontSize: 10),
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF004D56)),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Air Menguning',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF004D56),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      'Air berwarna kuning kecoklatan dan meninggalkan noda pada pakaian setelah dicuci.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF709096)),
+                    ),
+                    const SizedBox(height: 15),
+                    Row(
+                      children: const [
+                        Icon(Icons.location_on_outlined, size: 16, color: Color(0xFF709096)),
+                        SizedBox(width: 5),
+                        Text('Jl. Pahlawan No.34', style: TextStyle(fontSize: 11, color: Color(0xFF709096))),
+                        SizedBox(width: 15),
+                        Icon(Icons.calendar_today_outlined, size: 16, color: Color(0xFF709096)),
+                        SizedBox(width: 5),
+                        Text('12/2/2026', style: TextStyle(fontSize: 11, color: Color(0xFF709096))),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(color: Colors.black12, blurRadius: 10),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            // 6. Bungkus tombol kanan atas dengan GestureDetector untuk Logout
-            child: GestureDetector(
-              onTap: () {
-                _logout(); // Panggil fungsi keluar saat diklik
-              },
-              child: Container(
-                width: 35,
-                height: 35,
-                decoration: BoxDecoration(
-                  color: Colors.grey[600],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                // Saya ganti ikonnya jadi ikon logout agar lebih pas, 
-                // tapi kamu bisa kembalikan ke Icons.stop kalau mau.
-                child: const Icon(Icons.logout, color: Colors.white, size: 20),
-              ),
-            ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF00838F),
+          unselectedItemColor: const Color(0xFF709096),
+          showUnselectedLabels: true,
+          currentIndex: 0,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.notifications_active_outlined), label: 'Report'),
+            BottomNavigationBarItem(icon: Icon(Icons.menu_book_outlined), label: 'Edukasi'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Akun'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard(String title) {
+    return Container(
+      height: 120,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 0),
-        child: Column(
-          children: [
-            // Banner Utama
-            Container(
-              height: 180,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFD9D9D9),
-                borderRadius: BorderRadius.circular(25),
-              ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            height: 50,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE0F7FA),
+              borderRadius: BorderRadius.circular(10),
             ),
-            const SizedBox(height: 15),
-            // Page Indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 25,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[600],
-                    borderRadius: BorderRadius.circular(10),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
                   ),
                 ),
-                const SizedBox(width: 5),
-                const CircleAvatar(radius: 3, backgroundColor: Color(0xFFD9D9D9)),
-                const SizedBox(width: 5),
-                const CircleAvatar(radius: 3, backgroundColor: Color(0xFFD9D9D9)),
-                const SizedBox(width: 5),
-                const CircleAvatar(radius: 3, backgroundColor: Color(0xFFD9D9D9)),
-              ],
-            ),
-            const SizedBox(height: 30),
-            // Grid Menu 2 Kolom
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 130,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0E0E0),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.all(15),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(height: 12, width: 60, color: Colors.grey[500]),
-                        const SizedBox(height: 5),
-                        Container(height: 10, width: 80, color: Colors.grey[400]),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: Container(
-                    height: 130,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0E0E0),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.all(15),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(height: 12, width: 60, color: Colors.grey[500]),
-                        const SizedBox(height: 5),
-                        Container(height: 10, width: 80, color: Colors.grey[400]),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 25),
-            // Card List Bawah
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE0E0E0),
-                borderRadius: BorderRadius.circular(20),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 85,
-                    height: 85,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[600],
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(height: 12, width: double.infinity, color: Colors.grey[500]),
-                        const SizedBox(height: 8),
-                        Container(height: 10, width: 120, color: Colors.grey[400]),
-                        const SizedBox(height: 5),
-                        Container(height: 10, width: 80, color: Colors.grey[400]),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 5), 
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFFD9D9D9),
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.notification_important, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person, size: 28), label: ''),
+              const Icon(Icons.arrow_forward_ios, size: 12, color: Color(0xFF004D56)),
+            ],
+          ),
         ],
       ),
     );

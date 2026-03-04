@@ -13,283 +13,218 @@ class WRegistrationEmail extends StatefulWidget {
 }
 
 class _WRegistrationEmailState extends State<WRegistrationEmail> {
-  bool isHoverPhone = false;
-
-  // Widget bantuan untuk input field yang terintegrasi dengan Form
   Widget _buildTextField(
-    String label, {
+    String hint,
+    IconData icon, {
     bool isPassword = false,
     void Function(String?)? onSaved,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF004D56),
-          ),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: const Color(0xFF709096)),
+      ),
+      child: TextFormField(
+        obscureText: isPassword,
+        onSaved: onSaved,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+          prefixIcon: Icon(icon, color: const Color(0xFF004D56)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 15),
         ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFB0E6F3).withOpacity(0.3),
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: const Color(0xFFB0E6F3)),
-          ),
-          child: TextFormField(
-            obscureText: isPassword,
-            onSaved:
-                onSaved, // Mengirim data ke Provider saat form.save() dipanggil
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Bagian ini tidak boleh kosong';
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Memanggil AuthProvider (listen: false karena hanya dipakai saat tombol ditekan)
     final authProv = Provider.of<AuthProvider>(context, listen: false);
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF004D56),
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Form(
-            // 1. Membungkus seluruh input dengan Form
-            key: authProv.form, // 2. Menghubungkan GlobalKey dari Provider
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 10),
-                const Text(
-                  'Daftar',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56),
-                  ),
-                ),
-                const SizedBox(height: 30),
-
-                // Tab Selektor (Nomor HP / Email)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    MouseRegion(
-                      onEnter: (_) => setState(() => isHoverPhone = true),
-                      onExit: (_) => setState(() => isHoverPhone = false),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: Form(
+              key: authProv.form,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
                       child: GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WRegistrationPhone(),
-                            ),
-                          );
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 130,
-                          height: 45,
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: isHoverPhone
-                                ? const Color(0xFF004E62)
-                                : const Color(0xFFB0E6F3),
-                            borderRadius: BorderRadius.circular(25),
+                            color: const Color(0xFF004D56),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Center(
+                          child: const Icon(Icons.arrow_back_ios_new,
+                              color: Colors.white, size: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Image.asset(
+                    'assets/image/logo.png',
+                    height: 150,
+                    fit: BoxFit.contain,
+                  ),
+                  const Text(
+                    'Daftar Sebagai Warga',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF004D56),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const WRegistrationPhone()),
+                            );
+                          },
+                          child: Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFB0E6F3),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'Gunakan No. Telp',
+                                style: TextStyle(
+                                  color: Color(0xFF004D56),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF004D56),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: const Center(
                             child: Text(
-                              'Nomor HP',
+                              'Gunakan Email',
                               style: TextStyle(
-                                color: isHoverPhone
-                                    ? Colors.white
-                                    : const Color(0xFF004D56),
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 15),
-                    Container(
-                      width: 130,
-                      height: 45,
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                    'Email',
+                    Icons.email_outlined,
+                    onSaved: (val) => authProv.enteredEmail = val!,
+                  ),
+                  _buildTextField(
+                    'Nama Depan',
+                    Icons.person_add_alt_1_outlined,
+                    onSaved: (val) => authProv.enteredFirstName = val!,
+                  ),
+                  _buildTextField(
+                    'Nama Belakang',
+                    Icons.person_add_alt_1_outlined,
+                    onSaved: (val) => authProv.enteredLastName = val!,
+                  ),
+                  _buildTextField(
+                    'Kata Sandi',
+                    Icons.lock_outline,
+                    isPassword: true,
+                    onSaved: (val) => authProv.enteredPassword = val!,
+                  ),
+                  const SizedBox(height: 25),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Sudah memiliki akun? ',
+                          style: TextStyle(fontSize: 13)),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const WSignIn()),
+                          );
+                        },
+                        child: const Text(
+                          'Masuk di sini',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 25),
+                  GestureDetector(
+                    onTap: () async {
+                      authProv.islogin = false;
+                      final errorMessage = await authProv.submit();
+                      if (!context.mounted) return;
+                      if (errorMessage == null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const W_Homepage()),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(errorMessage),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 55,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF004E62),
-                        borderRadius: BorderRadius.circular(25),
+                        color: const Color(0xFF004D56),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                       child: const Center(
                         child: Text(
-                          'Email',
+                          'Daftar',
                           style: TextStyle(
                             color: Colors.white,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
-
-                const SizedBox(height: 40),
-
-                // Area Input Field yang terhubung ke Provider
-                _buildTextField(
-                  'Email',
-                  onSaved: (val) => authProv.enteredEmail = val!,
-                ),
-                const SizedBox(height: 15),
-                _buildTextField(
-                  'Nama depan',
-                  onSaved: (val) => authProv.enteredFirstName = val!,
-                ),
-                const SizedBox(height: 15),
-                _buildTextField(
-                  'Nama belakang',
-                  onSaved: (val) => authProv.enteredLastName = val!,
-                ),
-                const SizedBox(height: 15),
-                _buildTextField(
-                  'Kata sandi',
-                  isPassword: true,
-                  onSaved: (val) => authProv.enteredPassword = val!,
-                ),
-
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 6, left: 8),
-                    child: Text(
-                      '*minimal 8 karakter',
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
-                    ),
                   ),
-                ),
-                const SizedBox(height: 30),
-
-                // Link Ke Halaman Masuk
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Sudah memiliki akun? ',
-                      style: TextStyle(fontSize: 13),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const WSignIn(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Masuk',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF004D56),
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                    const Text(' di sini', style: TextStyle(fontSize: 13)),
-                  ],
-                ),
-
-                const SizedBox(height: 40),
-
-                // Tombol Lanjut (Submit)
-                GestureDetector(
-                  onTap: () async {
-                    // Set mode ke Register
-                    authProv.islogin = false;
-
-                    // Eksekusi fungsi submit dan tunggu hasilnya
-                    final errorMessage = await authProv.submit();
-
-                    // Pastikan widget masih ada di layar sebelum merender UI baru
-                    if (!context.mounted) return;
-
-                    if (errorMessage == null) {
-                      // JIKA SUKSES
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Pendaftaran Berhasil!'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-
-                      // Pindah ke OTP
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const W_Homepage(),
-                        ),
-                      );
-                    } else {
-                      // JIKA GAGAL (Tampilkan pesan error)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(errorMessage),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF004D56),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Lanjut',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
-              ],
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ),
