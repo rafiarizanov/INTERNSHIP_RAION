@@ -22,65 +22,79 @@ class _W_EdukasiState extends State<W_Edukasi> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        leading: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF004D56), size: 20),
         title: const Text(
           'Edukasi',
           style: TextStyle(
-            color: Colors.black,
+            color: Color(0xFF004D56),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: Container(
-              width: 35,
-              height: 35,
-              decoration: BoxDecoration(
-                color: Colors.grey[600],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.stop, color: Colors.white, size: 20),
-            ),
-          ),
-        ],
       ),
       body: ListView.builder(
-        // Menghilangkan padding bottom agar list terakhir mepet ke navbar
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 0),
-        itemCount: 4, // Jumlah sesuai gambar contoh
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: 3,
         itemBuilder: (context, index) {
           return Container(
-            margin: const EdgeInsets.only(bottom: 15),
+            margin: const EdgeInsets.only(bottom: 20),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFE0E0E0),
-              borderRadius: BorderRadius.circular(20),
+              color: const Color(0xFFE0F7FA),
+              borderRadius: BorderRadius.circular(15),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Kotak Gambar Artikel
                 Container(
-                  width: 80,
-                  height: 80,
+                  height: 150,
+                  width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.grey[600],
-                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                const SizedBox(width: 15),
-                // Placeholder Teks (Baris-baris abu-abu)
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(height: 12, width: double.infinity, color: Colors.grey[500]),
-                      const SizedBox(height: 8),
-                      Container(height: 10, width: 150, color: Colors.grey[400]),
-                      const SizedBox(height: 5),
-                      Container(height: 10, width: 100, color: Colors.grey[400]),
-                    ],
+                const SizedBox(height: 12),
+                const Text(
+                  'Judul Berita',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF004D56),
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF004D56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text(
+                          'Baca Selengkapnya ',
+                          style: TextStyle(color: Colors.white, fontSize: 13),
+                        ),
+                        Icon(Icons.chevron_right, color: Colors.white, size: 16),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -88,20 +102,35 @@ class _W_EdukasiState extends State<W_Edukasi> {
           );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFFD9D9D9),
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        currentIndex: 2, // Highlight icon buku/bookmark
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.notification_important, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person, size: 28), label: ''),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          currentIndex: 2,
+          selectedItemColor: const Color(0xFF007E94),
+          unselectedItemColor: Colors.grey,
+          showUnselectedLabels: true,
+          onTap: (index) {},
+          items: [
+            const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+            const BottomNavigationBarItem(icon: Icon(Icons.notifications_none), label: 'Report'),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF007E94),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.menu_book, color: Colors.white),
+              ),
+              label: 'Edukasi',
+            ),
+            const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Akun'),
+          ],
+        ),
       ),
     );
   }

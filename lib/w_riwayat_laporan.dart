@@ -1,120 +1,187 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: W_RiwayatLaporan(),
-  ));
+  runApp(const MyApp());
 }
 
-class W_RiwayatLaporan extends StatefulWidget {
-  const W_RiwayatLaporan({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
-  State<W_RiwayatLaporan> createState() => _W_RiwayatLaporanState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        fontFamily: 'sans-serif',
+      ),
+      home: const RiwayatLaporanPage(),
+    );
+  }
 }
 
-class _W_RiwayatLaporanState extends State<W_RiwayatLaporan> {
+class RiwayatLaporanPage extends StatelessWidget {
+  const RiwayatLaporanPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8F9FA), // Background abu muda agar card terlihat
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            // Tombol Back Kotak
-            Container(
-              width: 35,
-              height: 35,
-              decoration: BoxDecoration(
-                color: Colors.grey[600],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.chevron_left, color: Colors.white, size: 24),
-            ),
-            const SizedBox(width: 15),
-            const Text(
-              'Riwayat Laporan',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+        title: const Text(
+          'Riwayat Laporan',
+          style: TextStyle(
+            color: Color(0xFF003D4C),
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: Color(0xFF003D4C)),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: ListView(
-        // Padding bottom 0 agar mepet ke navbar
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 0),
+        padding: const EdgeInsets.all(16.0),
         children: [
-          _buildRiwayatCard("Dibaca"),
-          _buildRiwayatCard("Diproses"),
-          _buildRiwayatCard("Selesai"),
-          _buildRiwayatCard("Selesai"),
-          const SizedBox(height: 10), // Jarak tipis terakhir
+          _buildReportCard(
+            status: 'Laporan Dibaca',
+            statusColor: const Color(0xFFBDE7F1),
+            statusTextColor: const Color(0xFF00838F),
+            title: 'Air Mengandung Endapan',
+            desc: 'Terdapat endapan pasir halus di dasar ember setelah air ditampung selama beberapa jam.',
+            location: 'Jatiasih',
+            date: '10/02/2026',
+          ),
+          _buildReportCard(
+            status: 'Laporan Diproses',
+            statusColor: const Color(0xFFFFF1AD),
+            statusTextColor: const Color(0xFFB48A00),
+            title: 'Air Berbau',
+            desc: 'Air mengeluarkan bau menyengat seperti besi sejak dua hari terakhir, terutama saat pagi dan malam hari.',
+            location: 'Jatisampurna',
+            date: '07/02/2026',
+          ),
+          _buildReportCard(
+            status: 'Laporan Selesai',
+            statusColor: const Color(0xFFC8E6C9),
+            statusTextColor: const Color(0xFF2E7D32),
+            title: 'Air Berwarna Hitam',
+            desc: 'Air berubah menjadi kehitaman saat pertama kali dinyalakan dan berbau tidak sedap.',
+            location: 'Mustika Jaya',
+            date: '02/02/2026',
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFFD9D9D9),
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        currentIndex: 3, // Tetap di highlight profil karena ini sub-menu profil
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.notification_important, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark, size: 28), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person, size: 28), label: ''),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.grey,
+        currentIndex: 2,
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          const BottomNavigationBarItem(icon: Icon(Icons.notifications_none), label: 'Report'),
+          BottomNavigationBarItem(
+            icon: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00838F),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: const Icon(Icons.history, color: Colors.white),
+            ),
+            label: 'Riwayat',
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Akun'),
         ],
       ),
     );
   }
 
-  // Widget Helper untuk membuat Card Riwayat
-  Widget _buildRiwayatCard(String status) {
+  Widget _buildReportCard({
+    required String status,
+    required Color statusColor,
+    required Color statusTextColor,
+    required String title,
+    required String desc,
+    required String location,
+    required String date,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFE0E0E0),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            status,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black54,
-              fontSize: 14,
-            ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          const SizedBox(height: 12),
-          // Baris placeholder konten (Abu-abu lebih gelap)
-          Container(height: 18, width: 200, color: const Color(0xFFAFAFAF)),
-          const SizedBox(height: 8),
-          Container(height: 12, width: 130, color: const Color(0xFFBDBDBD)),
-          const SizedBox(height: 15),
-          // Tombol/Status kotak di kanan bawah
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              height: 30,
-              width: 90,
-              decoration: BoxDecoration(
-                color: const Color(0xFF9E9E9E),
-                borderRadius: BorderRadius.circular(8),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: statusTextColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF003D4C)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF003D4C),
               ),
             ),
-          )
-        ],
+            const SizedBox(height: 8),
+            Text(
+              desc,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xFF006064),
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFF003D4C)),
+                const SizedBox(width: 4),
+                Text(location, style: const TextStyle(fontSize: 12, color: Color(0xFF003D4C))),
+                const SizedBox(width: 40),
+                const Icon(Icons.calendar_today_outlined, size: 16, color: Color(0xFF003D4C)),
+                const SizedBox(width: 4),
+                Text(date, style: const TextStyle(fontSize: 12, color: Color(0xFF003D4C))),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
