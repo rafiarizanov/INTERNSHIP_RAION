@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
-import 'w_homepage.dart';
+import '../../../providers/auth_provider.dart';
+import '../fitur/w_homepage.dart';
 
 class WInputName extends StatefulWidget {
   const WInputName({super.key});

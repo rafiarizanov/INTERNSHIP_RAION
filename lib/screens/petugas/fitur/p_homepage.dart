@@ -1,7 +1,7 @@
 import 'package:INTERNSHIP_RAION/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'p_sign_in.dart';
+import '../masuk/p_sign_in.dart';
 
 class P_Homepage extends StatelessWidget {
   const P_Homepage({super.key});

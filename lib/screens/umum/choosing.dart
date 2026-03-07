@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../warga/w_registration_email.dart';
-import '../petugas/p_sign_in.dart';
+import '../warga/masuk_daftar/w_registration_email.dart';
+import '../petugas/masuk/p_sign_in.dart';
 
 class ChoosingPage extends StatefulWidget {
   const ChoosingPage({super.key});

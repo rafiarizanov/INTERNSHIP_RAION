@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: W_EditProfil(),
-  ));
+  runApp(
+    const MaterialApp(debugShowCheckedModeBanner: false, home: W_EditProfil()),
+  );
 }
 
 class W_EditProfil extends StatefulWidget {
@@ -33,15 +32,19 @@ class _W_EditProfilState extends State<W_EditProfil> {
                 color: Colors.grey[600],
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.chevron_left, color: Colors.white, size: 24),
+              child: const Icon(
+                Icons.chevron_left,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 15),
             const Text(
               'Edit Profil',
               style: TextStyle(
-                color: Colors.black, 
-                fontSize: 18, 
-                fontWeight: FontWeight.bold
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -72,7 +75,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
               ),
             ),
-            
+
             const SizedBox(height: 30),
 
             // Form Input
@@ -102,9 +105,9 @@ class _W_EditProfilState extends State<W_EditProfil> {
                 child: Text(
                   "Simpan",
                   style: TextStyle(
-                    fontWeight: FontWeight.bold, 
+                    fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Colors.black87
+                    color: Colors.black87,
                   ),
                 ),
               ),
@@ -125,9 +128,9 @@ class _W_EditProfilState extends State<W_EditProfil> {
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: 14, 
+            fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black87
+            color: Colors.black87,
           ),
         ),
       ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
-import '../../providers/auth_provider.dart';
+import '../../../providers/auth_provider.dart';
 import 'w_input_name.dart';
-import 'w_homepage.dart';
+import '../fitur/w_homepage.dart';
 
 class WOtp extends StatefulWidget {
   final String phoneNumber;

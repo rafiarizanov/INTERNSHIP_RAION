@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../../providers/auth_provider.dart';
 import 'w_registration_phone.dart';
 import 'w_sign_in.dart';
-import 'w_homepage.dart';
+import '../fitur/w_homepage.dart';
 
 class WRegistrationEmail extends StatefulWidget {
   const WRegistrationEmail({super.key});
