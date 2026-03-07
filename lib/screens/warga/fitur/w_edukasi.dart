@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: W_Edukasi(),
-  ));
-}
-
 class W_Edukasi extends StatefulWidget {
   const W_Edukasi({super.key});
 
@@ -22,7 +15,11 @@ class _W_EdukasiState extends State<W_Edukasi> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF004D56), size: 20),
+        leading: const Icon(
+          Icons.arrow_back_ios_new,
+          color: Color(0xFF004D56),
+          size: 20,
+        ),
         title: const Text(
           'Edukasi',
           style: TextStyle(
@@ -92,7 +89,11 @@ class _W_EdukasiState extends State<W_Edukasi> {
                           'Baca Selengkapnya ',
                           style: TextStyle(color: Colors.white, fontSize: 13),
                         ),
-                        Icon(Icons.chevron_right, color: Colors.white, size: 16),
+                        Icon(
+                          Icons.chevron_right,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ],
                     ),
                   ),
@@ -101,36 +102,6 @@ class _W_EdukasiState extends State<W_Edukasi> {
             ),
           );
         },
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          currentIndex: 2,
-          selectedItemColor: const Color(0xFF007E94),
-          unselectedItemColor: Colors.grey,
-          showUnselectedLabels: true,
-          onTap: (index) {},
-          items: [
-            const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-            const BottomNavigationBarItem(icon: Icon(Icons.notifications_none), label: 'Report'),
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF007E94),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.menu_book, color: Colors.white),
-              ),
-              label: 'Edukasi',
-            ),
-            const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Akun'),
-          ],
-        ),
       ),
     );
   }

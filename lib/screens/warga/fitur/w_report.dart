@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    home: W_ReportPage(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
-
 class W_ReportPage extends StatefulWidget {
   const W_ReportPage({super.key});
 
@@ -19,9 +12,17 @@ class _W_ReportPageState extends State<W_ReportPage> {
   String selectedKategori = "Pilih Kategori";
 
   final List<String> daftarDaerah = [
-    "Bekasi Barat", "Bekasi Utara", "Bekasi Timur", "Bekasi Selatan", 
-    "Jatiasih", "Jatisampurna", "Medan Satria", "Mustika Jaya", 
-    "Pondok Melati", "Bantar Gebang", "Pondok Gede"
+    "Bekasi Barat",
+    "Bekasi Utara",
+    "Bekasi Timur",
+    "Bekasi Selatan",
+    "Jatiasih",
+    "Jatisampurna",
+    "Medan Satria",
+    "Mustika Jaya",
+    "Pondok Melati",
+    "Bantar Gebang",
+    "Pondok Gede",
   ];
 
   final List<String> daftarKategori = ["Waspada", "Siaga", "Darurat"];
@@ -32,7 +33,9 @@ class _W_ReportPageState extends State<W_ReportPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Container(
             padding: const EdgeInsets.all(25),
             decoration: BoxDecoration(
@@ -68,10 +71,7 @@ class _W_ReportPageState extends State<W_ReportPage> {
                 const Text(
                   "Terima kasih telah berkontribusi dalam peningkatan kualitas air di Kota Bekasi.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF003D45),
-                  ),
+                  style: TextStyle(fontSize: 14, color: Color(0xFF003D45)),
                 ),
                 const SizedBox(height: 25),
                 SizedBox(
@@ -105,7 +105,12 @@ class _W_ReportPageState extends State<W_ReportPage> {
     );
   }
 
-  void _showGenericModal(String title, List<String> items, String currentVal, Function(String) onSelect) {
+  void _showGenericModal(
+    String title,
+    List<String> items,
+    String currentVal,
+    Function(String) onSelect,
+  ) {
     String tempSelection = currentVal;
     showModalBottomSheet(
       context: context,
@@ -120,12 +125,21 @@ class _W_ReportPageState extends State<W_ReportPage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
               ),
-              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF003D45))),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF003D45),
+                    ),
+                  ),
                   const SizedBox(height: 15),
                   Flexible(
                     child: ListView.builder(
@@ -134,14 +148,19 @@ class _W_ReportPageState extends State<W_ReportPage> {
                       itemBuilder: (context, index) {
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text(items[index], style: const TextStyle(color: Color(0xFF003D45))),
+                          title: Text(
+                            items[index],
+                            style: const TextStyle(color: Color(0xFF003D45)),
+                          ),
                           leading: Radio<String>(
                             value: items[index],
                             groupValue: tempSelection,
                             activeColor: const Color(0xFF003D45),
-                            onChanged: (v) => setModalState(() => tempSelection = v!),
+                            onChanged: (v) =>
+                                setModalState(() => tempSelection = v!),
                           ),
-                          onTap: () => setModalState(() => tempSelection = items[index]),
+                          onTap: () =>
+                              setModalState(() => tempSelection = items[index]),
                         );
                       },
                     ),
@@ -156,9 +175,17 @@ class _W_ReportPageState extends State<W_ReportPage> {
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             backgroundColor: const Color(0xFFB2EBF2),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          child: const Text("Batal", style: TextStyle(color: Color(0xFF003D45), fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            "Batal",
+                            style: TextStyle(
+                              color: Color(0xFF003D45),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 15),
@@ -172,9 +199,17 @@ class _W_ReportPageState extends State<W_ReportPage> {
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             backgroundColor: const Color(0xFF004D56),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          child: const Text("Pilih", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            "Pilih",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -202,21 +237,41 @@ class _W_ReportPageState extends State<W_ReportPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Laporkan Masalah Air', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF003D45))),
+                  const Text(
+                    'Laporkan Masalah Air',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF003D45),
+                    ),
+                  ),
                   const Icon(Icons.history, color: Color(0xFF003D45), size: 28),
                 ],
               ),
               const SizedBox(height: 25),
               _buildLabel("Tanggal"),
-              _buildInputField("Masukkan Tanggal", Icons.calendar_today_outlined),
+              _buildInputField(
+                "Masukkan Tanggal",
+                Icons.calendar_today_outlined,
+              ),
               _buildLabel("Lokasi"),
               GestureDetector(
-                onTap: () => _showGenericModal("Pilih Daerah", daftarDaerah, selectedDaerah, (val) => setState(() => selectedDaerah = val)),
+                onTap: () => _showGenericModal(
+                  "Pilih Daerah",
+                  daftarDaerah,
+                  selectedDaerah,
+                  (val) => setState(() => selectedDaerah = val),
+                ),
                 child: _buildDropdownField(selectedDaerah),
               ),
               _buildLabel("Kategori"),
               GestureDetector(
-                onTap: () => _showGenericModal("Pilih Kondisi", daftarKategori, selectedKategori, (val) => setState(() => selectedKategori = val)),
+                onTap: () => _showGenericModal(
+                  "Pilih Kondisi",
+                  daftarKategori,
+                  selectedKategori,
+                  (val) => setState(() => selectedKategori = val),
+                ),
                 child: _buildDropdownField(selectedKategori),
               ),
               _buildLabel("Deskripsi"),
@@ -230,66 +285,119 @@ class _W_ReportPageState extends State<W_ReportPage> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildLockedNavbar(),
     );
   }
 
   Widget _buildLabel(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 8, top: 10),
-    child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF003D45), fontSize: 15)),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF003D45),
+        fontSize: 15,
+      ),
+    ),
   );
 
   Widget _buildInputField(String hint, IconData icon) => Container(
     margin: const EdgeInsets.only(bottom: 10),
-    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF709096))),
-    child: TextField(decoration: InputDecoration(hintText: hint, prefixIcon: Icon(icon, color: const Color(0xFF003D45)), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 15))),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFF709096)),
+    ),
+    child: TextField(
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon, color: const Color(0xFF003D45)),
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.symmetric(vertical: 15),
+      ),
+    ),
   );
 
   Widget _buildDropdownField(String text) => Container(
     margin: const EdgeInsets.only(bottom: 10),
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF709096))),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFF709096)),
+    ),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(text, style: const TextStyle(color: Color(0xFF709096), fontSize: 14)),
-        const Icon(Icons.arrow_drop_down_circle_outlined, color: Color(0xFF80DEEA), size: 22),
+        Text(
+          text,
+          style: const TextStyle(color: Color(0xFF709096), fontSize: 14),
+        ),
+        const Icon(
+          Icons.arrow_drop_down_circle_outlined,
+          color: Color(0xFF80DEEA),
+          size: 22,
+        ),
       ],
     ),
   );
 
   Widget _buildTextAreaField(String hint) => Container(
     margin: const EdgeInsets.only(bottom: 10),
-    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF709096))),
-    child: TextField(maxLines: 4, decoration: InputDecoration(hintText: hint, prefixIcon: const Padding(padding: EdgeInsets.only(bottom: 60), child: Icon(Icons.menu, color: Color(0xFF003D45))), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 15))),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFF709096)),
+    ),
+    child: TextField(
+      maxLines: 4,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: const Padding(
+          padding: EdgeInsets.only(bottom: 60),
+          child: Icon(Icons.menu, color: Color(0xFF003D45)),
+        ),
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.symmetric(vertical: 15),
+      ),
+    ),
   );
 
   Widget _buildUploadField(String hint) => Container(
     margin: const EdgeInsets.only(bottom: 10),
-    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFF709096))),
-    child: TextField(readOnly: true, decoration: InputDecoration(hintText: hint, prefixIcon: const Icon(Icons.file_upload_outlined, color: Color(0xFF003D45)), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 15))),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFF709096)),
+    ),
+    child: TextField(
+      readOnly: true,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: const Icon(
+          Icons.file_upload_outlined,
+          color: Color(0xFF003D45),
+        ),
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.symmetric(vertical: 15),
+      ),
+    ),
   );
 
   Widget _buildSubmitButton() => SizedBox(
-    width: double.infinity, 
-    height: 55, 
+    width: double.infinity,
+    height: 55,
     child: ElevatedButton(
       onPressed: _showSuccessDialog,
-      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF004D56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), 
-      child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text('Kirim ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Icon(Icons.arrow_forward, color: Colors.white, size: 18)])
-    )
-  );
-
-  Widget _buildLockedNavbar() => BottomNavigationBar(
-    currentIndex: 1,
-    type: BottomNavigationBarType.fixed,
-    selectedItemColor: Colors.white,
-    unselectedItemColor: const Color(0xFF003D45),
-    items: [
-      const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-      BottomNavigationBarItem(icon: Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), decoration: BoxDecoration(color: const Color(0xFF007E94), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.notifications_active)), label: 'Report'),
-      const BottomNavigationBarItem(icon: Icon(Icons.menu_book_outlined), label: 'Edukasi'),
-      const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Akun'),
-    ],
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF004D56),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Kirim ',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          Icon(Icons.arrow_forward, color: Colors.white, size: 18),
+        ],
+      ),
+    ),
   );
 }

@@ -21,7 +21,12 @@ class _WSignInState extends State<WSignIn> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Widget _buildTextField(String hint, IconData icon, TextEditingController controller, {bool isPassword = false}) {
+  Widget _buildTextField(
+    String hint,
+    IconData icon,
+    TextEditingController controller, {
+    bool isPassword = false,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -65,7 +70,9 @@ class _WSignInState extends State<WSignIn> {
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => const ChoosingPage()),
+                            MaterialPageRoute(
+                              builder: (context) => const ChoosingPage(),
+                            ),
                             (route) => false,
                           );
                         },
@@ -75,7 +82,11 @@ class _WSignInState extends State<WSignIn> {
                             color: const Color(0xFF004D56),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -108,14 +119,18 @@ class _WSignInState extends State<WSignIn> {
                           child: Container(
                             height: 45,
                             decoration: BoxDecoration(
-                              color: _isPhoneMode ? const Color(0xFF004D56) : const Color(0xFFB0E6F3),
+                              color: _isPhoneMode
+                                  ? const Color(0xFF004D56)
+                                  : const Color(0xFFB0E6F3),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
                               child: Text(
                                 'Gunakan No. Telp',
                                 style: TextStyle(
-                                  color: _isPhoneMode ? Colors.white : const Color(0xFF004D56),
+                                  color: _isPhoneMode
+                                      ? Colors.white
+                                      : const Color(0xFF004D56),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
                                 ),
@@ -131,14 +146,18 @@ class _WSignInState extends State<WSignIn> {
                           child: Container(
                             height: 45,
                             decoration: BoxDecoration(
-                              color: !_isPhoneMode ? const Color(0xFF004D56) : const Color(0xFFB0E6F3),
+                              color: !_isPhoneMode
+                                  ? const Color(0xFF004D56)
+                                  : const Color(0xFFB0E6F3),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
                               child: Text(
                                 'Gunakan Email',
                                 style: TextStyle(
-                                  color: !_isPhoneMode ? Colors.white : const Color(0xFF004D56),
+                                  color: !_isPhoneMode
+                                      ? Colors.white
+                                      : const Color(0xFF004D56),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
                                 ),
@@ -151,20 +170,38 @@ class _WSignInState extends State<WSignIn> {
                   ),
                   const SizedBox(height: 25),
                   if (_isPhoneMode)
-                    _buildTextField('Nomor Telepon', Icons.phone_outlined, _phoneController)
+                    _buildTextField(
+                      'Nomor Telepon',
+                      Icons.phone_outlined,
+                      _phoneController,
+                    )
                   else
-                    _buildTextField('Email', Icons.email_outlined, _emailController),
-                  _buildTextField('Kata Sandi', Icons.lock_outline, _passwordController, isPassword: true),
+                    _buildTextField(
+                      'Email',
+                      Icons.email_outlined,
+                      _emailController,
+                    ),
+                  _buildTextField(
+                    'Kata Sandi',
+                    Icons.lock_outline,
+                    _passwordController,
+                    isPassword: true,
+                  ),
                   const SizedBox(height: 80),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Belum punya akun? ', style: TextStyle(fontSize: 13)),
+                      const Text(
+                        'Belum punya akun? ',
+                        style: TextStyle(fontSize: 13),
+                      ),
                       GestureDetector(
                         onTap: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const WRegistrationEmail()),
+                            MaterialPageRoute(
+                              builder: (context) => const WRegistrationEmail(),
+                            ),
                           );
                         },
                         child: const Text(
@@ -184,8 +221,9 @@ class _WSignInState extends State<WSignIn> {
                       if (!_isPhoneMode) {
                         authProv.islogin = true;
                         authProv.enteredEmail = _emailController.text.trim();
-                        authProv.enteredPassword = _passwordController.text.trim();
-                        
+                        authProv.enteredPassword = _passwordController.text
+                            .trim();
+
                         setState(() => _isLoading = true);
                         final errorMessage = await authProv.submit();
                         setState(() => _isLoading = false);
@@ -194,11 +232,16 @@ class _WSignInState extends State<WSignIn> {
                         if (errorMessage == null) {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const W_Homepage()),
+                            MaterialPageRoute(
+                              builder: (context) => const W_Homepage(),
+                            ),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+                            SnackBar(
+                              content: Text(errorMessage),
+                              backgroundColor: Colors.red,
+                            ),
                           );
                         }
                       } else {
@@ -221,7 +264,10 @@ class _WSignInState extends State<WSignIn> {
                           onError: (err) {
                             setState(() => _isLoading = false);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(err), backgroundColor: Colors.red),
+                              SnackBar(
+                                content: Text(err),
+                                backgroundColor: Colors.red,
+                              ),
                             );
                           },
                         );
@@ -236,7 +282,9 @@ class _WSignInState extends State<WSignIn> {
                       ),
                       child: Center(
                         child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
                             : const Text(
                                 'Masuk',
                                 style: TextStyle(

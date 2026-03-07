@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -11,10 +7,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        fontFamily: 'sans-serif',
-      ),
+      theme: ThemeData(primarySwatch: Colors.teal, fontFamily: 'sans-serif'),
       home: const RiwayatLaporanPage(),
     );
   }
@@ -26,7 +19,9 @@ class RiwayatLaporanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA), // Background abu muda agar card terlihat
+      backgroundColor: const Color(
+        0xFFF8F9FA,
+      ), // Background abu muda agar card terlihat
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -53,7 +48,8 @@ class RiwayatLaporanPage extends StatelessWidget {
             statusColor: const Color(0xFFBDE7F1),
             statusTextColor: const Color(0xFF00838F),
             title: 'Air Mengandung Endapan',
-            desc: 'Terdapat endapan pasir halus di dasar ember setelah air ditampung selama beberapa jam.',
+            desc:
+                'Terdapat endapan pasir halus di dasar ember setelah air ditampung selama beberapa jam.',
             location: 'Jatiasih',
             date: '10/02/2026',
           ),
@@ -62,7 +58,8 @@ class RiwayatLaporanPage extends StatelessWidget {
             statusColor: const Color(0xFFFFF1AD),
             statusTextColor: const Color(0xFFB48A00),
             title: 'Air Berbau',
-            desc: 'Air mengeluarkan bau menyengat seperti besi sejak dua hari terakhir, terutama saat pagi dan malam hari.',
+            desc:
+                'Air mengeluarkan bau menyengat seperti besi sejak dua hari terakhir, terutama saat pagi dan malam hari.',
             location: 'Jatisampurna',
             date: '07/02/2026',
           ),
@@ -71,32 +68,11 @@ class RiwayatLaporanPage extends StatelessWidget {
             statusColor: const Color(0xFFC8E6C9),
             statusTextColor: const Color(0xFF2E7D32),
             title: 'Air Berwarna Hitam',
-            desc: 'Air berubah menjadi kehitaman saat pertama kali dinyalakan dan berbau tidak sedap.',
+            desc:
+                'Air berubah menjadi kehitaman saat pertama kali dinyalakan dan berbau tidak sedap.',
             location: 'Mustika Jaya',
             date: '02/02/2026',
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        currentIndex: 2,
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          const BottomNavigationBarItem(icon: Icon(Icons.notifications_none), label: 'Report'),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00838F),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Icon(Icons.history, color: Colors.white),
-            ),
-            label: 'Riwayat',
-          ),
-          const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Akun'),
         ],
       ),
     );
@@ -133,7 +109,10 @@ class RiwayatLaporanPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor,
                     borderRadius: BorderRadius.circular(8),
@@ -147,7 +126,11 @@ class RiwayatLaporanPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF003D4C)),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: Color(0xFF003D4C),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -171,13 +154,33 @@ class RiwayatLaporanPage extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.location_on_outlined, size: 16, color: Color(0xFF003D4C)),
+                const Icon(
+                  Icons.location_on_outlined,
+                  size: 16,
+                  color: Color(0xFF003D4C),
+                ),
                 const SizedBox(width: 4),
-                Text(location, style: const TextStyle(fontSize: 12, color: Color(0xFF003D4C))),
+                Text(
+                  location,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF003D4C),
+                  ),
+                ),
                 const SizedBox(width: 40),
-                const Icon(Icons.calendar_today_outlined, size: 16, color: Color(0xFF003D4C)),
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 16,
+                  color: Color(0xFF003D4C),
+                ),
                 const SizedBox(width: 4),
-                Text(date, style: const TextStyle(fontSize: 12, color: Color(0xFF003D4C))),
+                Text(
+                  date,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF003D4C),
+                  ),
+                ),
               ],
             ),
           ],

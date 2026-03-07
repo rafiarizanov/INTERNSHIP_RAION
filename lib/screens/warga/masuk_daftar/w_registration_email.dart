@@ -4,6 +4,7 @@ import '../../../providers/auth_provider.dart';
 import 'w_registration_phone.dart';
 import 'w_sign_in.dart';
 import '../fitur/w_homepage.dart';
+import 'w_verifikasi_email.dart';
 
 class WRegistrationEmail extends StatefulWidget {
   const WRegistrationEmail({super.key});
@@ -66,8 +67,11 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
                             color: const Color(0xFF004D56),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(Icons.arrow_back_ios_new,
-                              color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -95,7 +99,9 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const WRegistrationPhone()),
+                                builder: (context) =>
+                                    const WRegistrationPhone(),
+                              ),
                             );
                           },
                           child: Container(
@@ -163,13 +169,17 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Sudah memiliki akun? ',
-                          style: TextStyle(fontSize: 13)),
+                      const Text(
+                        'Sudah memiliki akun? ',
+                        style: TextStyle(fontSize: 13),
+                      ),
                       GestureDetector(
                         onTap: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const WSignIn()),
+                            MaterialPageRoute(
+                              builder: (context) => const WSignIn(),
+                            ),
                           );
                         },
                         child: const Text(
@@ -190,9 +200,13 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
                       final errorMessage = await authProv.submit();
                       if (!context.mounted) return;
                       if (errorMessage == null) {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => const W_Homepage()),
+                          MaterialPageRoute(
+                            builder: (context) => WVerificationEmail(
+                              email: authProv.enteredEmail,
+                            ),
+                          ),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(

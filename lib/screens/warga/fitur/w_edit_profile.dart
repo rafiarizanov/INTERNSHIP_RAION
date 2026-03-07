@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(
-    const MaterialApp(debugShowCheckedModeBanner: false, home: W_EditProfil()),
-  );
-}
-
 class W_EditProfil extends StatefulWidget {
   const W_EditProfil({super.key});
 

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart'; // 1. Tambahkan import provider
-import 'providers/auth_provider.dart'; // 2. Tambahkan import file AuthProvider kamu
-import 'core/firebase_options.dart'; 
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart'; 
+import 'providers/auth_provider.dart'; 
 import 'screens/umum/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Supabase.initialize(
+    url : "https://ixggazqhuavdanmamhza.supabase.co",
+    anonKey: "sb_publishable_nQvoB_CtXpN1FOVC7qf0FQ_L_NU1SP-",
+  );
 
   // 3. BUNGKUS MyApp DENGAN MULTIPROVIDER DI SINI
   runApp(

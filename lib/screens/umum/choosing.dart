@@ -38,7 +38,8 @@ class _ChoosingPageState extends State<ChoosingPage> {
                   onTap: () => setState(() => selectedRole = 'warga'),
                   child: Container(
                     width: double.infinity,
-                    height: 180, // Tinggi kotak dibuat besar agar pas dengan desain
+                    height:
+                        180, // Tinggi kotak dibuat besar agar pas dengan desain
                     decoration: BoxDecoration(
                       color: selectedRole == 'warga'
                           ? const Color(0xFF004E62).withOpacity(0.8)
@@ -67,7 +68,11 @@ class _ChoosingPageState extends State<ChoosingPage> {
                         // Teks di sebelah kanan
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(right: 15, top: 20, bottom: 20),
+                            padding: const EdgeInsets.only(
+                              right: 15,
+                              top: 20,
+                              bottom: 20,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -77,7 +82,9 @@ class _ChoosingPageState extends State<ChoosingPage> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: selectedRole == 'warga' ? Colors.white : const Color(0xFF004D56),
+                                    color: selectedRole == 'warga'
+                                        ? Colors.white
+                                        : const Color(0xFF004D56),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -85,7 +92,11 @@ class _ChoosingPageState extends State<ChoosingPage> {
                                   'Laporkan masalah air bersih dan dapatkan edukasi terkait sanitasi.',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: selectedRole == 'warga' ? Colors.white70 : const Color(0xFF004D56).withOpacity(0.8),
+                                    color: selectedRole == 'warga'
+                                        ? Colors.white70
+                                        : const Color(
+                                            0xFF004D56,
+                                          ).withOpacity(0.8),
                                   ),
                                 ),
                               ],
@@ -133,7 +144,11 @@ class _ChoosingPageState extends State<ChoosingPage> {
                         // Teks
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(right: 15, top: 20, bottom: 20),
+                            padding: const EdgeInsets.only(
+                              right: 15,
+                              top: 20,
+                              bottom: 20,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -143,7 +158,9 @@ class _ChoosingPageState extends State<ChoosingPage> {
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: selectedRole == 'petugas' ? Colors.white : const Color(0xFF004D56),
+                                    color: selectedRole == 'petugas'
+                                        ? Colors.white
+                                        : const Color(0xFF004D56),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -151,7 +168,11 @@ class _ChoosingPageState extends State<ChoosingPage> {
                                   'Pantau dan tangani laporan warga terkait masalah air bersih.',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: selectedRole == 'petugas' ? Colors.white70 : const Color(0xFF004D56).withOpacity(0.8),
+                                    color: selectedRole == 'petugas'
+                                        ? Colors.white70
+                                        : const Color(
+                                            0xFF004D56,
+                                          ).withOpacity(0.8),
                                   ),
                                 ),
                               ],
@@ -172,19 +193,40 @@ class _ChoosingPageState extends State<ChoosingPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (selectedRole == 'warga') {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const WRegistrationEmail()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WRegistrationEmail(),
+                          ),
+                        );
                       } else if (selectedRole == 'petugas') {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const PSignIn()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PSignIn(),
+                          ),
+                        );
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan pilih peran!')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Silakan pilih peran!')),
+                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF003D45),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
                       elevation: 0,
                     ),
-                    child: const Text('Lanjut', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Lanjut',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],
