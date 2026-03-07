@@ -1,4 +1,4 @@
-import 'package:INTERNSHIP_RAION/auth_provider.dart';
+import 'package:INTERNSHIP_RAION/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'p_sign_in.dart';
@@ -8,7 +8,6 @@ class P_Homepage extends StatelessWidget {
 
   // Fungsi untuk Logout
   void _logout(BuildContext context) {
-
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const PSignIn()),
@@ -18,7 +17,6 @@ class P_Homepage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
     final authProv = Provider.of<AuthProvider>(context);
 
     return Scaffold(

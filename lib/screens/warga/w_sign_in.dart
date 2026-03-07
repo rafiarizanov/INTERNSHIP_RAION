@@ -1,7 +1,7 @@
-import 'package:INTERNSHIP_RAION/choosing.dart';
+import 'package:INTERNSHIP_RAION/screens/umum/choosing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'auth_provider.dart';
+import '../../providers/auth_provider.dart';
 import 'w_registration_email.dart';
 import 'w_homepage.dart';
 import 'w_OTP.dart';

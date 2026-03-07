@@ -27,7 +27,7 @@ class _W_HomepageState extends State<W_Homepage> {
     }
   }
 
-  void _logout() async {
+  void logout() async {
     await FirebaseAuth.instance.signOut();
     if (mounted) {
       Navigator.pushAndRemoveUntil(

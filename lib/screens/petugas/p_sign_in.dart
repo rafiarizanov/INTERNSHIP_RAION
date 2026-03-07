@@ -1,9 +1,8 @@
-import 'package:INTERNSHIP_RAION/auth_provider.dart';
+import 'package:INTERNSHIP_RAION/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; 
-import 'choosing.dart';
+import 'package:provider/provider.dart';
+import '../umum/choosing.dart';
 import 'p_homepage.dart';
-
 
 class PSignIn extends StatefulWidget {
   const PSignIn({super.key});
