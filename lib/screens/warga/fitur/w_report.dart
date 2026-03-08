@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 class W_ReportPage extends StatefulWidget {
   const W_ReportPage({super.key});
@@ -10,6 +13,13 @@ class W_ReportPage extends StatefulWidget {
 class _W_ReportPageState extends State<W_ReportPage> {
   String selectedDaerah = "Pilih Daerah";
   String selectedKategori = "Pilih Kategori";
+
+  // Controller untuk Tanggal dan Deskripsi
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
+
+  File? _imageFile;
+  bool _isLoading = false;
 
   final List<String> daftarDaerah = [
     "Bekasi Barat",
@@ -25,7 +35,144 @@ class _W_ReportPageState extends State<W_ReportPage> {
     "Pondok Gede",
   ];
 
+  // Map untuk mendapatkan 2 huruf awalan daerah
+  final Map<String, String> prefixDaerah = {
+    "Bekasi Barat": "BB",
+    "Bekasi Utara": "BU",
+    "Bekasi Timur": "BT",
+    "Bekasi Selatan": "BS",
+    "Jatiasih": "JA",
+    "Jatisampurna": "JS",
+    "Medan Satria": "MS",
+    "Mustika Jaya": "MJ",
+    "Pondok Melati": "PM",
+    "Bantar Gebang": "BG",
+    "Pondok Gede": "PG",
+  };
+
   final List<String> daftarKategori = ["Waspada", "Siaga", "Darurat"];
+
+  // Fungsi untuk memunculkan DatePicker
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(), // Tidak bisa pilih tanggal masa depan
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF004D56), // Warna header kalender
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF003D45),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        // Format menjadi DD/MM/YYYY
+        _dateController.text =
+            "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+      });
+    }
+  }
+
+  // Fungsi untuk mengambil gambar dari galeri
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
+
+    if (image != null) {
+      setState(() {
+        _imageFile = File(image.path);
+      });
+    }
+  }
+
+  // Fungsi UTAMA untuk mengirim laporan
+  Future<void> _submitReport() async {
+    // 1. Validasi Form
+    if (_dateController.text.isEmpty ||
+        selectedDaerah == "Pilih Daerah" ||
+        selectedKategori == "Pilih Kategori" ||
+        _descController.text.isEmpty ||
+        _imageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Harap lengkapi semua data dan unggah foto."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final supabase = Supabase.instance.client;
+      final user = supabase.auth.currentUser;
+      final userName = user?.userMetadata?['display_name'] ?? 'Warga Anonim';
+
+      // 2. Upload Gambar ke Storage
+      final fileExt = _imageFile!.path.split('.').last;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      final imagePath = 'laporan/$fileName';
+
+      await supabase.storage
+          .from('report_image')
+          .upload(
+            imagePath,
+            _imageFile!,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+
+      final imageUrl = supabase.storage
+          .from('report_image')
+          .getPublicUrl(imagePath);
+
+      // 3. Generate ID Laporan (Contoh: JA001)
+      final prefix = prefixDaerah[selectedDaerah]!;
+      // Hitung ada berapa laporan di daerah tersebut
+      final countResponse = await supabase
+          .from('reports')
+          .select('id')
+          .eq('lokasi', selectedDaerah);
+
+      int urutan = (countResponse as List).length + 1;
+      String reportId = "$prefix${urutan.toString().padLeft(3, '0')}";
+
+      // 4. Masukkan data ke tabel 'reports'
+      await supabase.from('reports').insert({
+        'report_id': reportId,
+        'user_id': user?.id,
+        'user_name': userName,
+        'tanggal': _dateController.text,
+        'lokasi': selectedDaerah,
+        'kategori': selectedKategori,
+        'deskripsi': _descController.text,
+        'image_url': imageUrl,
+      });
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showSuccessDialog();
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Gagal mengirim laporan: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   void _showSuccessDialog() {
     showDialog(
@@ -79,7 +226,10 @@ class _W_ReportPageState extends State<W_ReportPage> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context); // Tutup dialog
+                      Navigator.pop(
+                        context,
+                      ); // Kembali ke halaman sebelumnya (Homepage)
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF004D56),
@@ -228,61 +378,111 @@ class _W_ReportPageState extends State<W_ReportPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Laporkan Masalah Air',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003D45),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Laporkan Masalah Air',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF003D45),
+                        ),
+                      ),
+                      const Icon(
+                        Icons.history,
+                        color: Color(0xFF003D45),
+                        size: 28,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 25),
+
+                  _buildLabel("Tanggal"),
+                  GestureDetector(
+                    onTap: () => _selectDate(context),
+                    child: AbsorbPointer(
+                      // Mencegah keyboard muncul
+                      child: _buildInputField(
+                        "Masukkan Tanggal",
+                        Icons.calendar_today_outlined,
+                        controller: _dateController,
+                      ),
                     ),
                   ),
-                  const Icon(Icons.history, color: Color(0xFF003D45), size: 28),
+
+                  _buildLabel("Lokasi"),
+                  GestureDetector(
+                    onTap: () => _showGenericModal(
+                      "Pilih Daerah",
+                      daftarDaerah,
+                      selectedDaerah,
+                      (val) => setState(() => selectedDaerah = val),
+                    ),
+                    child: _buildDropdownField(selectedDaerah),
+                  ),
+
+                  _buildLabel("Kategori"),
+                  GestureDetector(
+                    onTap: () => _showGenericModal(
+                      "Pilih Kondisi",
+                      daftarKategori,
+                      selectedKategori,
+                      (val) => setState(() => selectedKategori = val),
+                    ),
+                    child: _buildDropdownField(selectedKategori),
+                  ),
+
+                  _buildLabel("Deskripsi"),
+                  _buildTextAreaField("Jelaskan Keluhan Anda", _descController),
+
+                  _buildLabel("Unggah Bukti"),
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: _buildUploadField(
+                      _imageFile != null
+                          ? "Gambar telah dipilih"
+                          : "Upload Gambar",
+                    ),
+                  ),
+                  if (_imageFile != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 10),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          _imageFile!,
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 30),
+                  _buildSubmitButton(),
+                  const SizedBox(height: 20),
                 ],
               ),
-              const SizedBox(height: 25),
-              _buildLabel("Tanggal"),
-              _buildInputField(
-                "Masukkan Tanggal",
-                Icons.calendar_today_outlined,
-              ),
-              _buildLabel("Lokasi"),
-              GestureDetector(
-                onTap: () => _showGenericModal(
-                  "Pilih Daerah",
-                  daftarDaerah,
-                  selectedDaerah,
-                  (val) => setState(() => selectedDaerah = val),
+            ),
+
+            // Loading Overlay
+            if (_isLoading)
+              Container(
+                color: Colors.black.withOpacity(0.3),
+                child: const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF004D56)),
                 ),
-                child: _buildDropdownField(selectedDaerah),
               ),
-              _buildLabel("Kategori"),
-              GestureDetector(
-                onTap: () => _showGenericModal(
-                  "Pilih Kondisi",
-                  daftarKategori,
-                  selectedKategori,
-                  (val) => setState(() => selectedKategori = val),
-                ),
-                child: _buildDropdownField(selectedKategori),
-              ),
-              _buildLabel("Deskripsi"),
-              _buildTextAreaField("Jelaskan Keluhan Anda"),
-              _buildLabel("Unggah Bukti"),
-              _buildUploadField("Upload Gambar"),
-              const SizedBox(height: 30),
-              _buildSubmitButton(),
-              const SizedBox(height: 20),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -300,13 +500,18 @@ class _W_ReportPageState extends State<W_ReportPage> {
     ),
   );
 
-  Widget _buildInputField(String hint, IconData icon) => Container(
+  Widget _buildInputField(
+    String hint,
+    IconData icon, {
+    TextEditingController? controller,
+  }) => Container(
     margin: const EdgeInsets.only(bottom: 10),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: const Color(0xFF709096)),
     ),
     child: TextField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: const Color(0xFF003D45)),
@@ -328,7 +533,12 @@ class _W_ReportPageState extends State<W_ReportPage> {
       children: [
         Text(
           text,
-          style: const TextStyle(color: Color(0xFF709096), fontSize: 14),
+          style: TextStyle(
+            color: text.startsWith("Pilih")
+                ? const Color(0xFF709096)
+                : const Color(0xFF003D45),
+            fontSize: 14,
+          ),
         ),
         const Icon(
           Icons.arrow_drop_down_circle_outlined,
@@ -339,39 +549,52 @@ class _W_ReportPageState extends State<W_ReportPage> {
     ),
   );
 
-  Widget _buildTextAreaField(String hint) => Container(
-    margin: const EdgeInsets.only(bottom: 10),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFF709096)),
-    ),
-    child: TextField(
-      maxLines: 4,
-      decoration: InputDecoration(
-        hintText: hint,
-        prefixIcon: const Padding(
-          padding: EdgeInsets.only(bottom: 60),
-          child: Icon(Icons.menu, color: Color(0xFF003D45)),
+  Widget _buildTextAreaField(String hint, TextEditingController controller) =>
+      Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF709096)),
         ),
-        border: InputBorder.none,
-        contentPadding: const EdgeInsets.symmetric(vertical: 15),
-      ),
-    ),
-  );
+        child: TextField(
+          controller: controller,
+          maxLines: 4,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: const Padding(
+              padding: EdgeInsets.only(bottom: 60),
+              child: Icon(Icons.menu, color: Color(0xFF003D45)),
+            ),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(vertical: 15),
+          ),
+        ),
+      );
 
   Widget _buildUploadField(String hint) => Container(
     margin: const EdgeInsets.only(bottom: 10),
     decoration: BoxDecoration(
+      color: hint == "Upload Gambar"
+          ? Colors.transparent
+          : const Color(0xFFB2EBF2).withOpacity(0.3),
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: const Color(0xFF709096)),
     ),
     child: TextField(
-      readOnly: true,
+      enabled: false,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: const Icon(
-          Icons.file_upload_outlined,
-          color: Color(0xFF003D45),
+        hintStyle: TextStyle(
+          color: hint == "Upload Gambar"
+              ? const Color(0xFF709096)
+              : const Color(0xFF004D56),
+          fontWeight: hint == "Upload Gambar"
+              ? FontWeight.normal
+              : FontWeight.bold,
+        ),
+        prefixIcon: Icon(
+          hint == "Upload Gambar" ? Icons.file_upload_outlined : Icons.image,
+          color: const Color(0xFF003D45),
         ),
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(vertical: 15),
@@ -383,7 +606,7 @@ class _W_ReportPageState extends State<W_ReportPage> {
     width: double.infinity,
     height: 55,
     child: ElevatedButton(
-      onPressed: _showSuccessDialog,
+      onPressed: _submitReport,
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF004D56),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -393,7 +616,11 @@ class _W_ReportPageState extends State<W_ReportPage> {
         children: [
           Text(
             'Kirim ',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
           Icon(Icons.arrow_forward, color: Colors.white, size: 18),
         ],

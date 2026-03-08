@@ -37,6 +37,7 @@ class AuthProvider extends ChangeNotifier {
   var enteredFirstName = '';
   var enteredLastName = '';
   var enteredPhone = ''; 
+  
 
   Future<void> sendPhoneOTP({
     required String phone,

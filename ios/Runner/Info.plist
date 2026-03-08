@@ -77,5 +77,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Aplikasi SadarAir membutuhkan akses ke galeri foto Anda untuk mengunggah bukti masalah air.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Aplikasi SadarAir membutuhkan akses ke kamera Anda untuk memotret langsung bukti masalah air.</string>
 </dict>
 </plist>
