@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart'
-    show kIsWeb; // Tambahan untuk deteksi Web
+    show kIsWeb; 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,7 +20,7 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
   late TextEditingController _dateController;
   late TextEditingController _descController;
 
-  XFile? _newImageFile; // Diubah menjadi XFile agar aman untuk Web dan Mobile
+  XFile? _newImageFile; 
   bool _isLoading = false;
 
   final List<String> daftarDaerah = [
@@ -102,7 +102,7 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
         final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
         final imagePath = 'laporan/$fileName';
 
-        // Menggunakan uploadBinary agar aman dieksekusi dari Google Chrome
+     
         final imageBytes = await _newImageFile!.readAsBytes();
         await supabase.storage
             .from('report_image')
@@ -303,7 +303,6 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
                   ),
                 ),
 
-                // --- LOGIKA KISWEB AGAR AMAN DI CHROME ---
                 if (_newImageFile != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 10),

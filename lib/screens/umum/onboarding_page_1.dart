@@ -23,13 +23,11 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
               children: [
                 const SizedBox(height: 50),
 
-                // --- 1. GAMBAR UTAMA ---
-                // Mengganti Container abu-abu dengan Image.asset
                 Image.asset(
                   'assets/image/onboarding_1.png',
-                  height: 300, // Ukuran sesuai mockup lo
+                  height: 300,
                   fit: BoxFit.contain,
-                  // Proteksi kalau gambar belum ke-load/error
+                  
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       width: 210,
@@ -42,20 +40,19 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
 
                 const SizedBox(height: 40),
 
-                // --- 2. JUDUL ---
                 const Text(
                   'Air Bersih Itu Penting',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56), // Warna teal gelap
+                    color: Color(0xFF004D56), 
                   ),
                 ),
 
                 const SizedBox(height: 15),
 
-                // --- 3. DESKRIPSI ---
+          
                 const Text(
                   'Air yang terlihat jernih belum tentu aman. Kontaminasi bakteri dapat membahayakan kesehatan keluarga.',
                   textAlign: TextAlign.center,
@@ -68,7 +65,6 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
 
                 const SizedBox(height: 30),
 
-                // --- 4. DOT INDICATOR ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -89,7 +85,6 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
 
                 const SizedBox(height: 60),
 
-                // --- 5. TOMBOL NEXT ---
                 GestureDetector(
                   onTap: () {
                     Navigator.push(

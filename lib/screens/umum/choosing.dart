@@ -33,13 +33,12 @@ class _ChoosingPageState extends State<ChoosingPage> {
                 ),
                 const SizedBox(height: 40),
 
-                // --- Card Warga ---
                 GestureDetector(
                   onTap: () => setState(() => selectedRole = 'warga'),
                   child: Container(
                     width: double.infinity,
                     height:
-                        180, // Tinggi kotak dibuat besar agar pas dengan desain
+                        180,
                     decoration: BoxDecoration(
                       color: selectedRole == 'warga'
                           ? const Color(0xFF004E62).withOpacity(0.8)
@@ -48,7 +47,7 @@ class _ChoosingPageState extends State<ChoosingPage> {
                     ),
                     child: Row(
                       children: [
-                        // Kotak Gambar (Gede di sebelah kiri)
+                
                         Container(
                           width: 150,
                           height: double.infinity,
@@ -65,7 +64,7 @@ class _ChoosingPageState extends State<ChoosingPage> {
                             ),
                           ),
                         ),
-                        // Teks di sebelah kanan
+                     
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.only(
@@ -110,12 +109,12 @@ class _ChoosingPageState extends State<ChoosingPage> {
 
                 const SizedBox(height: 25),
 
-                // --- Card Petugas ---
+             
                 GestureDetector(
                   onTap: () => setState(() => selectedRole = 'petugas'),
                   child: Container(
                     width: double.infinity,
-                    height: 180, // Tinggi sama agar seragam
+                    height: 180,
                     decoration: BoxDecoration(
                       color: selectedRole == 'petugas'
                           ? const Color(0xFF004E62).withOpacity(0.8)
@@ -124,7 +123,7 @@ class _ChoosingPageState extends State<ChoosingPage> {
                     ),
                     child: Row(
                       children: [
-                        // Kotak Gambar
+                      
                         Container(
                           width: 150,
                           height: double.infinity,
@@ -186,7 +185,7 @@ class _ChoosingPageState extends State<ChoosingPage> {
 
                 const SizedBox(height: 60),
 
-                // --- Tombol Lanjut ---
+                
                 SizedBox(
                   width: double.infinity,
                   height: 55,

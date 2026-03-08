@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'w_notifikasi.dart';
-import '../masuk_daftar/w_sign_in.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_edit_profile.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_report.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_riwayat_laporan.dart';
@@ -129,7 +128,6 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
     }
   }
 
-  // --- MENGUBAH FUNGSI UNTUK MENARIK 2 LAPORAN ---
   Future<List<Map<String, dynamic>>> fetchLatestReports() async {
     final user = supabase.auth.currentUser;
     if (user == null) return [];
@@ -139,7 +137,7 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
         .select()
         .eq('user_id', user.id)
         .order('created_at', ascending: false)
-        .limit(2); // Ambil 2 laporan terbaru
+        .limit(2);
 
     return List<Map<String, dynamic>>.from(response);
   }
@@ -191,7 +189,6 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                     ],
                   ),
 
-                  // --- TOMBOL NOTIFIKASI BARU ---
                   IconButton(
                     icon: const Icon(
                       Icons.notifications_none,
@@ -211,7 +208,6 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
               ),
               const SizedBox(height: 25),
 
-              // --- EDUKASI HARI INI ---
               const Text(
                 'Edukasi Hari Ini',
                 style: TextStyle(
@@ -278,7 +274,6 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
               ),
               const SizedBox(height: 25),
 
-              // --- TINDAKAN CEPAT ---
               const Text(
                 'Tindakan Cepat',
                 style: TextStyle(
@@ -317,7 +312,6 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
               ),
               const SizedBox(height: 25),
 
-              // --- LAPORAN TERBARU (SEKARANG MENAMPILKAN 2) ---
               const Text(
                 'Laporan Terbaru',
                 style: TextStyle(
@@ -363,14 +357,10 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                       ),
                     );
                   }
-
-                  // Menggunakan Column untuk menampilkan daftar kartu laporan secara berurutan
                   return Column(
                     children: reports.map((report) {
                       return Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: 15.0,
-                        ), // Jarak antar kartu
+                        padding: const EdgeInsets.only(bottom: 15.0),
                         child: _buildLatestReportCard(report),
                       );
                     }).toList(),

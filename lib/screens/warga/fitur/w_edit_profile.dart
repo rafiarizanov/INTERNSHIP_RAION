@@ -18,7 +18,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            // Tombol Back Kotak sesuai gambar
             Container(
               width: 35,
               height: 35,
@@ -49,7 +48,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
         child: Column(
           children: [
             const SizedBox(height: 30),
-            // Foto Profil Bulat Besar
             const Center(
               child: CircleAvatar(
                 radius: 60,
@@ -57,7 +55,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
               ),
             ),
             const SizedBox(height: 15),
-            // Tombol Edit Foto
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
@@ -72,7 +69,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
 
             const SizedBox(height: 30),
 
-            // Form Input
             _buildInputLabel("Nama"),
             _buildInputField(),
 
@@ -87,7 +83,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
 
             const SizedBox(height: 50),
 
-            // Tombol Simpan
             Container(
               width: double.infinity,
               height: 50,
@@ -113,7 +108,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
     );
   }
 
-  // Helper Widget untuk Label Input
   Widget _buildInputLabel(String label) {
     return Align(
       alignment: Alignment.centerLeft,
@@ -131,7 +125,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
     );
   }
 
-  // Helper Widget untuk Kotak Input (Warna abu-abu sesuai UI kamu)
   Widget _buildInputField() {
     return Container(
       height: 45,

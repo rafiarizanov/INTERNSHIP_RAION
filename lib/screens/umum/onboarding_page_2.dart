@@ -24,7 +24,6 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
               
                 const SizedBox(height: 50),
 
-                // --- 1. GAMBAR UTAMA (UKURAN IDENTIK) ---
                 Image.asset(
                   'assets/image/onboarding_2.png', 
                   height: 300, 
@@ -41,7 +40,7 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
 
                 const SizedBox(height: 40),
 
-                // --- 2. JUDUL ---
+            
                 const Text(
                   'Belajar Jaga Air Lebih Mudah',
                   textAlign: TextAlign.center,
@@ -54,7 +53,6 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
 
                 const SizedBox(height: 15),
 
-                // --- 3. DESKRIPSI ---
                 const Text(
                   'Dapatkan edukasi sederhana tentang sanitasi dan cara menjaga air tetap bersih untuk keluarga Anda.',
                   textAlign: TextAlign.center,
@@ -67,14 +65,14 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
 
                 const SizedBox(height: 30),
 
-                // --- 4. DOT INDICATOR (PINDAH KE TENGAH) ---
+              
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircleAvatar(radius: 4, backgroundColor: Colors.grey),
                     const SizedBox(width: 8),
                     Container(
-                      width: 30, // Bar panjang di tengah
+                      width: 30, 
                       height: 8,
                       decoration: BoxDecoration(
                         color: const Color(0xFF004D56),
@@ -88,7 +86,7 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
 
                 const SizedBox(height: 60),
 
-                // --- 5. TOMBOL NEXT ---
+                
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -100,7 +98,7 @@ class _OnboardingPage2State extends State<OnboardingPage2> {
                   },
                   child: Container(
                     width: double.infinity,
-                    height: 55, // Tinggi tombol disamain
+                    height: 55, 
                     decoration: BoxDecoration(
                       color: const Color(0xFF004D56),
                       borderRadius: BorderRadius.circular(15),
