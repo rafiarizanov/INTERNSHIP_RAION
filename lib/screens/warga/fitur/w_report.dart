@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb; // Tambahan untuk Web
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,11 +15,10 @@ class _W_ReportPageState extends State<W_ReportPage> {
   String selectedDaerah = "Pilih Daerah";
   String selectedKategori = "Pilih Kategori";
 
-  // Controller untuk Tanggal dan Deskripsi
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
 
-  File? _imageFile;
+  XFile? _imageFile; // Ubah File menjadi XFile agar aman di Web
   bool _isLoading = false;
 
   final List<String> daftarDaerah = [
@@ -35,7 +35,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
     "Pondok Gede",
   ];
 
-  // Map untuk mendapatkan 2 huruf awalan daerah
   final Map<String, String> prefixDaerah = {
     "Bekasi Barat": "BB",
     "Bekasi Utara": "BU",
@@ -52,18 +51,17 @@ class _W_ReportPageState extends State<W_ReportPage> {
 
   final List<String> daftarKategori = ["Waspada", "Siaga", "Darurat"];
 
-  // Fungsi untuk memunculkan DatePicker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime.now(), // Tidak bisa pilih tanggal masa depan
+      lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF004D56), // Warna header kalender
+              primary: Color(0xFF004D56),
               onPrimary: Colors.white,
               onSurface: Color(0xFF003D45),
             ),
@@ -74,14 +72,12 @@ class _W_ReportPageState extends State<W_ReportPage> {
     );
     if (picked != null) {
       setState(() {
-        // Format menjadi DD/MM/YYYY
         _dateController.text =
             "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
       });
     }
   }
 
-  // Fungsi untuk mengambil gambar dari galeri
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
@@ -91,14 +87,12 @@ class _W_ReportPageState extends State<W_ReportPage> {
 
     if (image != null) {
       setState(() {
-        _imageFile = File(image.path);
+        _imageFile = image; // Simpan sebagai XFile
       });
     }
   }
 
-  // Fungsi UTAMA untuk mengirim laporan
   Future<void> _submitReport() async {
-    // 1. Validasi Form
     if (_dateController.text.isEmpty ||
         selectedDaerah == "Pilih Daerah" ||
         selectedKategori == "Pilih Kategori" ||
@@ -120,16 +114,17 @@ class _W_ReportPageState extends State<W_ReportPage> {
       final user = supabase.auth.currentUser;
       final userName = user?.userMetadata?['display_name'] ?? 'Warga Anonim';
 
-      // 2. Upload Gambar ke Storage
       final fileExt = _imageFile!.path.split('.').last;
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
       final imagePath = 'laporan/$fileName';
 
+      // Gunakan uploadBinary agar berfungsi di Chrome dan Android
+      final imageBytes = await _imageFile!.readAsBytes();
       await supabase.storage
           .from('report_image')
-          .upload(
+          .uploadBinary(
             imagePath,
-            _imageFile!,
+            imageBytes,
             fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
           );
 
@@ -137,18 +132,14 @@ class _W_ReportPageState extends State<W_ReportPage> {
           .from('report_image')
           .getPublicUrl(imagePath);
 
-      // 3. Generate ID Laporan (Contoh: JA001)
       final prefix = prefixDaerah[selectedDaerah]!;
-      // Hitung ada berapa laporan di daerah tersebut
       final countResponse = await supabase
           .from('reports')
           .select('id')
           .eq('lokasi', selectedDaerah);
-
       int urutan = (countResponse as List).length + 1;
       String reportId = "$prefix${urutan.toString().padLeft(3, '0')}";
 
-      // 4. Masukkan data ke tabel 'reports'
       await supabase.from('reports').insert({
         'report_id': reportId,
         'user_id': user?.id,
@@ -226,10 +217,17 @@ class _W_ReportPageState extends State<W_ReportPage> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // Tutup dialog
-                      Navigator.pop(
-                        context,
-                      ); // Kembali ke halaman sebelumnya (Homepage)
+                      // HANYA POP 1 KALI UNTUK MENUTUP DIALOG
+                      Navigator.pop(context);
+
+                      // Kosongkan form setelah sukses agar siap untuk laporan berikutnya
+                      setState(() {
+                        _dateController.clear();
+                        _descController.clear();
+                        selectedDaerah = "Pilih Daerah";
+                        selectedKategori = "Pilih Kategori";
+                        _imageFile = null;
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF004D56),
@@ -386,10 +384,10 @@ class _W_ReportPageState extends State<W_ReportPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Laporkan Masalah Air',
                         style: TextStyle(
                           fontSize: 20,
@@ -397,11 +395,7 @@ class _W_ReportPageState extends State<W_ReportPage> {
                           color: Color(0xFF003D45),
                         ),
                       ),
-                      const Icon(
-                        Icons.history,
-                        color: Color(0xFF003D45),
-                        size: 28,
-                      ),
+                      Icon(Icons.history, color: Color(0xFF003D45), size: 28),
                     ],
                   ),
                   const SizedBox(height: 25),
@@ -410,7 +404,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
                   GestureDetector(
                     onTap: () => _selectDate(context),
                     child: AbsorbPointer(
-                      // Mencegah keyboard muncul
                       child: _buildInputField(
                         "Masukkan Tanggal",
                         Icons.calendar_today_outlined,
@@ -453,17 +446,26 @@ class _W_ReportPageState extends State<W_ReportPage> {
                           : "Upload Gambar",
                     ),
                   ),
+
+                  // --- PERBAIKAN TAMPILAN GAMBAR WEB & MOBILE ---
                   if (_imageFile != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 10),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          _imageFile!,
-                          height: 150,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
+                        child: kIsWeb
+                            ? Image.network(
+                                _imageFile!.path,
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                File(_imageFile!.path),
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
 
@@ -473,8 +475,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
                 ],
               ),
             ),
-
-            // Loading Overlay
             if (_isLoading)
               Container(
                 color: Colors.black.withOpacity(0.3),
@@ -488,6 +488,31 @@ class _W_ReportPageState extends State<W_ReportPage> {
     );
   }
 
+  Widget _buildSubmitButton() => SizedBox(
+    width: double.infinity,
+    height: 55,
+    child: ElevatedButton(
+      onPressed: _submitReport,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF004D56),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Kirim ',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          Icon(Icons.arrow_forward, color: Colors.white, size: 18),
+        ],
+      ),
+    ),
+  );
   Widget _buildLabel(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 8, top: 10),
     child: Text(
@@ -499,7 +524,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
       ),
     ),
   );
-
   Widget _buildInputField(
     String hint,
     IconData icon, {
@@ -520,7 +544,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
       ),
     ),
   );
-
   Widget _buildDropdownField(String text) => Container(
     margin: const EdgeInsets.only(bottom: 10),
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
@@ -548,7 +571,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
       ],
     ),
   );
-
   Widget _buildTextAreaField(String hint, TextEditingController controller) =>
       Container(
         margin: const EdgeInsets.only(bottom: 10),
@@ -570,7 +592,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
           ),
         ),
       );
-
   Widget _buildUploadField(String hint) => Container(
     margin: const EdgeInsets.only(bottom: 10),
     decoration: BoxDecoration(
@@ -598,32 +619,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
         ),
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(vertical: 15),
-      ),
-    ),
-  );
-
-  Widget _buildSubmitButton() => SizedBox(
-    width: double.infinity,
-    height: 55,
-    child: ElevatedButton(
-      onPressed: _submitReport,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF004D56),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Kirim ',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          Icon(Icons.arrow_forward, color: Colors.white, size: 18),
-        ],
       ),
     ),
   );
