@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: W_EditProfil(),
+  ));
+}
+
 class W_EditProfil extends StatefulWidget {
   const W_EditProfil({super.key});
 
@@ -8,6 +15,8 @@ class W_EditProfil extends StatefulWidget {
 }
 
 class _W_EditProfilState extends State<W_EditProfil> {
+  final Color primaryTeal = const Color(0xFF003D4C);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,24 +28,24 @@ class _W_EditProfilState extends State<W_EditProfil> {
         title: Row(
           children: [
             Container(
-              width: 35,
-              height: 35,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color: Colors.grey[600],
+                color: primaryTeal,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
                 Icons.chevron_left,
                 color: Colors.white,
-                size: 24,
+                size: 30,
               ),
             ),
             const SizedBox(width: 15),
-            const Text(
+            Text(
               'Edit Profil',
               style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
+                color: primaryTeal,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -47,47 +56,67 @@ class _W_EditProfilState extends State<W_EditProfil> {
         padding: const EdgeInsets.symmetric(horizontal: 25),
         child: Column(
           children: [
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+           
             const Center(
               child: CircleAvatar(
-                radius: 60,
-                backgroundColor: Color(0xFF9E9E9E),
+                radius: 55,
+                backgroundImage: NetworkImage('https://i.pravatar.cc/300?img=32'),
               ),
             ),
             const SizedBox(height: 15),
+            
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFFD9D9D9),
-                borderRadius: BorderRadius.circular(20),
+                color: primaryTeal,
+                borderRadius: BorderRadius.circular(25),
               ),
-              child: const Text(
-                "Edit foto",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.edit, color: Colors.white, size: 18),
+                  SizedBox(width: 8),
+                  Text(
+                    "Ubah Foto Profil",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
 
             const SizedBox(height: 30),
 
             _buildInputLabel("Nama"),
-            _buildInputField(),
+            Row(
+              children: [
+                Expanded(child: _buildInputField(hint: "Nama Depan")),
+                const SizedBox(width: 12),
+                Expanded(child: _buildInputField(hint: "Nama Belakang")),
+              ],
+            ),
 
-            _buildInputLabel("Email"),
-            _buildInputField(),
+            _buildInputLabel("Tanggal Lahir"),
+            _buildInputField(hint: "DD/MM/YYYY"),
 
             _buildInputLabel("Nomor Telepon"),
-            _buildInputField(),
+            _buildInputField(hint: "08XXXXXXX"),
 
-            _buildInputLabel("Tanggal lahir"),
-            _buildInputField(),
+            _buildInputLabel("Email"),
+            _buildInputField(hint: "example@email.com"),
 
             const SizedBox(height: 50),
 
+            
             Container(
               width: double.infinity,
-              height: 50,
+              height: 55,
               decoration: BoxDecoration(
-                color: const Color(0xFFD9D9D9),
+                color: primaryTeal,
                 borderRadius: BorderRadius.circular(15),
               ),
               child: const Center(
@@ -95,8 +124,8 @@ class _W_EditProfilState extends State<W_EditProfil> {
                   "Simpan",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black87,
+                    fontSize: 18,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -108,6 +137,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
     );
   }
 
+  
   Widget _buildInputLabel(String label) {
     return Align(
       alignment: Alignment.centerLeft,
@@ -115,23 +145,36 @@ class _W_EditProfilState extends State<W_EditProfil> {
         padding: const EdgeInsets.only(bottom: 8, top: 15),
         child: Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
+          style: TextStyle(
+            fontSize: 15,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: primaryTeal,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInputField() {
+  Widget _buildInputField({String hint = ""}) {
     return Container(
-      height: 45,
-      width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFD9D9D9).withOpacity(0.7),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: primaryTeal.withOpacity(0.5), fontSize: 14),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: primaryTeal, width: 1.5),
+          ),
+        ),
       ),
     );
   }

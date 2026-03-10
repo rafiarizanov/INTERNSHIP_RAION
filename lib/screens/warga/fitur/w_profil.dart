@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,6 +19,10 @@ class MyApp extends StatelessWidget {
 class ProfilPage extends StatelessWidget {
   const ProfilPage({super.key});
 
+  // Warna tema sesuai gambar
+  final Color primaryTeal = const Color(0xFF004D56);
+  final Color lightTeal = const Color(0xFF00838F);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,17 +30,17 @@ class ProfilPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Akun dan Profil',
           style: TextStyle(
-            color: Color(0xFF004D40),
+            color: primaryTeal,
             fontWeight: FontWeight.bold,
-            fontSize: 22,
+            fontSize: 20,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF004D40)),
+            icon: Icon(Icons.more_vert, color: primaryTeal),
             onPressed: () {},
           ),
         ],
@@ -41,60 +48,98 @@ class ProfilPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            // Foto Profil Bulat
+            const SizedBox(height: 30),
+            // Foto Profil dengan border tipis (opsional)
             Center(
+<<<<<<< HEAD
               child: CircleAvatar(
                 radius: 60,
                 backgroundColor: Colors.grey[300],
                 backgroundImage: const NetworkImage(
                   'https://i.pravatar.cc/300', 
+=======
+              child: Container(
+                padding: const EdgeInsets.all(2), // Efek border tipis
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const CircleAvatar(
+                  radius: 55,
+                  backgroundImage: NetworkImage(
+                    'https://i.pravatar.cc/300?img=32', // Contoh foto profil
+                  ),
+>>>>>>> refs/remotes/origin/main
                 ),
               ),
             ),
             const SizedBox(height: 16),
+<<<<<<< HEAD
           
             const Text(
+=======
+            // Nama
+            Text(
+>>>>>>> refs/remotes/origin/main
               'Siti Aisyah',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF004D40),
+                color: primaryTeal,
               ),
             ),
+<<<<<<< HEAD
             const SizedBox(height: 4),
         
             const Text(
+=======
+            const SizedBox(height: 6),
+            // Role
+            Text(
+>>>>>>> refs/remotes/origin/main
               'Warga',
               style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF004D40),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: primaryTeal,
               ),
             ),
+<<<<<<< HEAD
             const SizedBox(height: 8),
         
+=======
+            const SizedBox(height: 6),
+            // Tanggal Lahir
+>>>>>>> refs/remotes/origin/main
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.cake_outlined, size: 18, color: Colors.grey),
-                SizedBox(width: 8),
+              children: [
+                Icon(Icons.cake_outlined, size: 16, color: primaryTeal.withOpacity(0.6)),
+                const SizedBox(width: 6),
                 Text(
                   '14/08/1986',
-                  style: TextStyle(fontSize: 16, color: Color(0xFF004D40)),
+                  style: TextStyle(
+                    fontSize: 14, 
+                    fontWeight: FontWeight.bold,
+                    color: primaryTeal
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 40),
+<<<<<<< HEAD
          
+=======
+            // Menu List
+>>>>>>> refs/remotes/origin/main
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  _buildMenuItem(Icons.edit_note, 'Edit Profil'),
-                  const SizedBox(height: 16),
-                  _buildMenuItem(Icons.info_outline, 'Tentang Aplikasi'),
-                  const SizedBox(height: 16),
+                  _buildMenuItem(Icons.edit, 'Edit Profil'),
+                  const SizedBox(height: 12),
+                  _buildMenuItem(Icons.info, 'Tentang Aplikasi'),
+                  const SizedBox(height: 12),
                   _buildMenuItem(Icons.logout, 'Logout'),
                 ],
               ),
@@ -102,6 +147,7 @@ class ProfilPage extends StatelessWidget {
           ],
         ),
       ),
+<<<<<<< HEAD
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: 3, 
@@ -123,31 +169,76 @@ class ProfilPage extends StatelessWidget {
             label: 'Akun',
           ),
         ],
+=======
+      // Bottom Navigation Bar Custom
+      bottomNavigationBar: Container(
+        height: 80,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Colors.grey.shade200)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(Icons.home_outlined, 'Home', false),
+            _buildNavItem(Icons.notifications_none, 'Report', false),
+            _buildNavItem(Icons.history, 'Riwayat', false),
+            _buildNavItem(Icons.account_circle, 'Akun', true),
+          ],
+        ),
+>>>>>>> refs/remotes/origin/main
       ),
     );
   }
 
   Widget _buildMenuItem(IconData icon, String title) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFF004D40).withOpacity(0.5)),
-        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF004D40)),
+          Icon(icon, color: primaryTeal, size: 28),
           const SizedBox(width: 16),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
+            style: TextStyle(
+              fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF004D40),
+              color: primaryTeal,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label, bool isActive) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        isActive 
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              decoration: BoxDecoration(
+                color: lightTeal,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Icon(icon, color: Colors.white),
+            )
+          : Icon(icon, color: Colors.black54),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+            color: isActive ? primaryTeal : Colors.black54,
+          ),
+        ),
+      ],
     );
   }
 }
