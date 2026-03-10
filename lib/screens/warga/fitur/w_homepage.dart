@@ -1,3 +1,4 @@
+import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_profil.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'w_notifikasi.dart';
@@ -28,7 +29,7 @@ class _W_HomepageState extends State<W_Homepage> {
       HalamanBerandaUtama(onTabChange: _pindahTab),
       const W_ReportPage(),
       const RiwayatLaporanPage(),
-      const W_EditProfil(),
+      const ProfilPage(),
     ];
 
     return Scaffold(

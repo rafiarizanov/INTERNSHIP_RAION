@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -51,36 +47,17 @@ class ProfilPage extends StatelessWidget {
             const SizedBox(height: 30),
             // Foto Profil dengan border tipis (opsional)
             Center(
-<<<<<<< HEAD
               child: CircleAvatar(
                 radius: 60,
                 backgroundColor: Colors.grey[300],
                 backgroundImage: const NetworkImage(
-                  'https://i.pravatar.cc/300', 
-=======
-              child: Container(
-                padding: const EdgeInsets.all(2), // Efek border tipis
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const CircleAvatar(
-                  radius: 55,
-                  backgroundImage: NetworkImage(
-                    'https://i.pravatar.cc/300?img=32', // Contoh foto profil
-                  ),
->>>>>>> refs/remotes/origin/main
+                  'https://i.pravatar.cc/300',
                 ),
               ),
             ),
             const SizedBox(height: 16),
-<<<<<<< HEAD
-          
-            const Text(
-=======
-            // Nama
+
             Text(
->>>>>>> refs/remotes/origin/main
               'Siti Aisyah',
               style: TextStyle(
                 fontSize: 24,
@@ -88,15 +65,9 @@ class ProfilPage extends StatelessWidget {
                 color: primaryTeal,
               ),
             ),
-<<<<<<< HEAD
             const SizedBox(height: 4),
-        
-            const Text(
-=======
-            const SizedBox(height: 6),
-            // Role
+
             Text(
->>>>>>> refs/remotes/origin/main
               'Warga',
               style: TextStyle(
                 fontSize: 14,
@@ -104,34 +75,29 @@ class ProfilPage extends StatelessWidget {
                 color: primaryTeal,
               ),
             ),
-<<<<<<< HEAD
             const SizedBox(height: 8),
-        
-=======
-            const SizedBox(height: 6),
-            // Tanggal Lahir
->>>>>>> refs/remotes/origin/main
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.cake_outlined, size: 16, color: primaryTeal.withOpacity(0.6)),
+                Icon(
+                  Icons.cake_outlined,
+                  size: 16,
+                  color: primaryTeal.withOpacity(0.6),
+                ),
                 const SizedBox(width: 6),
                 Text(
                   '14/08/1986',
                   style: TextStyle(
-                    fontSize: 14, 
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: primaryTeal
+                    color: primaryTeal,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 40),
-<<<<<<< HEAD
-         
-=======
-            // Menu List
->>>>>>> refs/remotes/origin/main
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
@@ -146,47 +112,6 @@ class ProfilPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-<<<<<<< HEAD
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 3, 
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          const BottomNavigationBarItem(icon: Icon(Icons.notifications_none), label: 'Report'),
-          const BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00838F),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.person, color: Colors.white),
-            ),
-            label: 'Akun',
-          ),
-        ],
-=======
-      // Bottom Navigation Bar Custom
-      bottomNavigationBar: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.grey.shade200)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.home_outlined, 'Home', false),
-            _buildNavItem(Icons.notifications_none, 'Report', false),
-            _buildNavItem(Icons.history, 'Riwayat', false),
-            _buildNavItem(Icons.account_circle, 'Akun', true),
-          ],
-        ),
->>>>>>> refs/remotes/origin/main
       ),
     );
   }
@@ -219,16 +144,19 @@ class ProfilPage extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        isActive 
-          ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: lightTeal,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Icon(icon, color: Colors.white),
-            )
-          : Icon(icon, color: Colors.black54),
+        isActive
+            ? Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: lightTeal,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Icon(icon, color: Colors.white),
+              )
+            : Icon(icon, color: Colors.black54),
         const SizedBox(height: 4),
         Text(
           label,
