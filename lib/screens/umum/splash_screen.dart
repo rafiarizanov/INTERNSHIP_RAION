@@ -1,7 +1,7 @@
 import 'package:INTERNSHIP_RAION/providers/auth_gate.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'onboarding_page_1.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

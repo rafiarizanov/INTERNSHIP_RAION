@@ -11,7 +11,7 @@ class WRegistrasiBerhasil extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false, // Menghilangkan tombol back default
+        automaticallyImplyLeading: false, 
         title: Row(
           children: [
             Expanded(
@@ -28,7 +28,7 @@ class WRegistrasiBerhasil extends StatelessWidget {
               child: Container(
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF004D56), // Keduanya penuh
+                  color: const Color(0xFF004D56), 
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -49,7 +49,7 @@ class WRegistrasiBerhasil extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              // Ganti dengan aset gambar logo yang sesuai
+          
               Icon(Icons.water_drop, size: 120, color: Colors.cyan[400]), 
               const SizedBox(height: 30),
               const Text(
@@ -73,7 +73,7 @@ class WRegistrasiBerhasil extends StatelessWidget {
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  // Arahkan ke Homepage dan bersihkan riwayat navigasi
+                  
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => const W_Homepage()),

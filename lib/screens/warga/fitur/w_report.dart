@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb; // Tambahan untuk Web
+import 'package:flutter/foundation.dart' show kIsWeb; 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,7 +18,7 @@ class _W_ReportPageState extends State<W_ReportPage> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
 
-  XFile? _imageFile; // Ubah File menjadi XFile agar aman di Web
+  XFile? _imageFile;
   bool _isLoading = false;
 
   final List<String> daftarDaerah = [
@@ -87,7 +87,7 @@ class _W_ReportPageState extends State<W_ReportPage> {
 
     if (image != null) {
       setState(() {
-        _imageFile = image; // Simpan sebagai XFile
+        _imageFile = image; 
       });
     }
   }
@@ -118,7 +118,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
       final imagePath = 'laporan/$fileName';
 
-      // Gunakan uploadBinary agar berfungsi di Chrome dan Android
       final imageBytes = await _imageFile!.readAsBytes();
       await supabase.storage
           .from('report_image')
@@ -217,10 +216,9 @@ class _W_ReportPageState extends State<W_ReportPage> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
-                      // HANYA POP 1 KALI UNTUK MENUTUP DIALOG
+                  
                       Navigator.pop(context);
 
-                      // Kosongkan form setelah sukses agar siap untuk laporan berikutnya
                       setState(() {
                         _dateController.clear();
                         _descController.clear();
@@ -447,7 +445,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
                     ),
                   ),
 
-                  // --- PERBAIKAN TAMPILAN GAMBAR WEB & MOBILE ---
                   if (_imageFile != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 10),

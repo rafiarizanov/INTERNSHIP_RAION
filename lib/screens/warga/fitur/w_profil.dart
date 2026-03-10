@@ -48,12 +48,12 @@ class ProfilPage extends StatelessWidget {
                 radius: 60,
                 backgroundColor: Colors.grey[300],
                 backgroundImage: const NetworkImage(
-                  'https://i.pravatar.cc/300', // Ganti dengan path foto lokal lu nanti
+                  'https://i.pravatar.cc/300', 
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            // Nama
+          
             const Text(
               'Siti Aisyah',
               style: TextStyle(
@@ -63,7 +63,7 @@ class ProfilPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            // Role
+        
             const Text(
               'Warga',
               style: TextStyle(
@@ -73,7 +73,7 @@ class ProfilPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            // Tanggal Lahir
+        
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
@@ -86,7 +86,7 @@ class ProfilPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 40),
-            // Menu-menu Akun
+         
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -104,7 +104,7 @@ class ProfilPage extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: 3, // Highlight tab Akun
+        currentIndex: 3, 
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.grey,
         items: [

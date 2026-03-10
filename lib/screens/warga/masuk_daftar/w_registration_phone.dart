@@ -50,7 +50,7 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              // --- LOGO SESUAI PERMINTAAN ---
+     
               Image.asset(
                 'assets/image/logo.png',
                 height: 120,
@@ -66,7 +66,6 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
               ),
               const SizedBox(height: 30),
 
-              // --- TAB HP / EMAIL ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -121,7 +120,7 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
               ),
               const SizedBox(height: 20),
 
-              // --- INPUT FIELD ---
+            
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -140,16 +139,15 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                 ),
               ),
               
-              const SizedBox(height: 200), // Spacing buat dorong tombol ke bawah
+              const SizedBox(height: 200),
 
-              // --- FOOTER TEXT ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Sudah memiliki akun? ", style: TextStyle(fontSize: 12)),
                   GestureDetector(
                     onTap: () {
-                      // Navigasi ke login
+                    
                     },
                     child: const Text(
                       "Masuk di sini",
@@ -164,7 +162,6 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
               ),
               const SizedBox(height: 20),
 
-              // --- TOMBOL DAFTAR / LANJUT ---
               GestureDetector(
                 onTap: () {
                   if (_phoneController.text.isEmpty) return;

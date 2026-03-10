@@ -22,13 +22,11 @@ class _WVerificationEmailState extends State<WVerificationEmail> {
     super.initState();
     startTimer();
 
-    // Memantau perubahan status autentikasi Supabase
-    // Jika pengguna klik link di email dan aplikasi terbuka (Deep Link), ini akan tertrigger
-    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+       _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
       final Session? session = data.session;
 
-      // Jika berhasil login (link verifikasi valid)
+     
       if (event == AuthChangeEvent.signedIn && session != null) {
         Navigator.pushReplacement(
           context,
@@ -136,7 +134,7 @@ class _WVerificationEmailState extends State<WVerificationEmail> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              // Ganti dengan aset gambar yang sesuai
+          
               Icon(Icons.water_drop, size: 120, color: Colors.cyan[400]), 
               const SizedBox(height: 30),
               const Text(
@@ -182,7 +180,7 @@ class _WVerificationEmailState extends State<WVerificationEmail> {
               const SizedBox(height: 15),
               GestureDetector(
                 onTap: () {
-                  // TODO: Anda bisa menambahkan logika membuka aplikasi email menggunakan package 'url_launcher' atau 'android_intent_plus'
+               
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Silakan buka aplikasi email Anda.')),
                   );

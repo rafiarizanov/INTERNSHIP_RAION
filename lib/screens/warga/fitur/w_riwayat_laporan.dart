@@ -29,12 +29,12 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
     return Scaffold(
       backgroundColor: const Color(
         0xFFF8F9FA,
-      ), // Warna background abu-abu terang
+      ), 
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8F9FA),
         elevation: 0,
         automaticallyImplyLeading:
-            false, // Menghilangkan tombol back default jika ini tab utama
+            false,
         title: const Text(
           'Riwayat Laporan',
           style: TextStyle(
@@ -103,8 +103,7 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
       statusTextColor = const Color(0xFF616161);
     }
 
-    // 2. Simulasi Judul Laporan (Karena di form tidak ada input Judul)
-    // Kita ambil 3-4 kata pertama dari deskripsi sebagai Judul Bayangan
+   
     String deskripsiAsli = report['deskripsi'] ?? 'Tidak ada deskripsi';
     List<String> kataDeskripsi = deskripsiAsli.split(' ');
     String judulLaporan = kataDeskripsi.length > 4
@@ -129,10 +128,10 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
           border: Border.all(
             color: Colors.grey.shade200,
             width: 1.5,
-          ), // Garis tepi halus
+          ), 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02), // Bayangan sangat tipis
+              color: Colors.black.withOpacity(0.02), 
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -142,7 +141,7 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // BARIS ATAS: Badge Status & Ikon Panah
+            
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -155,7 +154,7 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
                     color: statusBgColor,
                     borderRadius: BorderRadius.circular(
                       20,
-                    ), // Melengkung penuh (pill)
+                    ),
                   ),
                   child: Text(
                     status,
@@ -167,7 +166,7 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
                   ),
                 ),
                 const Icon(
-                  Icons.keyboard_arrow_right, // Ikon panah yang lebih tumpul
+                  Icons.keyboard_arrow_right, 
                   size: 20,
                   color: Color(0xFF003D4C),
                 ),
@@ -175,7 +174,7 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
             ),
             const SizedBox(height: 12),
 
-            // JUDUL
+           
             Text(
               judulLaporan,
               style: const TextStyle(
@@ -188,7 +187,6 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
             ),
             const SizedBox(height: 6),
 
-            // DESKRIPSI
             Text(
               deskripsiAsli,
               maxLines: 2,
@@ -201,7 +199,6 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
             ),
             const SizedBox(height: 16),
 
-            // BARIS BAWAH: Lokasi & Tanggal
             Row(
               children: [
                 const Icon(
@@ -217,7 +214,7 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
                     color: Color(0xFF003D4C),
                   ),
                 ),
-                const SizedBox(width: 24), // Jarak antar ikon
+                const SizedBox(width: 24), 
                 const Icon(
                   Icons.calendar_today_outlined,
                   size: 14,

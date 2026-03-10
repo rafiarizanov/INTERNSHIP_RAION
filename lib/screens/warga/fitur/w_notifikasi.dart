@@ -31,7 +31,7 @@ class NotificationPage extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF004D40), // Warna hijau gelap tombol back
+              color: const Color(0xFF004D40), 
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
@@ -114,7 +114,7 @@ class NotificationPage extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        // Membuat garis putus-putus antar item menggunakan border bawah (pendekatan sederhana)
+      
         border: isLast ? null : const Border(bottom: BorderSide(color: Colors.blue, width: 1, style: BorderStyle.solid)),
       ),
       padding: const EdgeInsets.all(16.0),
