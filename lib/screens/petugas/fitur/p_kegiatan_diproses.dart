@@ -55,10 +55,10 @@ class PKegiatan extends StatelessWidget {
             padding: const EdgeInsets.only(left: 20, bottom: 20),
             child: Row(
               children: [
-                _buildFilterChip("Semua", true),
+                _buildFilterChip("Semua", false),
                 _buildFilterChip("Diterima", false),
                 _buildFilterChip("Dibaca", false),
-                _buildFilterChip("Diproses", false),
+                _buildFilterChip("Diproses", true), // Filter Diproses terpilih
               ],
             ),
           ),
@@ -66,12 +66,27 @@ class PKegiatan extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                _buildReportCard("Air Keruh", "Air berwarna keruh sejak pagi, warna coklat kekuningan dan berbau tidak sedap", "LP001", "Bekasi Barat", "14/02/2026", "Laporan Diterima", const Color(0xFFE0E0E0), Colors.black87),
-                _buildReportCard("Air Berbau", "Air mengeluarkan bau menyengat seperti besi sejak dua hari terakhir, terutama saat pagi dan malam hari.", "LP002", "Bekasi Timur", "13/02/2026", "Laporan Dibaca", const Color(0xFFB2EBF2), Color(0xFF006064)),
-                _buildReportCard("Air Menguning", "Air berwarna kuning kecoklatan dan meninggalkan noda pada pakaian setelah dicuci.", "LP003", "Jatisampurna", "13/02/2026", "Laporan Dibaca", const Color(0xFFB2EBF2), Color(0xFF006064)),
-                _buildReportCard("Air Berbusa", "Air terlihat berbusa saat digunakan dan terasa licin di kulit meskipun tanpa sabun.", "LP004", "Medan Satria", "12/02/2026", "Laporan Diproses", const Color(0xFFFFF9C4), Color(0xFFFBC02D)),
-                _buildReportCard("Air Mengandung Endapan", "Terdapat endapan pasir halus di dasar ember setelah air ditampung selama beberapa jam.", "LP005", "Jatiasih", "10/02/2026", "Laporan Diproses", const Color(0xFFFFF9C4), Color(0xFFFBC02D)),
-                _buildReportCard("Air Berwarna Hitam", "Air berubah menjadi kehitaman saat pertama kali dinyalakan dan berbau tidak sedap.", "LP006", "Bantar Gebang", "10/02/2026", "Laporan Selesai", const Color(0xFFC8E6C9), Color(0xFF388E3C)),
+                // Hanya menampilkan informasi laporan berstatus "Laporan Diproses"
+                _buildReportCard(
+                  "Air Berbusa", 
+                  "Air terlihat berbusa saat digunakan dan terasa licin di kulit meskipun tanpa sabun.", 
+                  "LP004", 
+                  "Medan Satria", 
+                  "12/02/2026", 
+                  "Laporan Diproses", 
+                  const Color(0xFFFFF9C4), 
+                  const Color(0xFFFBC02D)
+                ),
+                _buildReportCard(
+                  "Air Mengandung Endapan", 
+                  "Terdapat endapan pasir halus di dasar ember setelah air ditampung selama beberapa jam.", 
+                  "LP005", 
+                  "Jatiasih", 
+                  "10/02/2026", 
+                  "Laporan Diproses", 
+                  const Color(0xFFFFF9C4), 
+                  const Color(0xFFFBC02D)
+                ),
                 const SizedBox(height: 20),
               ],
             ),
@@ -87,13 +102,13 @@ class PKegiatan extends StatelessWidget {
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF004E62) : const Color(0xFFE0F2F1),
+        color: isSelected ? const Color(0xFF004D56) : const Color(0xFFE0F2F1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected ? Colors.white : const Color(0xFF004E62),
+          color: isSelected ? Colors.white : const Color(0xFF004D56),
           fontWeight: FontWeight.bold,
         ),
       ),
