@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: PDetailLaporan(),
-  ));
-}
+
 
 class PDetailLaporan extends StatefulWidget {
   const PDetailLaporan({super.key});

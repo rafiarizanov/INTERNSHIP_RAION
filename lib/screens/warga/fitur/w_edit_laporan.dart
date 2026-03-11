@@ -1,6 +1,5 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart'
-    show kIsWeb; 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,7 +19,7 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
   late TextEditingController _dateController;
   late TextEditingController _descController;
 
-  XFile? _newImageFile; 
+  XFile? _newImageFile;
   bool _isLoading = false;
 
   final List<String> daftarDaerah = [
@@ -37,6 +36,60 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
     "Pondok Gede",
   ];
   final List<String> daftarKategori = ["Waspada", "Siaga", "Darurat"];
+
+  Future<String> _generateNewIdLaporan(String daerahBaru) async {
+    String prefix = "XX";
+    switch (daerahBaru) {
+      case "Bekasi Barat":
+        prefix = "BB";
+        break;
+      case "Bekasi Utara":
+        prefix = "BU";
+        break;
+      case "Bekasi Timur":
+        prefix = "BT";
+        break;
+      case "Bekasi Selatan":
+        prefix = "BS";
+        break;
+      case "Jatiasih":
+        prefix = "JA";
+        break;
+      case "Jatisampurna":
+        prefix = "JS";
+        break;
+      case "Medan Satria":
+        prefix = "MS";
+        break;
+      case "Mustika Jaya":
+        prefix = "MJ";
+        break;
+      case "Pondok Melati":
+        prefix = "PM";
+        break;
+      case "Bantar Gebang":
+        prefix = "BG";
+        break;
+      case "Pondok Gede":
+        prefix = "PG";
+        break;
+      default:
+        prefix = "LP";
+    }
+
+    try {
+      final supabase = Supabase.instance.client;
+      final response = await supabase
+          .from('reports')
+          .select('id')
+          .eq('lokasi', daerahBaru);
+
+      int nextNumber = response.length + 1;
+      return "$prefix${nextNumber.toString().padLeft(3, '0')}";
+    } catch (e) {
+      return "${prefix}001";
+    }
+  }
 
   @override
   void initState() {
@@ -102,7 +155,6 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
         final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
         final imagePath = 'laporan/$fileName';
 
-     
         final imageBytes = await _newImageFile!.readAsBytes();
         await supabase.storage
             .from('report_image')
@@ -119,9 +171,16 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
             .getPublicUrl(imagePath);
       }
 
+      String idLaporanFinal = widget.report['report_id'] ?? "";
+
+      if (selectedDaerah != widget.report['lokasi']) {
+        idLaporanFinal = await _generateNewIdLaporan(selectedDaerah);
+      }
+
       await supabase
           .from('reports')
           .update({
+            'report_id': idLaporanFinal,
             'tanggal': _dateController.text,
             'lokasi': selectedDaerah,
             'kategori': selectedKategori,

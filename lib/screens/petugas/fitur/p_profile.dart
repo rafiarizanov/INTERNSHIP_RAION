@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: P_Profil(),
-  ));
-}
+
 
 class P_Profil extends StatelessWidget {
   const P_Profil({super.key});

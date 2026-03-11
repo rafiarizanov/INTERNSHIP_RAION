@@ -1,3 +1,5 @@
+import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_detail_edukasi1.dart';
+import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_edukasi.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_profil.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,7 +31,7 @@ class _W_HomepageState extends State<W_Homepage> {
       HalamanBerandaUtama(onTabChange: _pindahTab),
       const W_ReportPage(),
       const RiwayatLaporanPage(),
-      const ProfilPage(),
+      const WProfil(),
     ];
 
     return Scaffold(
@@ -242,32 +244,45 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                       style: TextStyle(fontSize: 12, color: Color(0xFF004D56)),
                     ),
                     const SizedBox(height: 15),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF004D56),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Baca Selengkapnya',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => WEdukasiDetail1(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF004D56),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          SizedBox(width: 8),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 12,
-                            color: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
                           ),
-                        ],
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Baca Selengkapnya',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -301,9 +316,10 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                       'Edukasi Air Bersih',
                       Icons.menu_book_outlined,
                       () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Fitur Edukasi belum tersedia"),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WEdukasi(),
                           ),
                         );
                       },

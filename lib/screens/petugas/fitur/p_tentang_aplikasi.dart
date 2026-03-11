@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: TentangAplikasiPage(),
-  ));
-}
+
 
 class TentangAplikasiPage extends StatelessWidget {
   const TentangAplikasiPage({super.key});

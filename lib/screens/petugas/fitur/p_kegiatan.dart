@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: PKegiatan(),
-  ));
-}
+
 
 class PKegiatan extends StatelessWidget {
   const PKegiatan({super.key});
