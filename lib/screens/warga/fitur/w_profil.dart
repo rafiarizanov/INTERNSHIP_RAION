@@ -1,6 +1,6 @@
+import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_tentang_aplikasi.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// PENTING: Sesuaikan path file w_edit_profile.dart milikmu
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_edit_profile.dart';
 
 class WProfil extends StatefulWidget {
@@ -24,7 +24,6 @@ class _WProfilState extends State<WProfil> {
     _loadUserProfile();
   }
 
-  // Mengambil data terbaru langsung dari server Supabase
   Future<void> _loadUserProfile() async {
     final response = await supabase.auth.getUser();
     final user = response.user;
@@ -81,7 +80,7 @@ class _WProfilState extends State<WProfil> {
                         child: CircleAvatar(
                           radius: 60,
                           backgroundColor: Colors.grey[300],
-                          // Menampilkan foto asli dari Supabase
+
                           backgroundImage: _avatarUrl.isNotEmpty
                               ? NetworkImage(_avatarUrl)
                               : null,
@@ -136,7 +135,6 @@ class _WProfilState extends State<WProfil> {
                         ],
                       ),
 
-                      // Mendorong menu ke bawah
                       const Spacer(),
 
                       Padding(
@@ -147,14 +145,13 @@ class _WProfilState extends State<WProfil> {
                               Icons.edit,
                               'Edit Profil',
                               onTap: () async {
-                                // Tunggu pengguna selesai mengedit
                                 await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => const W_EditProfil(),
                                   ),
                                 );
-                                // Refresh gambar secara paksa dan muat data terbaru
+
                                 PaintingBinding.instance.imageCache.clear();
                                 PaintingBinding.instance.imageCache
                                     .clearLiveImages();
@@ -165,7 +162,14 @@ class _WProfilState extends State<WProfil> {
                             _buildMenuItem(
                               Icons.info,
                               'Tentang Aplikasi',
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => WTentangAplikasi(),
+                                  ),
+                                );
+                              },
                             ),
                             const SizedBox(height: 12),
                             _buildMenuItem(

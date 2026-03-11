@@ -1,4 +1,6 @@
-import 'dart:typed_data'; // 🌟 TAMBAHAN IMPORT INI UNTUK MEMBACA DATA GAMBAR MENTAH
+import 'dart:io';
+import 'package:flutter/foundation.dart'
+    show kIsWeb; // 🌟 Memakai kIsWeb persis seperti di laporan
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,12 +22,9 @@ class _W_EditProfilState extends State<W_EditProfil> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
+  XFile? _newProfileImage; // Menggunakan XFile persis seperti laporan
   String _currentAvatarUrl = "";
   bool _isLoading = false;
-  bool _isUploadingPhoto = false;
-
-  // 🌟 VARIABEL BARU: Menyimpan data gambar mentah untuk preview instan!
-  Uint8List? _previewImageBytes;
 
   @override
   void initState() {
@@ -53,6 +52,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
     setState(() {});
   }
 
+  // 🌟 HANYA MENYIMPAN GAMBAR KE VARIABEL, BELUM DIUPLOAD (Persis Pelaporan)
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
@@ -61,50 +61,9 @@ class _W_EditProfilState extends State<W_EditProfil> {
     );
 
     if (image != null) {
-      // 🌟 BACA DATA GAMBARNYA TERLEBIH DAHULU
-      final imageBytes = await image.readAsBytes();
-
       setState(() {
-        _previewImageBytes = imageBytes; // TAMPILKAN PREVIEW SECARA INSTAN!
-        _isUploadingPhoto = true; // NYALAKAN LOADING DI ATAS PREVIEW
+        _newProfileImage = image;
       });
-
-      try {
-        String fileExt = image.name.split('.').last;
-        if (fileExt.isEmpty || fileExt.length > 4) fileExt = 'png';
-
-        final fileName = '${supabase.auth.currentUser!.id}.$fileExt';
-        final imagePath = 'profiles/$fileName';
-
-        // Upload ke Supabase
-        await supabase.storage
-            .from('avatars')
-            .uploadBinary(
-              imagePath,
-              imageBytes,
-              fileOptions: const FileOptions(upsert: true),
-            );
-
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final newUrl =
-            "${supabase.storage.from('avatars').getPublicUrl(imagePath)}?t=$timestamp";
-
-        setState(() {
-          _currentAvatarUrl = newUrl;
-        });
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Gagal mengunggah foto: $e"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } finally {
-        setState(() {
-          _isUploadingPhoto = false;
-        });
-      }
     }
   }
 
@@ -132,22 +91,49 @@ class _W_EditProfilState extends State<W_EditProfil> {
     }
   }
 
+  // 🌟 MENGUNGGAH FOTO DAN MENYIMPAN DATA (Persis Pelaporan)
   Future<void> _saveProfile() async {
-    if (_isUploadingPhoto) return;
-
     setState(() => _isLoading = true);
+
     try {
+      String avatarUrlToSave = _currentAvatarUrl;
+
+      // Jika ada gambar baru yang dipilih, unggah dulu gambarnya!
+      if (_newProfileImage != null) {
+        String fileExt = _newProfileImage!.name.split('.').last;
+        if (fileExt.isEmpty || fileExt.length > 4) fileExt = 'png';
+
+        final fileName = '${supabase.auth.currentUser!.id}.$fileExt';
+        final imagePath = 'profiles/$fileName';
+
+        final imageBytes = await _newProfileImage!.readAsBytes();
+
+        await supabase.storage
+            .from('avatars')
+            .uploadBinary(
+              imagePath,
+              imageBytes,
+              fileOptions: const FileOptions(upsert: true),
+            );
+
+        // Beri timestamp agar gambar langsung terganti tanpa nyangkut cache
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        avatarUrlToSave =
+            "${supabase.storage.from('avatars').getPublicUrl(imagePath)}?t=$timestamp";
+      }
+
       String fullName =
           "${_firstNameController.text.trim()} ${_lastNameController.text.trim()}"
               .trim();
 
+      // Update data text ke Supabase
       await supabase.auth.updateUser(
         UserAttributes(
           data: {
             'display_name': fullName,
             'dob': _dobController.text,
             'phone': _phoneController.text,
-            'avatar_url': _currentAvatarUrl,
+            'avatar_url': avatarUrlToSave,
           },
         ),
       );
@@ -218,56 +204,41 @@ class _W_EditProfilState extends State<W_EditProfil> {
               children: [
                 const SizedBox(height: 20),
 
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 55,
-                      backgroundColor: Colors.grey.shade300,
-                      // 🌟 LOGIKA TAMPILAN FOTO SUPER AMAN:
-                      // 1. Jika pengguna baru saja milih foto, tampilkan bytes mentahnya (MemoryImage)
-                      // 2. Jika tidak, tampilkan foto dari Supabase (NetworkImage)
-                      backgroundImage: _previewImageBytes != null
-                          ? MemoryImage(_previewImageBytes!) as ImageProvider
-                          : (_currentAvatarUrl.isNotEmpty
-                                ? NetworkImage(_currentAvatarUrl)
-                                : null),
-                      child:
-                          (_previewImageBytes == null &&
-                              _currentAvatarUrl.isEmpty)
-                          ? Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Colors.grey.shade600,
-                            )
-                          : null,
-                    ),
-
-                    if (_isUploadingPhoto)
-                      Container(
-                        width: 110,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        ),
-                      ),
-                  ],
+                // 🌟 MENGGUNAKAN LOGIKA kIsWeb PERSIS SEPERTI DI PELAPORAN
+                Center(
+                  child: CircleAvatar(
+                    radius: 55,
+                    backgroundColor: Colors.grey.shade300,
+                    backgroundImage: _newProfileImage != null
+                        ? (kIsWeb
+                              ? NetworkImage(_newProfileImage!.path)
+                              : FileImage(File(_newProfileImage!.path))
+                                    as ImageProvider)
+                        : (_currentAvatarUrl.isNotEmpty
+                              ? NetworkImage(_currentAvatarUrl)
+                              : null),
+                    child:
+                        (_newProfileImage == null && _currentAvatarUrl.isEmpty)
+                        ? Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.grey.shade600,
+                          )
+                        : null,
+                  ),
                 ),
+
                 const SizedBox(height: 15),
 
                 GestureDetector(
-                  onTap: _isUploadingPhoto ? null : _pickImage,
+                  onTap: _pickImage,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: _isUploadingPhoto ? Colors.grey : primaryTeal,
+                      color: primaryTeal,
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: const Row(
@@ -337,12 +308,12 @@ class _W_EditProfilState extends State<W_EditProfil> {
                 const SizedBox(height: 50),
 
                 GestureDetector(
-                  onTap: _isUploadingPhoto ? null : _saveProfile,
+                  onTap: _saveProfile,
                   child: Container(
                     width: double.infinity,
                     height: 55,
                     decoration: BoxDecoration(
-                      color: _isUploadingPhoto ? Colors.grey : primaryTeal,
+                      color: primaryTeal,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: const Center(

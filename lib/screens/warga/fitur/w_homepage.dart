@@ -28,10 +28,12 @@ class _W_HomepageState extends State<W_Homepage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      HalamanBerandaUtama(onTabChange: _pindahTab),
+      // 🌟 KUNCI PERBAIKAN: Menambahkan UniqueKey() agar setiap kali tab Home dibuka,
+      // Flutter akan memuat ulang fungsi penarikan gambar dari database!
+      HalamanBerandaUtama(key: UniqueKey(), onTabChange: _pindahTab),
       const W_ReportPage(),
       const RiwayatLaporanPage(),
-      const WProfil(),
+      const WProfil(), // Pastikan ini menggunakan nama class dari file w_profil.dart (WProfil)
     ];
 
     return Scaffold(
@@ -111,6 +113,7 @@ class HalamanBerandaUtama extends StatefulWidget {
 
 class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
   String _userName = 'Warga';
+  String _avatarUrl = ''; // 🌟 MENAMBAHKAN VARIABEL URL FOTO
   final supabase = Supabase.instance.client;
 
   @override
@@ -119,13 +122,17 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
     _getUserData();
   }
 
-  void _getUserData() {
-    final user = supabase.auth.currentUser;
+  // 🌟 MENGAMBIL NAMA DAN FOTO LANGSUNG DARI SERVER SUPABASE
+  Future<void> _getUserData() async {
+    final response = await supabase.auth.getUser();
+    final user = response.user;
+
     if (user != null) {
-      final displayName = user.userMetadata?['display_name'] as String?;
-      if (displayName != null && displayName.isNotEmpty) {
+      final metadata = user.userMetadata;
+      if (mounted) {
         setState(() {
-          _userName = displayName;
+          _userName = metadata?['display_name'] ?? 'Warga';
+          _avatarUrl = metadata?['avatar_url'] ?? '';
         });
       }
     }
@@ -149,243 +156,264 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
+      // 🌟 DIBUNGKUS RefreshIndicator BIAR BISA DITARIK REFRESH
+      body: RefreshIndicator(
+        onRefresh: _getUserData,
+        color: const Color(0xFF004D56),
+        backgroundColor: Colors.white,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics:
+                const AlwaysScrollableScrollPhysics(), // Wajib ada agar RefreshIndicator berfungsi
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
 
-              // --- HEADER ---
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 25,
-                        backgroundImage: AssetImage('assets/image/logo.png'),
-                        backgroundColor: Color(0xFFD9D9D9),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Halo,',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF004D56),
-                            ),
-                          ),
-                          Text(
-                            _userName,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF004D56),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  IconButton(
-                    icon: const Icon(
-                      Icons.notifications_none,
-                      size: 30,
-                      color: Color(0xFF004D56),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NotificationPage(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 25),
-
-              const Text(
-                'Edukasi Hari Ini',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF004D56),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0F7FA),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // --- HEADER ---
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      '3 Tanda Air Sumur Anda Bermasalah 🚨',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF004D56),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    const Text(
-                      'Segera laporkan jika air berbau tidak wajar, berubah warna, atau terasa licin di kulit.',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF004D56)),
-                    ),
-                    const SizedBox(height: 15),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => WEdukasiDetail1(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF004D56),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
+                    Row(
+                      children: [
+                        // 🌟 LOGIKA AVATAR MENGGUNAKAN FOTO DARI DATABASE SUPABASE
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundColor: Colors.grey.shade300,
+                          backgroundImage: _avatarUrl.isNotEmpty
+                              ? NetworkImage(_avatarUrl)
+                              : null,
+                          child: _avatarUrl.isEmpty
+                              ? Icon(
+                                  Icons.person,
+                                  size: 30,
+                                  color: Colors.grey.shade600,
+                                )
+                              : null,
                         ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Baca Selengkapnya',
+                            const Text(
+                              'Halo,',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 14,
+                                color: Color(0xFF004D56),
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              size: 12,
-                              color: Colors.white,
+                            Text(
+                              _userName,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF004D56),
+                              ),
                             ),
                           ],
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 25),
 
-              const Text(
-                'Tindakan Cepat',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF004D56),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildActionCard(
-                      'Buat Laporan Air',
-                      Icons.campaign,
-                      () {
-                        widget.onTabChange(1);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: _buildActionCard(
-                      'Edukasi Air Bersih',
-                      Icons.menu_book_outlined,
-                      () {
+                    IconButton(
+                      icon: const Icon(
+                        Icons.notifications_none,
+                        size: 30,
+                        color: Color(0xFF004D56),
+                      ),
+                      onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const WEdukasi(),
+                            builder: (context) => const NotificationPage(),
                           ),
                         );
                       },
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 25),
-
-              const Text(
-                'Laporan Terbaru',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF004D56),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 25),
 
-              FutureBuilder<List<Map<String, dynamic>>>(
-                future: fetchLatestReports(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: CircularProgressIndicator(
+                const Text(
+                  'Edukasi Hari Ini',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0F7FA),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '3 Tanda Air Sumur Anda Bermasalah 🚨',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
                           color: Color(0xFF004D56),
                         ),
                       ),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return const Text("Terjadi kesalahan memuat laporan.");
-                  }
-
-                  final reports = snapshot.data ?? [];
-
-                  if (reports.isEmpty) {
-                    return Container(
-                      padding: const EdgeInsets.all(20),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Belum ada laporan yang dibuat.",
-                          style: TextStyle(color: Colors.grey),
+                      const SizedBox(height: 5),
+                      const Text(
+                        'Segera laporkan jika air berbau tidak wajar, berubah warna, atau terasa licin di kulit.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF004D56),
                         ),
                       ),
-                    );
-                  }
-                  return Column(
-                    children: reports.map((report) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 15.0),
-                        child: _buildLatestReportCard(report),
+                      const SizedBox(height: 15),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => WEdukasiDetail1(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF004D56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Baca Selengkapnya',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 12,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 25),
+
+                const Text(
+                  'Tindakan Cepat',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildActionCard(
+                        'Buat Laporan Air',
+                        Icons.campaign,
+                        () {
+                          widget.onTabChange(1);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: _buildActionCard(
+                        'Edukasi Air Bersih',
+                        Icons.menu_book_outlined,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WEdukasi(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
+
+                const Text(
+                  'Laporan Terbaru',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: fetchLatestReports(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF004D56),
+                          ),
+                        ),
                       );
-                    }).toList(),
-                  );
-                },
-              ),
-              const SizedBox(height: 30),
-            ],
+                    }
+                    if (snapshot.hasError) {
+                      return const Text("Terjadi kesalahan memuat laporan.");
+                    }
+
+                    final reports = snapshot.data ?? [];
+
+                    if (reports.isEmpty) {
+                      return Container(
+                        padding: const EdgeInsets.all(20),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "Belum ada laporan yang dibuat.",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      );
+                    }
+                    return Column(
+                      children: reports.map((report) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 15.0),
+                          child: _buildLatestReportCard(report),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb; 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -87,7 +87,7 @@ class _W_ReportPageState extends State<W_ReportPage> {
 
     if (image != null) {
       setState(() {
-        _imageFile = image; 
+        _imageFile = image;
       });
     }
   }
@@ -216,7 +216,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
-                  
                       Navigator.pop(context);
 
                       setState(() {
@@ -393,7 +392,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
                           color: Color(0xFF003D45),
                         ),
                       ),
-                      Icon(Icons.history, color: Color(0xFF003D45), size: 28),
                     ],
                   ),
                   const SizedBox(height: 25),
@@ -418,7 +416,10 @@ class _W_ReportPageState extends State<W_ReportPage> {
                       selectedDaerah,
                       (val) => setState(() => selectedDaerah = val),
                     ),
-                    child: _buildDropdownField(selectedDaerah),
+                    child: _buildDropdownField(
+                      selectedDaerah,
+                      Icons.location_on_outlined,
+                    ),
                   ),
 
                   _buildLabel("Kategori"),
@@ -429,7 +430,11 @@ class _W_ReportPageState extends State<W_ReportPage> {
                       selectedKategori,
                       (val) => setState(() => selectedKategori = val),
                     ),
-                    child: _buildDropdownField(selectedKategori),
+
+                    child: _buildDropdownField(
+                      selectedKategori,
+                      Icons.local_offer_outlined,
+                    ),
                   ),
 
                   _buildLabel("Deskripsi"),
@@ -541,7 +546,7 @@ class _W_ReportPageState extends State<W_ReportPage> {
       ),
     ),
   );
-  Widget _buildDropdownField(String text) => Container(
+  Widget _buildDropdownField(String text, IconData icon) => Container(
     margin: const EdgeInsets.only(bottom: 10),
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
     decoration: BoxDecoration(
@@ -549,17 +554,21 @@ class _W_ReportPageState extends State<W_ReportPage> {
       border: Border.all(color: const Color(0xFF709096)),
     ),
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: text.startsWith("Pilih")
-                ? const Color(0xFF709096)
-                : const Color(0xFF003D45),
-            fontSize: 14,
+        Icon(icon, color: const Color(0xFF003D45), size: 22),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: text.startsWith("Pilih")
+                  ? const Color(0xFF709096)
+                  : const Color(0xFF003D45),
+              fontSize: 14,
+            ),
           ),
         ),
+
         const Icon(
           Icons.arrow_drop_down_circle_outlined,
           color: Color(0xFF80DEEA),
@@ -580,12 +589,12 @@ class _W_ReportPageState extends State<W_ReportPage> {
           maxLines: 4,
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: const Padding(
-              padding: EdgeInsets.only(bottom: 60),
-              child: Icon(Icons.menu, color: Color(0xFF003D45)),
-            ),
+
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(vertical: 15),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 15,
+            ),
           ),
         ),
       );
