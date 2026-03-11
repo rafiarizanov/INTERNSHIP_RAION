@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 
 
 
-class TentangAplikasiPage extends StatelessWidget {
-  const TentangAplikasiPage({super.key});
+class PTentangAplikasi extends StatelessWidget {
+  const PTentangAplikasi({super.key});
 
-  // Warna tema sesuai gambar
   final Color primaryTeal = const Color(0xFF003D4C);
 
   @override
@@ -18,7 +17,7 @@ class TentangAplikasiPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            // Tombol Back Kotak
+          
             Container(
               width: 38,
               height: 38,
@@ -50,25 +49,24 @@ class TentangAplikasiPage extends StatelessWidget {
           children: [
             const Spacer(flex: 1),
             
-            // Logo Aplikasi
+          
             Image.asset(
               'assets/image/logo.png',
-              height: 150, // Sesuaikan ukuran
+              height: 150, 
               fit: BoxFit.contain,
             ),
             
             const SizedBox(height: 10),
             
-            // Nama Logo (Sadar Air)
             Image.asset(
               'assets/image/nama.png',
-              height: 60, // Sesuaikan ukuran
+              height: 60, 
               fit: BoxFit.contain,
             ),
             
             const SizedBox(height: 30),
             
-            // Deskripsi Teks
+          
             Text(
               "Sadar Air adalah platform digital terintegrasi yang memudahkan masyarakat melaporkan kondisi air kotor secara real-time melalui foto dan lokasi, sekaligus menyediakan edukasi sanitasi untuk meningkatkan kesadaran, mempercepat respons petugas, dan mendukung pengelolaan kualitas air berkelanjutan di Kota Bekasi",
               textAlign: TextAlign.justify,
@@ -80,8 +78,7 @@ class TentangAplikasiPage extends StatelessWidget {
             ),
             
             const Spacer(flex: 2),
-            
-            // Footer Credit
+           
             Text(
               "Made with ♥ by Kelompok 6\nfor Raion Community Internship 2026",
               textAlign: TextAlign.center,
@@ -94,7 +91,7 @@ class TentangAplikasiPage extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-            // Tombol Kembali
+           
             SizedBox(
               width: double.infinity,
               height: 55,

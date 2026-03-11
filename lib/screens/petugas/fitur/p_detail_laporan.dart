@@ -1,18 +1,60 @@
 import 'package:flutter/material.dart';
-
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PDetailLaporan extends StatefulWidget {
-  const PDetailLaporan({super.key});
+  final Map<String, dynamic> report;
+  const PDetailLaporan({super.key, required this.report});
 
   @override
   State<PDetailLaporan> createState() => _PDetailLaporanState();
 }
 
 class _PDetailLaporanState extends State<PDetailLaporan> {
-  String selectedStatus = "Dibaca";
+  String selectedStatus = "Belum Dibaca";
   final TextEditingController _commentController = TextEditingController();
   List<String> comments = [];
+  bool _isUpdating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedStatus = widget.report['status'] ?? 'Belum Dibaca';
+  }
+
+  Future<void> _updateStatus(String newStatus) async {
+    setState(() {
+      selectedStatus = newStatus;
+      _isUpdating = true;
+    });
+
+    try {
+      final supabase = Supabase.instance.client;
+      await supabase
+          .from('reports')
+          .update({'status': newStatus})
+          .eq('id', widget.report['id']);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Status berhasil diperbarui!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Gagal memperbarui status: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() => _isUpdating = false);
+    }
+  }
 
   void _showCommentSheet() {
     showModalBottomSheet(
@@ -35,11 +77,12 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
             Row(
               children: [
                 const CircleAvatar(
-                  backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
+                  backgroundColor: Color(0xFF004D56),
+                  child: Icon(Icons.person, color: Colors.white),
                 ),
                 const SizedBox(width: 12),
                 const Text(
-                  "Budi Santoso",
+                  "Tanggapan Petugas",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF004D56),
@@ -47,20 +90,23 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
                   ),
                 ),
                 const Spacer(),
-               IconButton(
-  onPressed: () => Navigator.pop(context),
-  icon: Container(
-    decoration: BoxDecoration(
-      border: Border.all(color: const Color(0xFF004D56), width: 2),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: const Icon(
-      Icons.close, 
-      size: 18, 
-      color: Color(0xFF004D56)
-    ),
-  ),
-),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color(0xFF004D56),
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      size: 18,
+                      color: Color(0xFF004D56),
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 15),
@@ -93,10 +139,21 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF004D56),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                child: const Text("Post", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  "Post",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -106,8 +163,45 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
     );
   }
 
+  void _showFullScreenImage(String imageUrl) {
+    if (imageUrl.isEmpty) return; 
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          backgroundColor: Colors.black, 
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            elevation: 0,
+            iconTheme: const IconThemeData(
+              color: Colors.white,
+            ), 
+          ),
+          body: Center(
+           
+            child: InteractiveViewer(
+              clipBehavior: Clip.none,
+              minScale: 1.0,
+              maxScale: 4.0, 
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final report = widget.report;
+    final String imageUrl = report['image_url'] ?? '';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -121,8 +215,12 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
-              onPressed: () {},
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 18,
+              ),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
         ),
@@ -134,148 +232,242 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
             fontSize: 20,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF004D56)),
-            onPressed: () {},
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _buildTextField("ID Laporan", "LP005")),
-                const SizedBox(width: 15),
-                Expanded(child: _buildTextField("Kategori", "Waspada")),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: const Color(0xFF004D56)),
-                color: Colors.grey.shade200,
-              ),
-              child: const Icon(Icons.image, size: 50, color: Colors.grey),
-            ),
-            const SizedBox(height: 20),
-            _buildTextField("Pelapor", "Siti Aisyah"),
-            const SizedBox(height: 20),
-            _buildTextField("Tanggal", "10/2/2026"),
-            const SizedBox(height: 20),
-            _buildTextField("Lokasi", "Jl. Damai 6 No.40"),
-            const SizedBox(height: 20),
-            const Text(
-              "Deskripsi Masalah",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF004D56), fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF004D56).withOpacity(0.5)),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Air Mengandung Endapan", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF004D56))),
-                  SizedBox(height: 10),
-                  Text(
-                    "Terdapat endapan pasir halus di dasar ember setelah air ditampung selama beberapa jam.",
-                    style: TextStyle(color: Color(0xFF004D56), height: 1.4),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Status Laporan",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF004D56), fontSize: 16),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildStatusButton("Dibaca"),
-                _buildStatusButton("Diproses"),
-                _buildStatusButton("Selesai"),
-              ],
-            ),
-            const SizedBox(height: 30),
-            
-            // Tampilan daftar komentar/tanggapan setelah di-post
-            ...comments.map((comment) => Padding(
-              padding: const EdgeInsets.only(bottom: 15),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CircleAvatar(
-                    backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0F7FA),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Budi Santoso", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF004D56))),
-                              Text("11/2/2026", style: TextStyle(fontSize: 12, color: Color(0xFF004D56))),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(comment, style: const TextStyle(color: Color(0xFF004D56), height: 1.4)),
-                        ],
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        "ID Laporan",
+                        report['report_id'] ?? '-',
                       ),
                     ),
-                  ),
-                ],
-              ),
-            )).toList(),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: _buildTextField(
+                        "Kategori",
+                        report['kategori'] ?? '-',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
 
-            GestureDetector(
-              onTap: _showCommentSheet,
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    backgroundColor: Color(0xFF004D56),
-                    child: Icon(Icons.person, color: Colors.white),
+              
+                GestureDetector(
+                  onTap: () => _showFullScreenImage(
+                    imageUrl,
+                  ), 
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        height: 200,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: const Color(0xFF004D56)),
+                          color: Colors.grey.shade200,
+                          image: imageUrl.isNotEmpty
+                              ? DecorationImage(
+                                  image: NetworkImage(imageUrl),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: imageUrl.isEmpty
+                            ? const Icon(
+                                Icons.image,
+                                size: 50,
+                                color: Colors.grey,
+                              )
+                            : null,
+                      ),
+
+                      
+                      if (imageUrl.isNotEmpty)
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.zoom_out_map,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0F7FA),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: const Color(0xFF004D56).withOpacity(0.5)),
-                      ),
-                      child: const Text(
-                        "Berikan tanggapan",
-                        style: TextStyle(color: Color(0xFF004D56), fontSize: 14),
-                      ),
+                ),
+                const SizedBox(height: 20),
+
+                _buildTextField(
+                  "Pelapor",
+                  report['user_name'] ?? 'Warga Anonim',
+                ),
+                const SizedBox(height: 20),
+                _buildTextField("Tanggal", report['tanggal'] ?? '-'),
+                const SizedBox(height: 20),
+                _buildTextField("Lokasi", report['lokasi'] ?? '-'),
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Deskripsi Masalah",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFF004D56).withOpacity(0.5),
                     ),
                   ),
-                ],
+                  child: Text(
+                    report['deskripsi'] ?? '-',
+                    style: const TextStyle(
+                      color: Color(0xFF004D56),
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Status Laporan (Ketuk untuk ubah)",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D56),
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildStatusButton("Laporan Dibaca", "Dibaca"),
+                    _buildStatusButton("Laporan Diproses", "Diproses"),
+                    _buildStatusButton("Laporan Selesai", "Selesai"),
+                  ],
+                ),
+                const SizedBox(height: 30),
+
+                ...comments
+                    .map(
+                      (comment) => Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const CircleAvatar(
+                              backgroundColor: Color(0xFF004D56),
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(15),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE0F7FA),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Tanggapan Petugas",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF004D56),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      comment,
+                                      style: const TextStyle(
+                                        color: Color(0xFF004D56),
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                    .toList(),
+
+                GestureDetector(
+                  onTap: _showCommentSheet,
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        backgroundColor: Color(0xFF004D56),
+                        child: Icon(Icons.person, color: Colors.white),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0F7FA),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: const Color(0xFF004D56).withOpacity(0.5),
+                            ),
+                          ),
+                          child: const Text(
+                            "Berikan tanggapan",
+                            style: TextStyle(
+                              color: Color(0xFF004D56),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+
+          if (_isUpdating)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(color: Color(0xFF004D56)),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -284,7 +476,14 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF004D56), fontSize: 16)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF004D56),
+            fontSize: 16,
+          ),
+        ),
         const SizedBox(height: 8),
         Container(
           width: double.infinity,
@@ -299,10 +498,13 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
     );
   }
 
-  Widget _buildStatusButton(String status) {
-    bool isSelected = selectedStatus == status;
+  Widget _buildStatusButton(String dbStatus, String label) {
+    bool isSelected =
+        selectedStatus == dbStatus ||
+        (selectedStatus == "Belum Dibaca" && label == "Dibaca");
+
     return GestureDetector(
-      onTap: () => setState(() => selectedStatus = status),
+      onTap: () => _updateStatus(dbStatus),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.28,
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -313,7 +515,7 @@ class _PDetailLaporanState extends State<PDetailLaporan> {
         ),
         alignment: Alignment.center,
         child: Text(
-          status,
+          label,
           style: TextStyle(
             color: isSelected ? Colors.white : const Color(0xFF004D56),
             fontWeight: FontWeight.bold,

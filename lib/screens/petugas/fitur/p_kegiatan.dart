@@ -1,17 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'p_detail_laporan.dart'; 
 
-
-
-class PKegiatan extends StatelessWidget {
+class PKegiatan extends StatefulWidget {
   const PKegiatan({super.key});
 
   @override
+  State<PKegiatan> createState() => _PKegiatanState();
+}
+
+class _PKegiatanState extends State<PKegiatan> {
+  String _selectedFilter = "Semua";
+  final supabase = Supabase.instance.client;
+
+  final List<String> _filters = [
+    "Semua",
+    "Diterima",
+    "Dibaca",
+    "Diproses",
+    "Selesai",
+  ];
+
+  List<Map<String, dynamic>> _allReports = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReports();
+  }
+
+  Future<void> _fetchReports() async {
+    setState(() => _isLoading = true);
+    try {
+      final data = await supabase
+          .from('reports')
+          .select()
+          .order('created_at', ascending: false);
+
+      if (mounted) {
+        setState(() {
+          _allReports = List<Map<String, dynamic>>.from(data);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching reports: $e");
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  
+  List<Map<String, dynamic>> get _filteredReports {
+    if (_selectedFilter == "Semua") {
+      return _allReports;
+    }
+    return _allReports.where((report) {
+      String status = report["status"] ?? "Belum Dibaca";
+      if (_selectedFilter == "Diterima" &&
+          (status == "Belum Dibaca" || status == "Laporan Diterima"))
+        return true;
+      if (_selectedFilter == "Dibaca" && status == "Laporan Dibaca")
+        return true;
+      if (_selectedFilter == "Diproses" && status == "Laporan Diproses")
+        return true;
+      if (_selectedFilter == "Selesai" && status == "Laporan Selesai")
+        return true;
+      return false;
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final reportsToDisplay = _filteredReports;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: const Text(
           "Laporan Masalah Air",
           style: TextStyle(
@@ -20,12 +88,6 @@ class PKegiatan extends StatelessWidget {
             fontSize: 20,
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.more_vert, color: Color(0xFF004D56)),
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -45,103 +107,190 @@ class PKegiatan extends StatelessWidget {
               ],
             ),
           ),
+
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.only(left: 20, bottom: 20),
             child: Row(
-              children: [
-                _buildFilterChip("Semua", true),
-                _buildFilterChip("Diterima", false),
-                _buildFilterChip("Dibaca", false),
-                _buildFilterChip("Diproses", false),
-              ],
+              children: _filters.map((filterName) {
+                return _buildFilterChip(
+                  filterName,
+                  _selectedFilter == filterName,
+                );
+              }).toList(),
             ),
           ),
+
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              children: [
-                _buildReportCard("Air Keruh", "Air berwarna keruh sejak pagi, warna coklat kekuningan dan berbau tidak sedap", "LP001", "Bekasi Barat", "14/02/2026", "Laporan Diterima", const Color(0xFFE0E0E0), Colors.black87),
-                _buildReportCard("Air Berbau", "Air mengeluarkan bau menyengat seperti besi sejak dua hari terakhir, terutama saat pagi dan malam hari.", "LP002", "Bekasi Timur", "13/02/2026", "Laporan Dibaca", const Color(0xFFB2EBF2), Color(0xFF006064)),
-                _buildReportCard("Air Menguning", "Air berwarna kuning kecoklatan dan meninggalkan noda pada pakaian setelah dicuci.", "LP003", "Jatisampurna", "13/02/2026", "Laporan Dibaca", const Color(0xFFB2EBF2), Color(0xFF006064)),
-                _buildReportCard("Air Berbusa", "Air terlihat berbusa saat digunakan dan terasa licin di kulit meskipun tanpa sabun.", "LP004", "Medan Satria", "12/02/2026", "Laporan Diproses", const Color(0xFFFFF9C4), Color(0xFFFBC02D)),
-                _buildReportCard("Air Mengandung Endapan", "Terdapat endapan pasir halus di dasar ember setelah air ditampung selama beberapa jam.", "LP005", "Jatiasih", "10/02/2026", "Laporan Diproses", const Color(0xFFFFF9C4), Color(0xFFFBC02D)),
-                _buildReportCard("Air Berwarna Hitam", "Air berubah menjadi kehitaman saat pertama kali dinyalakan dan berbau tidak sedap.", "LP006", "Bantar Gebang", "10/02/2026", "Laporan Selesai", const Color(0xFFC8E6C9), Color(0xFF388E3C)),
-                const SizedBox(height: 20),
-              ],
-            ),
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF004D56)),
+                  )
+                : reportsToDisplay.isEmpty
+                ? const Center(
+                    child: Text(
+                      "Tidak ada laporan di kategori ini.",
+                      style: TextStyle(color: Colors.blueGrey),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _fetchReports,
+                    color: const Color(0xFF004D56),
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: reportsToDisplay.length,
+                      itemBuilder: (context, index) {
+                        final rep = reportsToDisplay[index];
+                        return _buildReportCard(rep);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
-      bottomNavigationBar: _buildNavbar(),
     );
   }
 
   Widget _buildFilterChip(String label, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF004E62) : const Color(0xFFE0F2F1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? Colors.white : const Color(0xFF004E62),
-          fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedFilter = label;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF004D56) : const Color(0xFFE0F2F1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : const Color(0xFF004D56),
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildReportCard(String title, String desc, String id, String location, String date, String status, Color statusBg, Color statusText) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusBg,
-                  borderRadius: BorderRadius.circular(10),
+ 
+  Widget _buildReportCard(Map<String, dynamic> report) {
+    String status = report['status'] ?? 'Belum Dibaca';
+    Color statusBg = Colors.grey.shade300;
+    Color statusText = Colors.grey.shade800;
+
+   
+    if (status == 'Laporan Dibaca') {
+      statusBg = const Color(0xFFBDE7F1);
+      statusText = const Color(0xFF00838F);
+    } else if (status == 'Laporan Diproses') {
+      statusBg = const Color(0xFFFFF1AD);
+      statusText = const Color(0xFFB48A00);
+    } else if (status == 'Laporan Selesai') {
+      statusBg = const Color(0xFFC8E6C9);
+      statusText = const Color(0xFF2E7D32);
+    } else {
+      statusBg = const Color(0xFFE0E0E0);
+      statusText = const Color(0xFF616161);
+      status = 'Diterima'; // Alias
+    }
+
+    String judulLaporan = report['deskripsi'] ?? 'Laporan Warga';
+    List<String> kata = judulLaporan.split(' ');
+    if (kata.length > 4) judulLaporan = "${kata.sublist(0, 4).join(' ')}...";
+
+    return GestureDetector(
+      onTap: () {
+      
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PDetailLaporan(report: report),
+          ),
+        ).then((_) => _fetchReports()); 
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 15),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusBg,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: statusText,
+                    ),
+                  ),
                 ),
-                child: Text(
-                  status,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: statusText),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: Color(0xFF004D56),
                 ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              judulLaporan,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF004D56),
               ),
-              const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF004D56)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF004D56))),
-          const SizedBox(height: 6),
-          Text(
-            desc,
-            style: TextStyle(fontSize: 13, color: Colors.blueGrey.shade600, height: 1.4),
-          ),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              _buildIconText(Icons.tag, id),
-              const SizedBox(width: 15),
-              _buildIconText(Icons.location_on_outlined, location),
-              const SizedBox(width: 15),
-              _buildIconText(Icons.calendar_today_outlined, date),
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              report['deskripsi'] ?? '-',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.blueGrey.shade600,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 15),
+            Row(
+              children: [
+                _buildIconText(Icons.tag, report['report_id'] ?? '-'),
+                const SizedBox(width: 15),
+                _buildIconText(
+                  Icons.location_on_outlined,
+                  report['lokasi'] ?? '-',
+                ),
+                const SizedBox(width: 15),
+                _buildIconText(
+                  Icons.calendar_today_outlined,
+                  report['tanggal'] ?? '-',
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -151,49 +300,9 @@ class PKegiatan extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: const Color(0xFF004D56)),
         const SizedBox(width: 4),
-        Text(text, style: const TextStyle(fontSize: 12, color: Color(0xFF004D56))),
-      ],
-    );
-  }
-
-  Widget _buildNavbar() {
-    return Container(
-      height: 80,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.bar_chart, "Dashboard", false),
-          _buildNavItem(Icons.handyman, "Kegiatan", true),
-          _buildNavItem(Icons.person_outline, "Akun", false),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, bool isActive) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF00838F) : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: isActive ? Colors.white : Colors.black87),
-        ),
-        const SizedBox(height: 4),
         Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            color: Colors.black87,
-          ),
+          text,
+          style: const TextStyle(fontSize: 11, color: Color(0xFF004D56)),
         ),
       ],
     );

@@ -4,7 +4,6 @@ import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_profil.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'w_notifikasi.dart';
-import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_edit_profile.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_report.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_riwayat_laporan.dart';
 import 'w_detail_laporan.dart';
@@ -28,12 +27,11 @@ class _W_HomepageState extends State<W_Homepage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      // 🌟 KUNCI PERBAIKAN: Menambahkan UniqueKey() agar setiap kali tab Home dibuka,
-      // Flutter akan memuat ulang fungsi penarikan gambar dari database!
+ 
       HalamanBerandaUtama(key: UniqueKey(), onTabChange: _pindahTab),
       const W_ReportPage(),
       const RiwayatLaporanPage(),
-      const WProfil(), // Pastikan ini menggunakan nama class dari file w_profil.dart (WProfil)
+      const WProfil(), 
     ];
 
     return Scaffold(

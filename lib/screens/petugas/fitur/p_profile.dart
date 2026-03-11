@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
 class P_Profil extends StatelessWidget {
   const P_Profil({super.key});
 
@@ -43,11 +41,7 @@ class P_Profil extends StatelessWidget {
                 ),
                 child: const CircleAvatar(
                   backgroundColor: Colors.transparent,
-                  child: Icon(
-                    Icons.person,
-                    size: 70,
-                    color: Color(0xFF003D45),
-                  ),
+                  child: Icon(Icons.person, size: 70, color: Color(0xFF003D45)),
                 ),
               ),
             ),
@@ -87,21 +81,6 @@ class P_Profil extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 85,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.grey.shade200)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavLink(Icons.bar_chart, "Dashboard", false),
-            _buildNavLink(Icons.construction, "Kegiatan", false),
-            _buildNavLink(Icons.account_circle, "Akun", true),
-          ],
-        ),
-      ),
     );
   }
 
@@ -127,35 +106,6 @@ class P_Profil extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildNavLink(IconData icon, String label, bool isActive) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF008394) : Colors.transparent,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Icon(
-            icon,
-            color: isActive ? Colors.white : Colors.black,
-            size: 26,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ],
     );
   }
 }

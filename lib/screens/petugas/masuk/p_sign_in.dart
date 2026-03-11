@@ -15,19 +15,18 @@ class _PSignInState extends State<PSignIn> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
-  // Controller untuk menangkap input dari user
+ 
   final TextEditingController _nipController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    // Menghapus controller dari memori saat page ditutup
+    
     _nipController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  // Fungsi Logika Login
   void _handleLogin() async {
     final nip = _nipController.text.trim();
     final password = _passwordController.text.trim();
@@ -43,7 +42,6 @@ class _PSignInState extends State<PSignIn> {
       _isLoading = true;
     });
 
-    // Memanggil fungsi loginPetugas yang ada di AuthProvider
     final authProv = Provider.of<AuthProvider>(context, listen: false);
     final error = await authProv.loginPetugas(nip, password);
 
@@ -52,7 +50,7 @@ class _PSignInState extends State<PSignIn> {
     });
 
     if (error == null) {
-      // Jika berhasil (error kosong), pindah ke Homepage
+     
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
@@ -60,7 +58,7 @@ class _PSignInState extends State<PSignIn> {
         (route) => false,
       );
     } else {
-      // Jika gagal, tampilkan pesan error dari provider
+     
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error), backgroundColor: Colors.red),
@@ -128,7 +126,6 @@ class _PSignInState extends State<PSignIn> {
                 ),
                 const SizedBox(height: 30),
 
-                // --- AREA ILUSTRASI (SUDAH DIKEMBALIKAN) ---
                 Container(
                   height: 220,
                   width: double.infinity,
@@ -156,14 +153,14 @@ class _PSignInState extends State<PSignIn> {
 
                 const SizedBox(height: 40),
 
-                // Input NIP
+              
                 _buildPetugasInput(
                   label: "NIP Anda",
                   icon: Icons.contact_mail_outlined,
                   controller: _nipController,
                 ),
                 const SizedBox(height: 20),
-                // Input Password
+                
                 _buildPetugasInput(
                   label: "Kata Sandi",
                   icon: Icons.lock_outline,
@@ -173,7 +170,6 @@ class _PSignInState extends State<PSignIn> {
 
                 const SizedBox(height: 50),
 
-                // --- TOMBOL MASUK ---
                 GestureDetector(
                   onTap: _isLoading ? null : _handleLogin,
                   child: Container(
@@ -213,7 +209,7 @@ class _PSignInState extends State<PSignIn> {
     );
   }
 
-  // Widget TextField Custom
+
   Widget _buildPetugasInput({
     required String label,
     required IconData icon,
