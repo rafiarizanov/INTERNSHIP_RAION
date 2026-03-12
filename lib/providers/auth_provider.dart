@@ -1,43 +1,63 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; 
 
 final _supabaseAuth = Supabase.instance.client.auth;
 
 class AuthProvider extends ChangeNotifier {
+ 
   String _namaDaerah = '';
   String get namaDaerah => _namaDaerah;
 
-  final Map<String, Map<String, String>> _dataPetugas = {
-    '12345678': {'pass': 'petugas123', 'wilayah': 'Kabupaten Malang'},
-    '87654321': {'pass': 'admin456', 'wilayah': 'Kota Surabaya'},
-    '11223344': {'pass': 'petugas01', 'wilayah': 'DKI Jakarta'},
-  };
+  String _namaPetugas = '';
+  String get namaPetugas => _namaPetugas;
+
+  void restorePetugasSession({required String nama, required String wilayah}) {
+    _namaPetugas = nama;
+    _namaDaerah = wilayah;
+    notifyListeners();
+  }
 
   Future<String?> loginPetugas(String nip, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final response = await Supabase.instance.client
+          .from('petugas')
+          .select()
+          .eq('nip', nip)
+          .maybeSingle();
 
-    if (_dataPetugas.containsKey(nip)) {
-      if (_dataPetugas[nip]!['pass'] == password) {
-        _namaDaerah = _dataPetugas[nip]!['wilayah']!;
+      if (response == null) {
+        return 'NIP tidak ditemukan. Pastikan Anda memasukkan NIP yang benar.';
+      }
+
+      if (response['password'] == password) {
+        _namaDaerah = response['wilayah'] ?? 'Semua Daerah';
+        _namaPetugas = response['nama'] ?? 'Petugas DLH';
+
+   
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('petugas_nip', nip);
+        await prefs.setString('petugas_nama', _namaPetugas);
+        await prefs.setString('petugas_wilayah', _namaDaerah);
+
         notifyListeners();
         return null;
       } else {
         return 'Kata sandi salah. Silakan coba lagi.';
       }
-    } else {
-      return 'NIP tidak ditemukan. Pastikan Anda memasukkan NIP yang benar.';
+    } catch (e) {
+      return 'Terjadi kesalahan sistem: $e';
     }
   }
 
+  // --- STATE UNTUK WARGA TETAP SAMA ---
   final form = GlobalKey<FormState>();
-
   var islogin = true;
   var enteredEmail = '';
   var enteredPassword = '';
   var enteredFirstName = '';
   var enteredLastName = '';
-  var enteredPhone = ''; 
-  
+  var enteredPhone = '';
 
   Future<void> sendPhoneOTP({
     required String phone,
@@ -49,7 +69,7 @@ class AuthProvider extends ChangeNotifier {
       formattedPhone = '+62${phone.substring(1)}';
     }
     enteredPhone = formattedPhone;
-    
+
     try {
       await _supabaseAuth.signInWithOtp(phone: formattedPhone);
       onSuccess();
@@ -72,7 +92,9 @@ class AuthProvider extends ChangeNotifier {
       if (user == null) return "Sesi OTP tidak ditemukan.";
 
       final userMetadata = user.userMetadata ?? {};
-      bool isNewUser = userMetadata['display_name'] == null || userMetadata['display_name'] == '';
+      bool isNewUser =
+          userMetadata['display_name'] == null ||
+          userMetadata['display_name'] == '';
 
       if (isLoginFlow && isNewUser) {
         await _supabaseAuth.signOut();
@@ -84,7 +106,7 @@ class AuthProvider extends ChangeNotifier {
         return 'Nomor ini sudah terdaftar. Silakan langsung masuk.';
       }
 
-      return null; 
+      return null;
     } on AuthException catch (_) {
       return 'Kode OTP salah atau sudah kedaluwarsa.';
     } catch (e) {
@@ -97,9 +119,7 @@ class AuthProvider extends ChangeNotifier {
       final user = _supabaseAuth.currentUser;
       if (user != null) {
         await _supabaseAuth.updateUser(
-          UserAttributes(
-            data: {'display_name': '$firstName $lastName'},
-          ),
+          UserAttributes(data: {'display_name': '$firstName $lastName'}),
         );
         return null;
       }
@@ -126,18 +146,21 @@ class AuthProvider extends ChangeNotifier {
           email: enteredEmail,
           password: enteredPassword,
           emailRedirectTo: 'sadarair://login-callback',
-          data: {'display_name': '$enteredFirstName $enteredLastName'}, 
+          data: {'display_name': '$enteredFirstName $enteredLastName'},
         );
         return null;
       }
     } on AuthException catch (e) {
       final msg = e.message.toLowerCase();
-      
-      if (msg.contains('invalid login credentials') || msg.contains('invalid credentials')) {
+
+      if (msg.contains('invalid login credentials') ||
+          msg.contains('invalid credentials')) {
         return 'Email atau kata sandi salah.';
-      } else if (msg.contains('already registered') || msg.contains('user already exists')) {
+      } else if (msg.contains('already registered') ||
+          msg.contains('user already exists')) {
         return 'Email ini sudah terdaftar. Silakan gunakan email lain atau masuk.';
-      } else if (msg.contains('weak password') || msg.contains('password should be at least')) {
+      } else if (msg.contains('weak password') ||
+          msg.contains('password should be at least')) {
         return 'Kata sandi terlalu lemah (minimal 6 karakter).';
       } else if (msg.contains('invalid email')) {
         return 'Format email tidak valid.';
@@ -148,5 +171,18 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       notifyListeners();
     }
+  }
+
+
+  Future<void> logoutPetugas() async {
+    _namaDaerah = '';
+    _namaPetugas = '';
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('petugas_nip');
+    await prefs.remove('petugas_nama');
+    await prefs.remove('petugas_wilayah');
+
+    notifyListeners();
   }
 }

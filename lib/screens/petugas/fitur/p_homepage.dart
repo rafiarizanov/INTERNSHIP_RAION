@@ -1,4 +1,5 @@
 import 'package:INTERNSHIP_RAION/providers/auth_provider.dart';
+import 'package:INTERNSHIP_RAION/screens/petugas/fitur/p_notifikasi.dart';
 import 'p_kegiatan.dart';
 import 'package:INTERNSHIP_RAION/screens/petugas/fitur/p_profile.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +103,6 @@ class _P_HomepageState extends State<P_Homepage> {
     );
   }
 }
-
 
 class P_DashboardContent extends StatefulWidget {
   const P_DashboardContent({super.key});
@@ -352,20 +352,16 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
     return SafeArea(
       child: Stack(
         children: [
-         
           RefreshIndicator(
-            onRefresh:
-                _fetchDashboardData, 
+            onRefresh: _fetchDashboardData,
             color: primaryTeal,
             backgroundColor: Colors.white,
             child: SingleChildScrollView(
-             
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-              
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -404,7 +400,14 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                         ],
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PNotifikasi(),
+                            ),
+                          );
+                        },
                         icon: Icon(
                           Icons.notifications_none_rounded,
                           color: primaryTeal,
@@ -415,7 +418,6 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                   ),
                   const SizedBox(height: 25),
 
-                 
                   Text(
                     "Ringkasan Laporan",
                     style: TextStyle(
@@ -479,7 +481,6 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                   ),
                   const SizedBox(height: 30),
 
-               
                   Text(
                     "Grafik Laporan",
                     style: TextStyle(

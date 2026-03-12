@@ -1,9 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+class PNotifikasi extends StatefulWidget {
+  const PNotifikasi({super.key});
 
+  @override
+  State<PNotifikasi> createState() => _PNotifikasiState();
+}
 
-class NotifikasiPage extends StatelessWidget {
-  const NotifikasiPage({super.key});
+class _PNotifikasiState extends State<PNotifikasi> {
+  final supabase = Supabase.instance.client;
+  List<Map<String, dynamic>> _notifList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    try {
+     
+      final data = await supabase
+          .from('notifications')
+          .select()
+          .eq('target_user', 'PETUGAS')
+          .order('created_at', ascending: false);
+
+      if (mounted) {
+        setState(() {
+          _notifList = List<Map<String, dynamic>>.from(data);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +58,12 @@ class NotifikasiPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: IconButton(
-                icon: const Icon(Icons.chevron_left, color: Colors.white, size: 30),
-                onPressed: () {},
+                icon: const Icon(
+                  Icons.chevron_left,
+                  color: Colors.white,
+                  size: 30,
+                ),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
           ),
@@ -39,139 +77,93 @@ class NotifikasiPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          _buildNotificationItem(
-            icon: Icons.error_outline,
-            title: "Laporan Baru Diterima",
-            description: "[LP001] Seorang warga dari Bekasi Barat melaporkan bahwa \"Air berwarna keruh\" pada 14/02/2026. Lihat selengkapnya pada halaman detail laporan.",
-          ),
-          const Divider(indent: 20, endIndent: 20, thickness: 1),
-          _buildNotificationItem(
-            icon: Icons.chat_bubble_outline,
-            title: "Tanggapan Berhasil Dikirim",
-            description: "Tanggapan Anda untuk laporan dengan ID LP005 telah berhasil dikirim. Lihat selengkapnya pada halaman detail laporan.",
-          ),
-          const Divider(indent: 20, endIndent: 20, thickness: 1),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildActiveNav(Icons.bar_chart, "Dashboard"),
-            _buildInactiveNav(Icons.construction, "Kegiatan"),
-            _buildInactiveNav(Icons.account_circle_outlined, "Akun"),
-          ],
-        ),
+      body: RefreshIndicator(
+        onRefresh: _fetchNotifications,
+        color: const Color(0xFF003D45),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _notifList.isEmpty
+            ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 100),
+                  Center(
+                    child: Text(
+                      "Tidak ada notifikasi laporan baru.",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ],
+              )
+            : ListView.builder(
+                itemCount: _notifList.length,
+                itemBuilder: (context, index) {
+                  final notif = _notifList[index];
+                  return _buildNotificationItem(notif);
+                },
+              ),
       ),
     );
   }
 
-  Widget _buildNotificationItem({required IconData icon, required String title, required String description}) {
+  Widget _buildNotificationItem(Map<String, dynamic> notif) {
+    IconData iconData = Icons.error_outline;
+    Color bgColor = const Color(0xFF008394);
+
+    if (notif['icon_type'] == 'alert') {
+      iconData = Icons.warning_amber_rounded;
+      bgColor = Colors.orange;
+    } else if (notif['icon_type'] == 'chat') {
+      iconData = Icons.chat_bubble_outline;
+      bgColor = Colors.blue;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF008394),
-              borderRadius: BorderRadius.circular(8),
+      child: Container(
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey, width: 0.3)),
+        ),
+        padding: const EdgeInsets.only(bottom: 15),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(iconData, color: Colors.white, size: 28),
             ),
-            child: Icon(icon, color: Colors.white, size: 28),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF003D45),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    notif['title'] ?? '',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF003D45),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF006064),
-                    height: 1.4,
+                  const SizedBox(height: 5),
+                  Text(
+                    notif['message'] ?? '',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF006064),
+                      height: 1.4,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildActiveNav(IconData icon, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 80,
-          height: 55,
-          decoration: BoxDecoration(
-            color: const Color(0xFF008394),
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF008394).withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 28),
-              Text(
-                label,
-                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInactiveNav(IconData icon, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: Colors.black87, size: 30),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.black87, fontSize: 11, fontWeight: FontWeight.w500),
-        ),
-      ],
     );
   }
 }

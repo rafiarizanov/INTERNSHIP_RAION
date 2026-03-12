@@ -1,24 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class NotificationPage extends StatefulWidget {
+  const NotificationPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        fontFamily: 'sans-serif',
-      ),
-      home: const NotificationPage(),
-    );
-  }
+  State<NotificationPage> createState() => _NotificationPageState();
 }
 
-class NotificationPage extends StatelessWidget {
-  const NotificationPage({super.key});
+class _NotificationPageState extends State<NotificationPage> {
+  final supabase = Supabase.instance.client;
+  List<Map<String, dynamic>> _notifList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    try {
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) return;
+
+   
+      final data = await supabase
+          .from('notifications')
+          .select()
+          .eq('target_user', userId)
+          .order('created_at', ascending: false);
+
+      if (mounted) {
+        setState(() {
+          _notifList = List<Map<String, dynamic>>.from(data);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +53,16 @@ class NotificationPage extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF004D40), 
+              color: const Color(0xFF004D40),
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
-              onPressed: () {},
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 18,
+              ),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
         ),
@@ -49,85 +75,67 @@ class NotificationPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue, width: 2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildNotificationItem(
-                icon: Icons.hourglass_empty,
-                title: 'Laporan Anda Sedang Diproses',
-                subtitle: 'Laporan Anda dengan ID LP007 sedang ditinjau oleh petugas. Kami akan memberi tahu jika ada perkembangan terbaru.',
-                isFirst: true,
+      body: RefreshIndicator(
+        onRefresh: _fetchNotifications,
+        color: const Color(0xFF004D40),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _notifList.isEmpty
+            ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 100),
+                  Center(
+                    child: Text(
+                      "Belum ada notifikasi.",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ],
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _notifList.length,
+                itemBuilder: (context, index) {
+                  final notif = _notifList[index];
+                  return _buildNotificationItem(notif);
+                },
               ),
-              _buildNotificationItem(
-                icon: Icons.chat_bubble_outline,
-                title: 'Petugas Menanggapi Laporan Anda',
-                subtitle: 'Laporan Anda dengan ID LP006 telah ditanggapi petugas. Lihat selengkapnya pada halaman detail laporan.',
-              ),
-              _buildNotificationItem(
-                icon: Icons.check_circle_outline,
-                title: 'Laporan Anda Selesai Ditangani',
-                subtitle: 'Laporan Anda dengan ID LP005 telah selesai ditangani. Terima kasih sudah peduli dengan kualitas air di sekitarmu!',
-                isLast: true,
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        currentIndex: 0,
-        items: [
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00838F),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.home),
-            ),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(icon: Icon(Icons.notifications_none), label: 'Report'),
-          const BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
-          const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Akun'),
-        ],
       ),
     );
   }
 
-  Widget _buildNotificationItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    bool isFirst = false,
-    bool isLast = false,
-  }) {
+  Widget _buildNotificationItem(Map<String, dynamic> notif) {
+   
+    IconData iconData = Icons.notifications;
+    Color bgColor = const Color(0xFF00838F);
+
+    if (notif['icon_type'] == 'success') {
+      iconData = Icons.check_circle_outline;
+      bgColor = Colors.green;
+    } else if (notif['icon_type'] == 'chat') {
+      iconData = Icons.chat_bubble_outline;
+      bgColor = Colors.blue;
+    } else if (notif['icon_type'] == 'info') {
+      iconData = Icons.info_outline;
+      bgColor = const Color(0xFF00838F);
+    }
+
     return Container(
-      decoration: BoxDecoration(
-      
-        border: isLast ? null : const Border(bottom: BorderSide(color: Colors.blue, width: 1, style: BorderStyle.solid)),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
       ),
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF00838F),
+              color: bgColor,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: Colors.white, size: 24),
+            child: Icon(iconData, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -135,7 +143,7 @@ class NotificationPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  notif['title'] ?? '',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -144,10 +152,11 @@ class NotificationPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  subtitle,
+                  notif['message'] ?? '',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.blueGrey[700],
+                    height: 1.4,
                   ),
                 ),
               ],

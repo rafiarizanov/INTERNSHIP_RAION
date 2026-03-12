@@ -152,6 +152,22 @@ class _W_ReportPageState extends State<W_ReportPage> {
 
       if (!mounted) return;
       setState(() => _isLoading = false);
+ 
+await supabase.from('notifications').insert({
+  'target_user': user?.id,
+  'title': 'Laporan Terkirim',
+  'message': 'Laporan Anda ($reportId) berhasil dikirim dan masuk antrean.',
+  'icon_type': 'success'
+  
+});
+
+await supabase.from('notifications').insert({
+  'target_user': 'PETUGAS',
+  'title': 'Laporan Baru Masuk',
+  'message': 'Warga melaporkan kendala di $selectedDaerah. Segera cek detailnya.',
+  'icon_type': 'alert',
+  
+});
       _showSuccessDialog();
     } catch (e) {
       setState(() => _isLoading = false);

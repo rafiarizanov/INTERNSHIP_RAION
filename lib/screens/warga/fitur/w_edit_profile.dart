@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart'
-    show kIsWeb; // 🌟 Memakai kIsWeb persis seperti di laporan
+    show kIsWeb; 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,7 +22,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  XFile? _newProfileImage; // Menggunakan XFile persis seperti laporan
+  XFile? _newProfileImage; 
   String _currentAvatarUrl = "";
   bool _isLoading = false;
 
@@ -52,7 +52,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
     setState(() {});
   }
 
-  // 🌟 HANYA MENYIMPAN GAMBAR KE VARIABEL, BELUM DIUPLOAD (Persis Pelaporan)
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
@@ -91,14 +90,13 @@ class _W_EditProfilState extends State<W_EditProfil> {
     }
   }
 
-  // 🌟 MENGUNGGAH FOTO DAN MENYIMPAN DATA (Persis Pelaporan)
+  
   Future<void> _saveProfile() async {
     setState(() => _isLoading = true);
 
     try {
       String avatarUrlToSave = _currentAvatarUrl;
 
-      // Jika ada gambar baru yang dipilih, unggah dulu gambarnya!
       if (_newProfileImage != null) {
         String fileExt = _newProfileImage!.name.split('.').last;
         if (fileExt.isEmpty || fileExt.length > 4) fileExt = 'png';
@@ -116,7 +114,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
               fileOptions: const FileOptions(upsert: true),
             );
 
-        // Beri timestamp agar gambar langsung terganti tanpa nyangkut cache
+        
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         avatarUrlToSave =
             "${supabase.storage.from('avatars').getPublicUrl(imagePath)}?t=$timestamp";
@@ -126,7 +124,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
           "${_firstNameController.text.trim()} ${_lastNameController.text.trim()}"
               .trim();
 
-      // Update data text ke Supabase
+      
       await supabase.auth.updateUser(
         UserAttributes(
           data: {
@@ -145,6 +143,13 @@ class _W_EditProfilState extends State<W_EditProfil> {
           backgroundColor: Colors.green,
         ),
       );
+      await supabase.from('notifications').insert({
+        'target_user': supabase.auth.currentUser!.id,
+        'title': 'Profil Diperbarui',
+        'message':
+            'Perubahan data profil dan foto Anda telah berhasil disimpan.',
+        'icon_type': 'success',
+      });
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,7 +209,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
               children: [
                 const SizedBox(height: 20),
 
-                // 🌟 MENGGUNAKAN LOGIKA kIsWeb PERSIS SEPERTI DI PELAPORAN
+            
                 Center(
                   child: CircleAvatar(
                     radius: 55,
