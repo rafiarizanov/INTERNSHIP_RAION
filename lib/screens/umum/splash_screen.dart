@@ -2,7 +2,6 @@ import 'package:INTERNSHIP_RAION/providers/auth_gate.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -31,41 +30,10 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 80, 
-              height: 80,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-              
-                
-                  
-                  Positioned(
-                    bottom: 28, 
-                    child: Image.asset(
-                      'assets/image/logo.png',
-                      width: 35,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 12), 
-            Padding(
-              padding: const EdgeInsets.only(bottom: 5), 
-              child: Image.asset(
-                'assets/image/nama.png',
-                height: 35, 
-                fit: BoxFit.contain,
-              ),
-            ),
-          ],
+        child: Image.asset(
+          'assets/image/logo_nama.png',
+          width: 300,
+          fit: BoxFit.contain,
         ),
       ),
     );
