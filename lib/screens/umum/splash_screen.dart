@@ -42,19 +42,12 @@ class _SplashScreenState extends State<SplashScreen> {
                 alignment: Alignment.center,
                 children: [
               
-                  Positioned(
-                    bottom: 15, 
-                    child: Image.asset(
-                      'assets/image/logo_1.png',
-                      width: 80,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
+                
                   
                   Positioned(
                     bottom: 28, 
                     child: Image.asset(
-                      'assets/image/logo_2.png',
+                      'assets/image/logo.png',
                       width: 35,
                       fit: BoxFit.contain,
                     ),

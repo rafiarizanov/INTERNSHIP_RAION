@@ -15,13 +15,11 @@ class _PSignInState extends State<PSignIn> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
- 
   final TextEditingController _nipController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    
     _nipController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -50,7 +48,6 @@ class _PSignInState extends State<PSignIn> {
     });
 
     if (error == null) {
-     
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
@@ -58,7 +55,6 @@ class _PSignInState extends State<PSignIn> {
         (route) => false,
       );
     } else {
-     
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error), backgroundColor: Colors.red),
@@ -68,6 +64,9 @@ class _PSignInState extends State<PSignIn> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -97,123 +96,112 @@ class _PSignInState extends State<PSignIn> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                const Text(
-                  'Masuk Sebagai Petugas',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Gunakan NIP Anda beserta kata sandi yang\ntelah diberikan untuk dapat masuk.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF004D56),
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 30),
-
-                Container(
-                  height: 220,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFB0E6F3).withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: const Color(0xFFB0E6F3),
-                      width: 4,
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(
-                      'assets/image/Petugas Card.png',
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.image_not_supported,
-                        size: 50,
-                        color: Colors.grey,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    SizedBox(height: screenHeight * 0.02),
+                    const Text(
+                      'Masuk Sebagai Petugas',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF004D56),
                       ),
                     ),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-              
-                _buildPetugasInput(
-                  label: "NIP Anda",
-                  icon: Icons.contact_mail_outlined,
-                  controller: _nipController,
-                ),
-                const SizedBox(height: 20),
-                
-                _buildPetugasInput(
-                  label: "Kata Sandi",
-                  icon: Icons.lock_outline,
-                  isPassword: true,
-                  controller: _passwordController,
-                ),
-
-                const SizedBox(height: 50),
-
-                GestureDetector(
-                  onTap: _isLoading ? null : _handleLogin,
-                  child: Container(
-                    width: double.infinity,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: _isLoading ? Colors.grey : const Color(0xFF004D56),
-                      borderRadius: BorderRadius.circular(15),
+                    SizedBox(height: screenHeight * 0.01),
+                    const Text(
+                      'Gunakan NIP Anda beserta kata sandi yang\ntelah diberikan untuk dapat masuk.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF004D56),
+                        height: 1.5,
+                      ),
                     ),
-                    child: Center(
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 3,
-                              ),
-                            )
-                          : const Text(
-                              'Masuk',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                    SizedBox(height: screenHeight * 0.03),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        'assets/image/Petugas Card.png',
+                        height: screenHeight * 0.25,
+                        width: double.infinity,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.image_not_supported,
+                          size: screenHeight * 0.06,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(height: screenHeight * 0.04),
+                    _buildPetugasInput(
+                      label: "NIP Anda",
+                      icon: Icons.contact_mail_outlined,
+                      controller: _nipController,
+                      screenHeight: screenHeight,
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
+                    _buildPetugasInput(
+                      label: "Kata Sandi",
+                      icon: Icons.lock_outline,
+                      isPassword: true,
+                      controller: _passwordController,
+                      screenHeight: screenHeight,
+                    ),
+                    SizedBox(height: screenHeight * 0.05),
+                    GestureDetector(
+                      onTap: _isLoading ? null : _handleLogin,
+                      child: Container(
+                        width: double.infinity,
+                        height: 55,
+                        decoration: BoxDecoration(
+                          color: _isLoading ? Colors.grey : const Color(0xFF004D56),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Center(
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                              : const Text(
+                                  'Masuk',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.05),
+                  ],
                 ),
-                const SizedBox(height: 40),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        }
       ),
     );
   }
-
 
   Widget _buildPetugasInput({
     required String label,
     required IconData icon,
     required TextEditingController controller,
+    required double screenHeight,
     bool isPassword = false,
   }) {
     return Container(
@@ -229,7 +217,7 @@ class _PSignInState extends State<PSignIn> {
           hintText: label,
           prefixIcon: Icon(icon, color: const Color(0xFF004D56)),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
+          contentPadding: EdgeInsets.symmetric(vertical: screenHeight * 0.018),
         ),
       ),
     );

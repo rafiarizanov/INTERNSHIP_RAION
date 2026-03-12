@@ -53,6 +53,7 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
             child: Form(
               key: authProv.form,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Align(
                     alignment: Alignment.topLeft,
@@ -78,7 +79,7 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
                   const SizedBox(height: 10),
                   Image.asset(
                     'assets/image/logo.png',
-                    height: 150,
+                    height: 180,
                     fit: BoxFit.contain,
                   ),
                   const Text(
@@ -98,8 +99,7 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const WRegistrationPhone(),
+                                builder: (context) => const WRegistrationPhone(),
                               ),
                             );
                           },
@@ -165,34 +165,6 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
                     onSaved: (val) => authProv.enteredPassword = val!,
                   ),
                   const SizedBox(height: 25),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Sudah memiliki akun? ',
-                        style: TextStyle(fontSize: 13),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WSignIn(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          'Masuk di sini',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 25),
                   GestureDetector(
                     onTap: () async {
                       authProv.islogin = false;
@@ -234,6 +206,34 @@ class _WRegistrationEmailState extends State<WRegistrationEmail> {
                         ),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 25),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Sudah memiliki akun? ',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WSignIn(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Masuk di sini',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                 ],
