@@ -67,7 +67,7 @@ class WEdukasiDetail3 extends StatelessWidget {
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(8),
                 image: const DecorationImage(
-                  image: AssetImage('assets/image/materi3.jpg'), // Pastikan di w_edukasi path-nya juga /image/materi3.jpg
+                  image: AssetImage('assets/image/materi3.jpg'), 
                   fit: BoxFit.cover,
                 ),
               ),
