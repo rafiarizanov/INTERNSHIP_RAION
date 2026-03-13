@@ -1,7 +1,9 @@
 import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
 import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
-import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_detail_edukasi1.dart';
 import 'package:flutter/material.dart';
+import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_detail_edukasi1.dart';
+import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_detail_edukasi2.dart';
+import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_detail_edukasi3.dart';
 
 class WEdukasi extends StatefulWidget {
   const WEdukasi({super.key});
@@ -180,12 +182,28 @@ class _WEdukasiState extends State<WEdukasi> {
             height: 42,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WEdukasiDetail1(),
-                  ),
-                );
+                if (data['id'] == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WEdukasiDetail1(),
+                    ),
+                  );
+                } else if (data['id'] == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WEdukasiDetail2(),
+                    ),
+                  );
+                } else if (data['id'] == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WEdukasiDetail3(),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.blueDarker,

@@ -206,4 +206,27 @@ class AuthProvider extends ChangeNotifier {
     }
   }
   
+  Future<String?> verifyPasswordResetOTP(String email, String otp) async {
+    try {
+      await _supabaseAuth.verifyOTP(
+        email: email,
+        token: otp,
+        type: OtpType.recovery, // Ini penanda bahwa OTP ini khusus untuk lupa password
+      );
+      return null;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  // 🌟 [BARU] FUNGSI UNTUK MENYIMPAN SANDI BARU
+  Future<String?> updateNewPassword(String newPassword) async {
+    try {
+      await _supabaseAuth.updateUser(UserAttributes(password: newPassword));
+      return null;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
 }
