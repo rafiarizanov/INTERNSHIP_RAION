@@ -1,5 +1,7 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
-import '../fitur/w_homepage.dart'; 
+import '../fitur/w_homepage.dart';
 
 class WRegistrasiBerhasil extends StatelessWidget {
   const WRegistrasiBerhasil({super.key});
@@ -11,14 +13,14 @@ class WRegistrasiBerhasil extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             Expanded(
               child: Container(
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF004D56),
+                  color: AppColors.primaryPetugas,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -28,18 +30,23 @@ class WRegistrasiBerhasil extends StatelessWidget {
               child: Container(
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF004D56), 
+                  color: AppColors.primaryPetugas,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
           ],
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 20, left: 10),
-            child: Text('2/2', style: TextStyle(color: Color(0xFF004D56), fontWeight: FontWeight.bold)),
-          )
+            padding: const EdgeInsets.only(right: 20, left: 10),
+            child: Text(
+              '2/2',
+              style: AppTextStyles.title1Bold.copyWith(
+                color: AppColors.primaryPetugas,
+              ),
+            ),
+          ),
         ],
       ),
       body: SafeArea(
@@ -49,31 +56,28 @@ class WRegistrasiBerhasil extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-          
-              Icon(Icons.water_drop, size: 120, color: Colors.cyan[400]), 
+              Icon(Icons.water_drop, size: 120, color: Colors.cyan[400]),
               const SizedBox(height: 30),
-              const Text(
+              Text(
                 'Anda Telah Terdaftar\nSebagai Warga',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.h3Bold.copyWith(
                   fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF004D56),
+                  color: AppColors.primaryPetugas,
                 ),
               ),
               const SizedBox(height: 15),
-              const Text(
+              Text(
                 'Anda kini dapat masuk dan mulai mengirim\nlaporan untuk membantu meningkatkan kualitas\nair dan sanitasi di Kota Bekasi.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF004D56),
+                style: AppTextStyles.title1.copyWith(
+                  color: AppColors.primaryPetugas,
+                  height: 1.4,
                 ),
               ),
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => const W_Homepage()),
@@ -84,16 +88,14 @@ class WRegistrasiBerhasil extends StatelessWidget {
                   width: double.infinity,
                   height: 55,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF004D56),
+                    color: AppColors.primaryPetugas,
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'Mulai Berkontribusi',
-                      style: TextStyle(
+                      style: AppTextStyles.title2Bold.copyWith(
                         color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

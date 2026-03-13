@@ -1,3 +1,5 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import '../warga/masuk_daftar/w_registration_email.dart';
 import '../petugas/masuk/p_sign_in.dart';
@@ -23,31 +25,26 @@ class _ChoosingPageState extends State<ChoosingPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Pilih Peran Anda',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56),
-                  ),
+                  style: AppTextStyles.h3Bold.copyWith(color: AppColors.primaryPetugas),
                 ),
                 const SizedBox(height: 40),
 
+               
                 GestureDetector(
                   onTap: () => setState(() => selectedRole = 'warga'),
                   child: Container(
                     width: double.infinity,
-                    height:
-                        180,
+                    height: 180,
                     decoration: BoxDecoration(
                       color: selectedRole == 'warga'
-                          ? const Color(0xFF004E62).withOpacity(0.8)
-                          : const Color(0xFFB0E6F3),
+                          ? AppColors.blueDarkActive.withOpacity(0.8)
+                          : AppColors.blueLightActive,
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: Row(
                       children: [
-                
                         Container(
                           width: 150,
                           height: double.infinity,
@@ -58,44 +55,28 @@ class _ChoosingPageState extends State<ChoosingPage> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
-                            child: Image.asset(
-                              'assets/image/warga.png',
-                              fit: BoxFit.cover,
-                            ),
+                            child: Image.asset('assets/image/warga.png', fit: BoxFit.cover),
                           ),
                         ),
-                     
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(
-                              right: 15,
-                              top: 20,
-                              bottom: 20,
-                            ),
+                            padding: const EdgeInsets.only(right: 15, top: 20, bottom: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   'Warga',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: selectedRole == 'warga'
-                                        ? Colors.white
-                                        : const Color(0xFF004D56),
+                                  style: AppTextStyles.h2Bold.copyWith(
+                                    color: selectedRole == 'warga' ? Colors.white : AppColors.primaryPetugas,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Laporkan masalah air bersih dan dapatkan edukasi terkait sanitasi.',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: selectedRole == 'warga'
-                                        ? Colors.white70
-                                        : const Color(
-                                            0xFF004D56,
-                                          ).withOpacity(0.8),
+                                  style: AppTextStyles.body.copyWith(
+                                    color: selectedRole == 'warga' ? Colors.white70 : AppColors.primaryPetugas.withOpacity(0.8),
+                                    height: 1.4,
                                   ),
                                 ),
                               ],
@@ -117,13 +98,12 @@ class _ChoosingPageState extends State<ChoosingPage> {
                     height: 180,
                     decoration: BoxDecoration(
                       color: selectedRole == 'petugas'
-                          ? const Color(0xFF004E62).withOpacity(0.8)
-                          : const Color(0xFFB0E6F3),
+                          ? AppColors.blueDarkActive.withOpacity(0.8)
+                          : AppColors.blueLightActive,
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: Row(
                       children: [
-                      
                         Container(
                           width: 150,
                           height: double.infinity,
@@ -134,44 +114,28 @@ class _ChoosingPageState extends State<ChoosingPage> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
-                            child: Image.asset(
-                              'assets/image/petugas.png',
-                              fit: BoxFit.cover,
-                            ),
+                            child: Image.asset('assets/image/petugas.png', fit: BoxFit.cover),
                           ),
                         ),
-                        // Teks
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(
-                              right: 15,
-                              top: 20,
-                              bottom: 20,
-                            ),
+                            padding: const EdgeInsets.only(right: 15, top: 20, bottom: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   'Petugas',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: selectedRole == 'petugas'
-                                        ? Colors.white
-                                        : const Color(0xFF004D56),
+                                  style: AppTextStyles.h2Bold.copyWith(
+                                    color: selectedRole == 'petugas' ? Colors.white : AppColors.primaryPetugas,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Pantau dan tangani laporan warga terkait masalah air bersih.',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: selectedRole == 'petugas'
-                                        ? Colors.white70
-                                        : const Color(
-                                            0xFF004D56,
-                                          ).withOpacity(0.8),
+                                  style: AppTextStyles.body.copyWith(
+                                    color: selectedRole == 'petugas' ? Colors.white70 : AppColors.primaryPetugas.withOpacity(0.8),
+                                    height: 1.4,
                                   ),
                                 ),
                               ],
@@ -185,26 +149,16 @@ class _ChoosingPageState extends State<ChoosingPage> {
 
                 const SizedBox(height: 60),
 
-                
+            
                 SizedBox(
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
                     onPressed: () {
                       if (selectedRole == 'warga') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const WRegistrationEmail(),
-                          ),
-                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const WRegistrationEmail()));
                       } else if (selectedRole == 'petugas') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const PSignIn(),
-                          ),
-                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const PSignIn()));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Silakan pilih peran!')),
@@ -212,19 +166,13 @@ class _ChoosingPageState extends State<ChoosingPage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF003D45),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                      backgroundColor: AppColors.blueDarker, 
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Lanjut',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.title2Bold.copyWith(color: Colors.white),
                     ),
                   ),
                 ),

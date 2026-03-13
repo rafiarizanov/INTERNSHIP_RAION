@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/warga_service.dart';
 
 class W_EditLaporan extends StatefulWidget {
   final Map<String, dynamic> report;
-
   const W_EditLaporan({super.key, required this.report});
 
   @override
@@ -18,7 +19,6 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
   late String selectedKategori;
   late TextEditingController _dateController;
   late TextEditingController _descController;
-
   XFile? _newImageFile;
   bool _isLoading = false;
 
@@ -36,60 +36,6 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
     "Pondok Gede",
   ];
   final List<String> daftarKategori = ["Waspada", "Siaga", "Darurat"];
-
-  Future<String> _generateNewIdLaporan(String daerahBaru) async {
-    String prefix = "XX";
-    switch (daerahBaru) {
-      case "Bekasi Barat":
-        prefix = "BB";
-        break;
-      case "Bekasi Utara":
-        prefix = "BU";
-        break;
-      case "Bekasi Timur":
-        prefix = "BT";
-        break;
-      case "Bekasi Selatan":
-        prefix = "BS";
-        break;
-      case "Jatiasih":
-        prefix = "JA";
-        break;
-      case "Jatisampurna":
-        prefix = "JS";
-        break;
-      case "Medan Satria":
-        prefix = "MS";
-        break;
-      case "Mustika Jaya":
-        prefix = "MJ";
-        break;
-      case "Pondok Melati":
-        prefix = "PM";
-        break;
-      case "Bantar Gebang":
-        prefix = "BG";
-        break;
-      case "Pondok Gede":
-        prefix = "PG";
-        break;
-      default:
-        prefix = "LP";
-    }
-
-    try {
-      final supabase = Supabase.instance.client;
-      final response = await supabase
-          .from('reports')
-          .select('id')
-          .eq('lokasi', daerahBaru);
-
-      int nextNumber = response.length + 1;
-      return "$prefix${nextNumber.toString().padLeft(3, '0')}";
-    } catch (e) {
-      return "${prefix}001";
-    }
-  }
 
   @override
   void initState() {
@@ -109,31 +55,30 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
           colorScheme: const ColorScheme.light(
-            primary: Color(0xFF004D56),
+            primary: AppColors.blueDarker,
             onPrimary: Colors.white,
-            onSurface: Color(0xFF003D45),
+            onSurface: AppColors.blueDark,
           ),
         ),
         child: child!,
       ),
     );
-    if (picked != null) {
+    if (picked != null)
       setState(
         () => _dateController.text =
             "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}",
       );
-    }
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
+    final XFile? image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 70,
     );
     if (image != null) setState(() => _newImageFile = image);
   }
 
+  
   Future<void> _updateReport() async {
     if (_dateController.text.isEmpty || _descController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -147,47 +92,17 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
 
     setState(() => _isLoading = true);
     try {
-      final supabase = Supabase.instance.client;
-      String imageUrl = widget.report['image_url'];
-
-      if (_newImageFile != null) {
-        final fileExt = _newImageFile!.path.split('.').last;
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
-        final imagePath = 'laporan/$fileName';
-
-        final imageBytes = await _newImageFile!.readAsBytes();
-        await supabase.storage
-            .from('report_image')
-            .uploadBinary(
-              imagePath,
-              imageBytes,
-              fileOptions: const FileOptions(
-                cacheControl: '3600',
-                upsert: false,
-              ),
-            );
-        imageUrl = supabase.storage
-            .from('report_image')
-            .getPublicUrl(imagePath);
-      }
-
-      String idLaporanFinal = widget.report['report_id'] ?? "";
-
-      if (selectedDaerah != widget.report['lokasi']) {
-        idLaporanFinal = await _generateNewIdLaporan(selectedDaerah);
-      }
-
-      await supabase
-          .from('reports')
-          .update({
-            'report_id': idLaporanFinal,
-            'tanggal': _dateController.text,
-            'lokasi': selectedDaerah,
-            'kategori': selectedKategori,
-            'deskripsi': _descController.text,
-            'image_url': imageUrl,
-          })
-          .eq('id', widget.report['id']);
+      await WargaService().updateReport(
+        reportDbId: widget.report['id'],
+        currentReportStringId: widget.report['report_id'],
+        currentLokasi: widget.report['lokasi'],
+        currentImageUrl: widget.report['image_url'],
+        tanggal: _dateController.text,
+        lokasi: selectedDaerah,
+        kategori: selectedKategori,
+        deskripsi: _descController.text,
+        newImageFile: _newImageFile,
+      );
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -236,10 +151,8 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003D45),
+                    style: AppTextStyles.h2Bold.copyWith(
+                      color: AppColors.blueDark,
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -248,11 +161,16 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
                     itemCount: items.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        title: Text(items[index]),
+                        title: Text(
+                          items[index],
+                          style: AppTextStyles.title2.copyWith(
+                            color: AppColors.blueDark,
+                          ),
+                        ),
                         leading: Radio<String>(
                           value: items[index],
                           groupValue: tempSelection,
-                          activeColor: const Color(0xFF003D45),
+                          activeColor: AppColors.blueDark,
                           onChanged: (v) =>
                               setModalState(() => tempSelection = v!),
                         ),
@@ -269,16 +187,15 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 50),
-                      backgroundColor: const Color(0xFF004D56),
+                      backgroundColor: AppColors.blueDarker,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Pilih",
-                      style: TextStyle(
+                      style: AppTextStyles.title1Bold.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -299,16 +216,12 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Color(0xFF003D45)),
+          icon: const Icon(Icons.close, color: AppColors.blueDark),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Edit Laporan',
-          style: TextStyle(
-            color: Color(0xFF003D45),
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: AppTextStyles.h1Bold.copyWith(color: AppColors.blueDark),
         ),
       ),
       body: Stack(
@@ -361,7 +274,6 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
                         : "Pertahankan gambar lama",
                   ),
                 ),
-
                 if (_newImageFile != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 10),
@@ -382,7 +294,6 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
                             ),
                     ),
                   ),
-
                 const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
@@ -390,17 +301,15 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
                   child: ElevatedButton(
                     onPressed: _updateReport,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF004D56),
+                      backgroundColor: AppColors.blueDarker,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Simpan Perubahan',
-                      style: TextStyle(
+                      style: AppTextStyles.title1Bold.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -413,7 +322,7 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
             Container(
               color: Colors.black.withOpacity(0.3),
               child: const Center(
-                child: CircularProgressIndicator(color: Color(0xFF004D56)),
+                child: CircularProgressIndicator(color: AppColors.blueDarker),
               ),
             ),
         ],
@@ -425,11 +334,7 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
     padding: const EdgeInsets.only(bottom: 8, top: 10),
     child: Text(
       text,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF003D45),
-        fontSize: 15,
-      ),
+      style: AppTextStyles.title1Bold.copyWith(color: AppColors.blueDark),
     ),
   );
   Widget _buildInputField(
@@ -440,13 +345,13 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
     margin: const EdgeInsets.only(bottom: 10),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFF709096)),
+      border: Border.all(color: Colors.grey.shade400),
     ),
     child: TextField(
       controller: controller,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: const Color(0xFF003D45)),
+        prefixIcon: Icon(icon, color: AppColors.blueDark),
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(vertical: 15),
       ),
@@ -457,18 +362,18 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFF709096)),
+      border: Border.all(color: Colors.grey.shade400),
     ),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           text,
-          style: const TextStyle(color: Color(0xFF003D45), fontSize: 14),
+          style: AppTextStyles.title1.copyWith(color: AppColors.blueDark),
         ),
         const Icon(
           Icons.arrow_drop_down_circle_outlined,
-          color: Color(0xFF80DEEA),
+          color: AppColors.blueLightActive,
           size: 22,
         ),
       ],
@@ -479,7 +384,7 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFF709096)),
+          border: Border.all(color: Colors.grey.shade400),
         ),
         child: TextField(
           controller: controller,
@@ -488,7 +393,7 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
             hintText: hint,
             prefixIcon: const Padding(
               padding: EdgeInsets.only(bottom: 60),
-              child: Icon(Icons.menu, color: Color(0xFF003D45)),
+              child: Icon(Icons.menu, color: AppColors.blueDark),
             ),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(vertical: 15),
@@ -498,19 +403,18 @@ class _W_EditLaporanState extends State<W_EditLaporan> {
   Widget _buildUploadField(String hint) => Container(
     margin: const EdgeInsets.only(bottom: 10),
     decoration: BoxDecoration(
-      color: const Color(0xFFB2EBF2).withOpacity(0.3),
+      color: AppColors.blueLightActive.withOpacity(0.3),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFF709096)),
+      border: Border.all(color: Colors.grey.shade400),
     ),
     child: TextField(
       enabled: false,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(
-          color: Color(0xFF004D56),
-          fontWeight: FontWeight.bold,
+        hintStyle: AppTextStyles.title1Bold.copyWith(
+          color: AppColors.blueDarker,
         ),
-        prefixIcon: const Icon(Icons.image, color: Color(0xFF003D45)),
+        prefixIcon: const Icon(Icons.image, color: AppColors.blueDark),
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(vertical: 15),
       ),

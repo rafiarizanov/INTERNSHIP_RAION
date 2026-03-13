@@ -1,6 +1,8 @@
-import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_tentang_aplikasi.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/screens/umum/tentang_aplikasi.dart';
+import 'package:INTERNSHIP_RAION/services/warga_service.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_edit_profile.dart';
 
 class WProfil extends StatefulWidget {
@@ -11,9 +13,6 @@ class WProfil extends StatefulWidget {
 }
 
 class _WProfilState extends State<WProfil> {
-  final Color primaryTeal = const Color(0xFF004D56);
-  final supabase = Supabase.instance.client;
-
   String _namaLengkap = "Memuat...";
   String _tanggalLahir = "-";
   String _avatarUrl = "";
@@ -25,23 +24,19 @@ class _WProfilState extends State<WProfil> {
   }
 
   Future<void> _loadUserProfile() async {
-    final response = await supabase.auth.getUser();
-    final user = response.user;
-
-    if (user != null) {
-      final metadata = user.userMetadata;
-      if (mounted) {
-        setState(() {
-          _namaLengkap = metadata?['display_name'] ?? 'Warga SadarAir';
-          _tanggalLahir = metadata?['dob'] ?? '-';
-          _avatarUrl = metadata?['avatar_url'] ?? '';
-        });
-      }
+    final userData = await WargaService().getUserProfile();
+    if (mounted && userData.isNotEmpty) {
+      setState(() {
+        _namaLengkap = userData['name'];
+        _tanggalLahir = userData['dob'];
+        _avatarUrl = userData['avatar_url'];
+      });
     }
   }
 
+
   Future<void> _logout() async {
-    await supabase.auth.signOut();
+    await WargaService().logout();
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
   }
@@ -55,16 +50,12 @@ class _WProfilState extends State<WProfil> {
         elevation: 0,
         title: Text(
           'Akun dan Profil',
-          style: TextStyle(
-            color: primaryTeal,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: AppTextStyles.h2Bold.copyWith(color: AppColors.blueDarker),
         ),
       ),
       body: RefreshIndicator(
         onRefresh: _loadUserProfile,
-        color: primaryTeal,
+        color: AppColors.blueDarker,
         backgroundColor: Colors.white,
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -80,7 +71,6 @@ class _WProfilState extends State<WProfil> {
                         child: CircleAvatar(
                           radius: 60,
                           backgroundColor: Colors.grey[300],
-
                           backgroundImage: _avatarUrl.isNotEmpty
                               ? NetworkImage(_avatarUrl)
                               : null,
@@ -94,49 +84,38 @@ class _WProfilState extends State<WProfil> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       Text(
                         _namaLengkap,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: primaryTeal,
+                        style: AppTextStyles.h3Bold.copyWith(
+                          color: AppColors.blueDarker,
                         ),
                       ),
                       const SizedBox(height: 4),
-
                       Text(
                         'Warga',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: primaryTeal,
+                        style: AppTextStyles.title1Bold.copyWith(
+                          color: AppColors.blueDarker,
                         ),
                       ),
                       const SizedBox(height: 8),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.cake_outlined,
                             size: 16,
-                            color: primaryTeal.withOpacity(0.6),
+                            color: AppColors.blueDarker.withOpacity(0.6),
                           ),
                           const SizedBox(width: 6),
                           Text(
                             _tanggalLahir,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: primaryTeal,
+                            style: AppTextStyles.title1Bold.copyWith(
+                              color: AppColors.blueDarker,
                             ),
                           ),
                         ],
                       ),
-
                       const Spacer(),
-
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
@@ -151,7 +130,6 @@ class _WProfilState extends State<WProfil> {
                                     builder: (context) => const W_EditProfil(),
                                   ),
                                 );
-
                                 PaintingBinding.instance.imageCache.clear();
                                 PaintingBinding.instance.imageCache
                                     .clearLiveImages();
@@ -166,7 +144,8 @@ class _WProfilState extends State<WProfil> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => WTentangAplikasi(),
+                                    builder: (context) =>
+                                        const TentangAplikasi(),
                                   ),
                                 );
                               },
@@ -208,14 +187,12 @@ class _WProfilState extends State<WProfil> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: primaryTeal, size: 28),
+            Icon(icon, color: AppColors.blueDarker, size: 28),
             const SizedBox(width: 16),
             Text(
               title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: primaryTeal,
+              style: AppTextStyles.title1Bold.copyWith(
+                color: AppColors.blueDarker,
               ),
             ),
           ],

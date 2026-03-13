@@ -1,5 +1,7 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/warga_service.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'w_edit_laporan.dart';
 
 class W_DetailLaporan extends StatefulWidget {
@@ -11,13 +13,10 @@ class W_DetailLaporan extends StatefulWidget {
 }
 
 class _W_DetailLaporanState extends State<W_DetailLaporan> {
-  final supabase = Supabase.instance.client;
   bool _isLoading = false;
-
   bool _isLoadingChat = true;
   List<Map<String, dynamic>> _chatList = [];
   final TextEditingController _commentController = TextEditingController();
-
   String _currentStatus = 'Belum Dibaca';
 
   @override
@@ -27,75 +26,48 @@ class _W_DetailLaporanState extends State<W_DetailLaporan> {
     _fetchComments();
   }
 
- 
+  // 🌟 MEMANGGIL DARI SERVICE
   Future<void> _fetchComments() async {
     try {
-      final data = await supabase
-          .from('report_comments')
-          .select()
-          .eq('report_id', widget.report['id'])
-          .order('created_at', ascending: true);
+      final data = await WargaService().fetchReportComments(
+        widget.report['id'],
+      );
       if (mounted) {
         setState(() {
-          _chatList = List<Map<String, dynamic>>.from(data);
+          _chatList = data;
           _isLoadingChat = false;
         });
       }
     } catch (e) {
-      debugPrint("Gagal memuat chat: $e");
       if (mounted) setState(() => _isLoadingChat = false);
     }
   }
 
- 
   Future<void> _refreshData() async {
     await _fetchComments();
     try {
-     
-      final data = await supabase
-          .from('reports')
-          .select('status')
-          .eq('id', widget.report['id'])
-          .single();
-      if (mounted) {
-        setState(() {
-          _currentStatus = data['status'] ?? 'Belum Dibaca';
-        });
-      }
+      final statusStr = await WargaService().fetchSingleReportStatus(
+        widget.report['id'],
+      );
+      if (mounted) setState(() => _currentStatus = statusStr);
     } catch (e) {
-      debugPrint("Gagal merefresh status: $e");
+      debugPrint("Gagal refresh: $e");
     }
   }
 
-  
   Future<void> _postComment() async {
     if (_commentController.text.trim().isEmpty) return;
-
     final msg = _commentController.text.trim();
     _commentController.clear();
     Navigator.pop(context);
 
     setState(() => _isLoading = true);
     try {
-      final user = supabase.auth.currentUser;
-      final metadata = user?.userMetadata;
-
-      final userName = metadata?['display_name'] ?? 'Warga';
-      final avatarUrl = metadata?['avatar_url'] ?? '';
-
-      await supabase.from('report_comments').insert({
-        'report_id': widget.report['id'],
-        'user_name': userName,
-        'avatar_url': avatarUrl,
-        'role': 'Warga',
-        'message': msg,
-      });
-await supabase.from('notifications').insert({
-  'target_user': 'PETUGAS', 
-  'title': 'Balasan Warga',
-  'message': 'Warga membalas pada laporan ${widget.report['report_id']}: "$msg"',
-  'icon_type': 'chat'
-});
+      await WargaService().postWargaComment(
+        reportDbId: widget.report['id'],
+        reportStringId: widget.report['report_id'],
+        message: msg,
+      );
       await _fetchComments();
     } catch (e) {
       ScaffoldMessenger.of(
@@ -106,97 +78,13 @@ await supabase.from('notifications').insert({
     }
   }
 
-  void _showCommentSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          top: 20,
-          left: 20,
-          right: 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                const CircleAvatar(
-                  backgroundColor: Color(0xFF003D4C),
-                  child: Icon(Icons.chat_bubble_outline, color: Colors.white),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  "Tulis Pesan",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF003D4C),
-                    fontSize: 18,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Color(0xFF003D4C)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: _commentController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: "Sampaikan informasi tambahan ke petugas...",
-                filled: true,
-                fillColor: const Color(0xFFE0F7FA).withOpacity(0.5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Color(0xFF003D4C)),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: _postComment,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF003D4C),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  "Kirim Pesan",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _hapusLaporan() async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(
+        title: Text(
           'Hapus Laporan',
-          style: TextStyle(
-            color: Color(0xFF003D4C),
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTextStyles.title2Bold.copyWith(color: AppColors.blueDarker),
         ),
         content: const Text(
           'Apakah Anda yakin ingin menghapus laporan ini? Data tidak dapat dikembalikan.',
@@ -224,7 +112,7 @@ await supabase.from('notifications').insert({
     if (confirm == true) {
       setState(() => _isLoading = true);
       try {
-        await supabase.from('reports').delete().eq('id', widget.report['id']);
+        await WargaService().deleteReport(widget.report['id']);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -247,29 +135,104 @@ await supabase.from('notifications').insert({
     }
   }
 
+  void _showCommentSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          top: 20,
+          left: 20,
+          right: 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const CircleAvatar(
+                  backgroundColor: AppColors.blueDarker,
+                  child: Icon(Icons.chat_bubble_outline, color: Colors.white),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  "Tulis Pesan",
+                  style: AppTextStyles.h1Bold.copyWith(
+                    color: AppColors.blueDarker,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close, color: AppColors.blueDarker),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: _commentController,
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText: "Sampaikan informasi tambahan...",
+                filled: true,
+                fillColor: AppColors.blueLightActive.withOpacity(0.3),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(color: AppColors.blueDarker),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: _postComment,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blueDarker,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  "Kirim Pesan",
+                  style: AppTextStyles.title1Bold.copyWith(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Color statusBgColor = Colors.grey.shade300;
-    Color statusTextColor = Colors.grey.shade800;
+    Color statusBgColor = AppColors.statusBelumDibacaBg;
+    Color statusTextColor = AppColors.statusBelumDibacaText;
 
-    
     if (_currentStatus == 'Laporan Dibaca') {
-      statusBgColor = const Color(0xFFBDE7F1);
-      statusTextColor = const Color(0xFF00838F);
+      statusBgColor = AppColors.statusDibacaBg;
+      statusTextColor = AppColors.statusDibacaText;
     } else if (_currentStatus == 'Laporan Diproses') {
-      statusBgColor = const Color(0xFFFFF1AD);
-      statusTextColor = const Color(0xFFB48A00);
+      statusBgColor = AppColors.statusDiprosesBg;
+      statusTextColor = AppColors.statusDiprosesText;
     } else if (_currentStatus == 'Laporan Selesai') {
-      statusBgColor = const Color(0xFFC8E6C9);
-      statusTextColor = const Color(0xFF2E7D32);
+      statusBgColor = AppColors.statusSelesaiBg;
+      statusTextColor = AppColors.statusSelesaiText;
     }
 
     bool canEditOrDelete = _currentStatus == 'Belum Dibaca';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.bgWarga,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FA),
+        backgroundColor: AppColors.bgWarga,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -277,7 +240,7 @@ await supabase.from('notifications').insert({
             onTap: () => Navigator.pop(context),
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF003D4C),
+                color: AppColors.blueDarker,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -288,17 +251,13 @@ await supabase.from('notifications').insert({
             ),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Detail Laporan',
-          style: TextStyle(
-            color: Color(0xFF003D4C),
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: AppTextStyles.h1Bold.copyWith(color: AppColors.blueDarker),
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF003D4C)),
+            icon: const Icon(Icons.more_vert, color: AppColors.blueDarker),
             onSelected: (value) async {
               if (value == 'edit') {
                 await Navigator.push(
@@ -307,7 +266,7 @@ await supabase.from('notifications').insert({
                     builder: (context) => W_EditLaporan(report: widget.report),
                   ),
                 );
-                _refreshData(); 
+                _refreshData();
               } else if (value == 'delete') {
                 _hapusLaporan();
               }
@@ -340,14 +299,12 @@ await supabase.from('notifications').insert({
       ),
       body: Stack(
         children: [
-         
           RefreshIndicator(
             onRefresh: _refreshData,
-            color: const Color(0xFF003D4C),
+            color: AppColors.blueDarker,
             backgroundColor: Colors.white,
             child: SingleChildScrollView(
-              physics:
-                  const AlwaysScrollableScrollPhysics(), 
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,20 +320,16 @@ await supabase.from('notifications').insert({
                     ),
                     child: Text(
                       _currentStatus,
-                      style: TextStyle(
+                      style: AppTextStyles.captionBold.copyWith(
                         color: statusTextColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   const SizedBox(height: 15),
                   Text(
                     "Laporan ${widget.report['kategori']}",
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003D4C),
+                    style: AppTextStyles.h3Bold.copyWith(
+                      color: AppColors.blueDarker,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -406,11 +359,10 @@ await supabase.from('notifications').insert({
                     widget.report['report_id'],
                   ),
                   const SizedBox(height: 25),
-                  const Text(
+                  Text(
                     'Deskripsi Masalah',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003D4C),
+                    style: AppTextStyles.title1Bold.copyWith(
+                      color: AppColors.blueDarker,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -424,22 +376,20 @@ await supabase.from('notifications').insert({
                     ),
                     child: Text(
                       widget.report['deskripsi'] ?? '-',
-                      style: const TextStyle(
-                        color: Color(0xFF006064),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.blueDark,
                         height: 1.5,
                       ),
                     ),
                   ),
                   const SizedBox(height: 25),
-                  const Text(
+                  Text(
                     'Foto Bukti',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003D4C),
+                    style: AppTextStyles.title1Bold.copyWith(
+                      color: AppColors.blueDarker,
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   if (widget.report['image_url'] != null)
                     GestureDetector(
                       onTap: () => Navigator.push(
@@ -477,23 +427,18 @@ await supabase.from('notifications').insert({
                         ),
                       ),
                     ),
-
                   const SizedBox(height: 25),
-
-                 
-                  const Text(
+                  Text(
                     "Kolom Diskusi",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003D4C),
-                      fontSize: 16,
+                    style: AppTextStyles.title2Bold.copyWith(
+                      color: AppColors.blueDarker,
                     ),
                   ),
                   const SizedBox(height: 12),
                   _isLoadingChat
                       ? const Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFF003D4C),
+                            color: AppColors.blueDarker,
                           ),
                         )
                       : _chatList.isEmpty
@@ -506,14 +451,13 @@ await supabase.from('notifications').insert({
                               .map((chat) => _buildChatBubble(chat))
                               .toList(),
                         ),
-
                   const SizedBox(height: 15),
                   GestureDetector(
                     onTap: _showCommentSheet,
                     child: Row(
                       children: [
                         const CircleAvatar(
-                          backgroundColor: Color(0xFF003D4C),
+                          backgroundColor: AppColors.blueDarker,
                           child: Icon(Icons.chat, color: Colors.white),
                         ),
                         const SizedBox(width: 12),
@@ -524,17 +468,16 @@ await supabase.from('notifications').insert({
                               vertical: 12,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE0F7FA),
+                              color: AppColors.blueLightActive.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(30),
                               border: Border.all(
-                                color: const Color(0xFF003D4C).withOpacity(0.5),
+                                color: AppColors.blueDarker.withOpacity(0.5),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               "Tanya atau balas pesan petugas...",
-                              style: TextStyle(
-                                color: Color(0xFF003D4C),
-                                fontSize: 14,
+                              style: AppTextStyles.title1.copyWith(
+                                color: AppColors.blueDarker,
                               ),
                             ),
                           ),
@@ -542,7 +485,7 @@ await supabase.from('notifications').insert({
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40), 
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -551,7 +494,7 @@ await supabase.from('notifications').insert({
             Container(
               color: Colors.black.withOpacity(0.3),
               child: const Center(
-                child: CircularProgressIndicator(color: Color(0xFF003D4C)),
+                child: CircularProgressIndicator(color: AppColors.blueDarker),
               ),
             ),
         ],
@@ -559,20 +502,20 @@ await supabase.from('notifications').insert({
     );
   }
 
-  
   Widget _buildChatBubble(Map<String, dynamic> chat) {
     bool isPetugas = chat['role'] == 'Petugas';
     String userAvatar = chat['avatar_url'] ?? '';
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: isPetugas ? const Color(0xFFE0F7FA) : Colors.grey.shade100,
+        color: isPetugas
+            ? AppColors.blueLightActive.withOpacity(0.3)
+            : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
           color: isPetugas
-              ? const Color(0xFF003D4C).withOpacity(0.2)
+              ? AppColors.blueDarker.withOpacity(0.2)
               : Colors.grey.shade300,
         ),
       ),
@@ -582,7 +525,7 @@ await supabase.from('notifications').insert({
           CircleAvatar(
             radius: 18,
             backgroundColor: isPetugas
-                ? const Color(0xFF003D4C)
+                ? AppColors.blueDarker
                 : Colors.grey.shade500,
             backgroundImage: userAvatar.isNotEmpty
                 ? NetworkImage(userAvatar)
@@ -605,10 +548,9 @@ await supabase.from('notifications').insert({
                   children: [
                     Text(
                       chat['user_name'] ?? 'Anonim',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                      style: AppTextStyles.title1Bold.copyWith(
                         color: isPetugas
-                            ? const Color(0xFF003D4C)
+                            ? AppColors.blueDarker
                             : Colors.black87,
                       ),
                     ),
@@ -619,15 +561,13 @@ await supabase.from('notifications').insert({
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF003D4C),
+                          color: AppColors.blueDarker,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Text(
+                        child: Text(
                           "Petugas",
-                          style: TextStyle(
+                          style: AppTextStyles.captionBold.copyWith(
                             color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -636,10 +576,9 @@ await supabase.from('notifications').insert({
                 const SizedBox(height: 6),
                 Text(
                   chat['message'] ?? '',
-                  style: const TextStyle(
-                    height: 1.4,
-                    fontSize: 13,
+                  style: AppTextStyles.body.copyWith(
                     color: Colors.black87,
+                    height: 1.4,
                   ),
                 ),
               ],
@@ -661,16 +600,14 @@ await supabase.from('notifications').insert({
             width: 80,
             child: Text(
               title,
-              style: const TextStyle(color: Colors.grey, fontSize: 13),
+              style: AppTextStyles.title1.copyWith(color: Colors.grey),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                color: Color(0xFF003D4C),
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
+              style: AppTextStyles.title1Bold.copyWith(
+                color: AppColors.blueDarker,
               ),
             ),
           ),
@@ -683,7 +620,6 @@ await supabase.from('notifications').insert({
 class FullScreenImagePage extends StatelessWidget {
   final String imageUrl;
   const FullScreenImagePage({super.key, required this.imageUrl});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

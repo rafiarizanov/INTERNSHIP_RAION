@@ -1,4 +1,5 @@
-import 'package:INTERNSHIP_RAION/screens/umum/choosing.dart';
+
+import 'package:INTERNSHIP_RAION/screens/umum/onboarding_page_1.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_homepage.dart';
 import 'package:INTERNSHIP_RAION/screens/petugas/fitur/p_homepage.dart';
 import 'package:INTERNSHIP_RAION/providers/auth_provider.dart';
@@ -79,7 +80,7 @@ class _AuthGateState extends State<AuthGate> {
         if (session != null) {
           return const W_Homepage();
         } else {
-          return const ChoosingPage();
+          return const OnboardingPage1();
         }
       },
     );

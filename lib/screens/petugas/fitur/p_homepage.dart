@@ -1,10 +1,12 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:INTERNSHIP_RAION/providers/auth_provider.dart';
 import 'package:INTERNSHIP_RAION/screens/petugas/fitur/p_notifikasi.dart';
+import 'package:INTERNSHIP_RAION/services/report_service.dart';
 import 'p_kegiatan.dart';
 import 'package:INTERNSHIP_RAION/screens/petugas/fitur/p_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class P_Homepage extends StatefulWidget {
   const P_Homepage({super.key});
@@ -23,17 +25,14 @@ class _P_HomepageState extends State<P_Homepage> {
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() => _selectedIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFB),
+      backgroundColor: AppColors.bgPetugas,
       body: _pages[_selectedIndex],
-
       bottomNavigationBar: _buildCustomNavBar(),
     );
   }
@@ -51,7 +50,7 @@ class _P_HomepageState extends State<P_Homepage> {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, -5), // Bayangan ke atas
+            offset: const Offset(0, -5),
           ),
         ],
       ),
@@ -77,7 +76,7 @@ class _P_HomepageState extends State<P_Homepage> {
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00838F) : Colors.transparent,
+          color: isSelected ? AppColors.secondaryPetugas : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
         ),
         child: Column(
@@ -85,17 +84,15 @@ class _P_HomepageState extends State<P_Homepage> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : const Color(0xFF1A1A1A),
+              color: isSelected ? Colors.white : Colors.black87,
               size: 26,
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF1A1A1A),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 12,
-              ),
+              style: isSelected
+                  ? AppTextStyles.bodyBold.copyWith(color: Colors.white)
+                  : AppTextStyles.bodyMid.copyWith(color: Colors.black87),
             ),
           ],
         ),
@@ -114,9 +111,6 @@ class P_DashboardContent extends StatefulWidget {
 class _P_DashboardContentState extends State<P_DashboardContent> {
   String selectedDaerah = "Semua Daerah";
   String selectedBulan = "";
-
-  final Color primaryTeal = const Color(0xFF004D56);
-  final supabase = Supabase.instance.client;
 
   bool _isLoadingData = true;
   int _totalLaporan = 0;
@@ -146,62 +140,22 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
     _fetchDashboardData();
   }
 
+
   Future<void> _fetchDashboardData() async {
     setState(() => _isLoadingData = true);
-
     try {
-      var query = supabase.from('reports').select();
-      if (selectedDaerah != "Semua Daerah") {
-        query = query.eq('lokasi', selectedDaerah);
-      }
-
-      final List<dynamic> dataLaporan = await query;
-
-      int tempTotal = 0;
-      int tempDiproses = 0;
-      int tempSelesai = 0;
-      Map<int, List<int>> tempChart = {};
-
-      String targetMonthStr = (daftarBulan.indexOf(selectedBulan) + 1)
-          .toString()
-          .padLeft(2, '0');
-      String currentYearStr = DateTime.now().year.toString();
-
-      for (var report in dataLaporan) {
-        String tanggal = report['tanggal'] ?? '';
-
-        if (tanggal.length >= 10) {
-          String dayStr = tanggal.substring(0, 2);
-          String monthStr = tanggal.substring(3, 5);
-          String yearStr = tanggal.substring(6, 10);
-
-          if (monthStr == targetMonthStr && yearStr == currentYearStr) {
-            tempTotal++;
-
-            String status = report['status'] ?? 'Belum Dibaca';
-            if (status == 'Laporan Diproses') tempDiproses++;
-            if (status == 'Laporan Selesai') tempSelesai++;
-
-            int day = int.tryParse(dayStr) ?? 1;
-            String kategori = report['kategori'] ?? '';
-
-            tempChart.putIfAbsent(day, () => [0, 0, 0]);
-            if (kategori == 'Siaga')
-              tempChart[day]![0]++;
-            else if (kategori == 'Waspada')
-              tempChart[day]![1]++;
-            else if (kategori == 'Darurat')
-              tempChart[day]![2]++;
-          }
-        }
-      }
+      final summary = await ReportService().fetchDashboardSummary(
+        selectedDaerah: selectedDaerah,
+        selectedBulan: selectedBulan,
+        daftarBulan: daftarBulan,
+      );
 
       if (mounted) {
         setState(() {
-          _totalLaporan = tempTotal;
-          _totalDiproses = tempDiproses;
-          _totalSelesai = tempSelesai;
-          _chartData = tempChart;
+          _totalLaporan = summary['total'];
+          _totalDiproses = summary['diproses'];
+          _totalSelesai = summary['selesai'];
+          _chartData = summary['chartData'];
           _isLoadingData = false;
         });
       }
@@ -267,10 +221,8 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: primaryTeal,
+                    style: AppTextStyles.h2Bold.copyWith(
+                      color: AppColors.primaryPetugas,
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -279,10 +231,13 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         return RadioListTile<String>(
-                          title: Text(items[index]),
+                          title: Text(
+                            items[index],
+                            style: AppTextStyles.title2,
+                          ),
                           value: items[index],
                           groupValue: tempSelected,
-                          activeColor: primaryTeal,
+                          activeColor: AppColors.primaryPetugas,
                           onChanged: (value) =>
                               setModalState(() => tempSelected = value!),
                         );
@@ -295,7 +250,7 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                         child: OutlinedButton(
                           onPressed: () => Navigator.pop(context),
                           style: OutlinedButton.styleFrom(
-                            backgroundColor: Colors.cyan.shade100,
+                            backgroundColor: AppColors.blueLightActive,
                             side: BorderSide.none,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
@@ -304,9 +259,8 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                           ),
                           child: Text(
                             "Batal",
-                            style: TextStyle(
-                              color: primaryTeal,
-                              fontWeight: FontWeight.bold,
+                            style: AppTextStyles.title1Bold.copyWith(
+                              color: AppColors.primaryPetugas,
                             ),
                           ),
                         ),
@@ -319,17 +273,16 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryTeal,
+                            backgroundColor: AppColors.primaryPetugas,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 15),
                           ),
-                          child: const Text(
+                          child: Text(
                             "Pilih",
-                            style: TextStyle(
+                            style: AppTextStyles.title1Bold.copyWith(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -354,7 +307,7 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
         children: [
           RefreshIndicator(
             onRefresh: _fetchDashboardData,
-            color: primaryTeal,
+            color: AppColors.primaryPetugas,
             backgroundColor: Colors.white,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -380,19 +333,16 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                             children: [
                               Text(
                                 'Halo,',
-                                style: TextStyle(
-                                  color: primaryTeal,
-                                  fontSize: 13,
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.primaryPetugas,
                                 ),
                               ),
                               Text(
                                 authProv.namaDaerah.isEmpty
                                     ? 'Budi Santoso!'
                                     : '${authProv.namaDaerah}!',
-                                style: TextStyle(
-                                  color: primaryTeal,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                style: AppTextStyles.title2Bold.copyWith(
+                                  color: AppColors.primaryPetugas,
                                 ),
                               ),
                             ],
@@ -400,30 +350,25 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                         ],
                       ),
                       IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PNotifikasi(),
-                            ),
-                          );
-                        },
-                        icon: Icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PNotifikasi(),
+                          ),
+                        ),
+                        icon: const Icon(
                           Icons.notifications_none_rounded,
-                          color: primaryTeal,
+                          color: AppColors.primaryPetugas,
                           size: 28,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 25),
-
                   Text(
                     "Ringkasan Laporan",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: primaryTeal,
+                    style: AppTextStyles.title2Bold.copyWith(
+                      color: AppColors.primaryPetugas,
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -445,15 +390,14 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
                   Row(
                     children: [
                       Expanded(
                         child: _buildStatBox(
                           "Total Laporan",
                           _totalLaporan.toString(),
-                          const Color(0xFFB2EBF2),
-                          const Color(0xFF006B7D),
+                          AppColors.blueLightActive,
+                          AppColors.blueDarkActive,
                           Icons.library_books,
                         ),
                       ),
@@ -462,8 +406,8 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                         child: _buildStatBox(
                           "Diproses",
                           _totalDiproses.toString(),
-                          const Color(0xFFFDE68A),
-                          const Color(0xFF92700B),
+                          AppColors.statusDiprosesBg,
+                          AppColors.statusDiprosesText,
                           Icons.autorenew_rounded,
                         ),
                       ),
@@ -472,21 +416,18 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                         child: _buildStatBox(
                           "Selesai",
                           _totalSelesai.toString(),
-                          const Color(0xFFA5D6A7),
-                          const Color(0xFF004D1A),
+                          AppColors.statusSelesaiBg,
+                          AppColors.statusSelesaiText,
                           Icons.check_circle_outline,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 30),
-
                   Text(
                     "Grafik Laporan",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: primaryTeal,
+                    style: AppTextStyles.title2Bold.copyWith(
+                      color: AppColors.primaryPetugas,
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -496,12 +437,13 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
               ),
             ),
           ),
-
           if (_isLoadingData)
             Container(
               color: Colors.white.withOpacity(0.6),
-              child: Center(
-                child: CircularProgressIndicator(color: primaryTeal),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryPetugas,
+                ),
               ),
             ),
         ],
@@ -523,14 +465,18 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
           Expanded(
             child: Text(
               hint,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              style: AppTextStyles.body.copyWith(color: Colors.grey.shade600),
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          CircleAvatar(
+          const CircleAvatar(
             radius: 10,
-            backgroundColor: const Color(0xFFB2EBF2),
-            child: Icon(Icons.chevron_right, size: 14, color: primaryTeal),
+            backgroundColor: AppColors.blueLightActive,
+            child: Icon(
+              Icons.chevron_right,
+              size: 14,
+              color: AppColors.primaryPetugas,
+            ),
           ),
         ],
       ),
@@ -557,11 +503,7 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: darkBg,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.captionBold.copyWith(color: darkBg),
           ),
           const SizedBox(height: 10),
           Container(
@@ -574,11 +516,7 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
             child: Text(
               count,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: AppTextStyles.title2Bold.copyWith(color: Colors.white),
             ),
           ),
         ],
@@ -595,14 +533,12 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
   List<Widget> _buildScrollableBars() {
     int days = _getDaysInMonth(selectedBulan);
     List<Widget> bars = [];
-
     double maxValue = 5.0;
     for (var values in _chartData.values) {
       for (var v in values) {
         if (v > maxValue) maxValue = v.toDouble();
       }
     }
-
     double maxChartScale = ((maxValue / 5).ceil() * 5).toDouble();
     double maxPixelHeight = 130.0;
 
@@ -610,17 +546,14 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
       int siaga = 0;
       int waspada = 0;
       int darurat = 0;
-
       if (_chartData.containsKey(i)) {
         siaga = _chartData[i]![0];
         waspada = _chartData[i]![1];
         darurat = _chartData[i]![2];
       }
-
       double h1 = (siaga / maxChartScale) * maxPixelHeight;
       double h2 = (waspada / maxChartScale) * maxPixelHeight;
       double h3 = (darurat / maxChartScale) * maxPixelHeight;
-
       bars.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14.0),
@@ -659,13 +592,15 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20, left: 10),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20, left: 10),
                 child: RotatedBox(
                   quarterTurns: 3,
                   child: Text(
                     "Banyak Laporan",
-                    style: TextStyle(fontSize: 10, color: Colors.black54),
+                    style: AppTextStyles.caption.copyWith(
+                      color: Colors.black54,
+                    ),
                   ),
                 ),
               ),
@@ -689,11 +624,11 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegend(const Color(0xFF00B8D4), "Siaga"),
+              _buildLegend(AppColors.blueNormal, "Siaga"),
               const SizedBox(width: 15),
-              _buildLegend(const Color(0xFF00838F), "Waspada"),
+              _buildLegend(AppColors.blueDark, "Waspada"),
               const SizedBox(width: 15),
-              _buildLegend(const Color(0xFF004D56), "Darurat"),
+              _buildLegend(AppColors.primaryPetugas, "Darurat"),
             ],
           ),
         ],
@@ -716,21 +651,17 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            _buildBar(h1, const Color(0xFF00B8D4), v1.toString()),
+            _buildBar(h1, AppColors.blueNormal, v1.toString()),
             const SizedBox(width: 5),
-            _buildBar(h2, const Color(0xFF00838F), v2.toString()),
+            _buildBar(h2, AppColors.blueDark, v2.toString()),
             const SizedBox(width: 5),
-            _buildBar(h3, const Color(0xFF004D56), v3.toString()),
+            _buildBar(h3, AppColors.primaryPetugas, v3.toString()),
           ],
         ),
         const SizedBox(height: 10),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Colors.black54,
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTextStyles.captionBold.copyWith(color: Colors.black54),
         ),
       ],
     );
@@ -738,22 +669,17 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
 
   Widget _buildBar(double height, Color color, String value) {
     bool isZero = value == "0";
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         if (isZero || height < 20)
           Text(
             value,
-            style: TextStyle(
-              fontSize: 10,
+            style: AppTextStyles.captionBold.copyWith(
               color: isZero ? Colors.grey.shade400 : color,
-              fontWeight: FontWeight.bold,
             ),
           ),
-
         const SizedBox(height: 2),
-
         Container(
           width: 20,
           height: isZero ? 4 : height,
@@ -768,10 +694,8 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
                     padding: const EdgeInsets.only(top: 4.0),
                     child: Text(
                       value,
-                      style: const TextStyle(
-                        fontSize: 10,
+                      style: AppTextStyles.captionBold.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -797,7 +721,9 @@ class _P_DashboardContentState extends State<P_DashboardContent> {
         const SizedBox(width: 6),
         Text(
           text,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF004D56)),
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.primaryPetugas,
+          ),
         ),
       ],
     );

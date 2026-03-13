@@ -1,3 +1,5 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -18,6 +20,7 @@ class WOtp extends StatefulWidget {
 class _WOtpState extends State<WOtp> {
   Timer? _timer;
   int _start = 59;
+  bool _isLoading = false; 
 
   final List<TextEditingController> _otpControllers = List.generate(
     6,
@@ -69,10 +72,9 @@ class _WOtpState extends State<WOtp> {
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         maxLength: 1,
-        style: const TextStyle(
+        style: AppTextStyles.h2Bold.copyWith(
           fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF004D56),
+          color: AppColors.primaryPetugas,
         ),
         decoration: const InputDecoration(
           counterText: "",
@@ -99,140 +101,183 @@ class _WOtpState extends State<WOtp> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF004D56),
-                          borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              height:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryPetugas,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
-                        child: const Icon(Icons.arrow_back_ios_new,
-                            color: Colors.white, size: 18),
                       ),
                     ),
                   ),
-                ),
-                Image.asset(
-                  'assets/image/logo.png',
-                  height: 180,
-                  fit: BoxFit.contain,
-                ),
-                const Text(
-                  'Masukkan Kode Verifikasi',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56),
+                  const SizedBox(height: 10),
+                  Image.asset(
+                    'assets/image/logo.png',
+                    height: 180,
+                    fit: BoxFit.contain,
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Kode verifikasi 6 digit telah dikirim ke\n${widget.phoneNumber}. Silakan cek SMS Anda.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF004D56),
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(6, (index) => _buildOtpBox(index)),
-                ),
-                const SizedBox(height: 180),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Belum menerima kode? ',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF004D56)),
+                  Text(
+                    'Masukkan Kode Verifikasi',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.h3Bold.copyWith(
+                      fontSize: 22,
+                      color: AppColors.primaryPetugas,
                     ),
-                    GestureDetector(
-                      onTap: _start == 0
-                          ? () {
-                              setState(() {
-                                _start = 59;
-                                startTimer();
-                              });
-                            }
-                          : null,
-                      child: Text(
-                        _start == 0
-                            ? 'Kirim ulang'
-                            : 'Kirim ulang dalam 00:${_start.toString().padLeft(2, '0')}',
-                        style: const TextStyle(
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Kode verifikasi 6 digit telah dikirim ke\n${widget.phoneNumber}. Silakan cek SMS Anda.',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.title1.copyWith(
+                      fontSize: 13,
+                      color: AppColors.primaryPetugas,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(6, (index) => _buildOtpBox(index)),
+                  ),
+
+                  const Spacer(),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Belum menerima kode? ',
+                        style: AppTextStyles.title1.copyWith(
                           fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF004D56),
-                          decoration: TextDecoration.underline,
+                          color: AppColors.primaryPetugas,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () async {
-                    String finalOtp = _otpControllers.map((c) => c.text).join();
-                    if (finalOtp.length < 6) return;
-
-                    final error = await authProv.verifyOTP(
-                      finalOtp,
-                      widget.isLogin,
-                    );
-
-                    if (!context.mounted) return;
-
-                    if (error == null) {
-                      if (widget.isLogin) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const W_Homepage(),
+                      GestureDetector(
+                        onTap: _start == 0
+                            ? () {
+                                setState(() {
+                                  _start = 59;
+                                  startTimer();
+                                });
+                              }
+                            : null,
+                        child: Text(
+                          _start == 0
+                              ? 'Kirim ulang'
+                              : 'Kirim ulang dalam 00:${_start.toString().padLeft(2, '0')}',
+                          style: AppTextStyles.title1Bold.copyWith(
+                            fontSize: 13,
+                            color: AppColors.primaryPetugas,
+                            decoration: TextDecoration.underline,
                           ),
-                          (route) => false,
-                        );
-                      } else {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const WInputName(),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF004D56),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Lanjut',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
                         ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: _isLoading
+                        ? null
+                        : () async {
+                            String finalOtp = _otpControllers
+                                .map((c) => c.text)
+                                .join();
+
+                            if (finalOtp.length < 6) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Harap masukkan 6 digit kode OTP secara lengkap.',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+
+                            setState(() => _isLoading = true);
+
+                            final error = await authProv.verifyOTP(
+                              finalOtp,
+                              widget.isLogin,
+                            );
+
+                            if (!context.mounted) return;
+
+                            setState(() => _isLoading = false);
+
+                            if (error == null) {
+                              if (widget.isLogin) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const W_Homepage(),
+                                  ),
+                                  (route) => false,
+                                );
+                              } else {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const WInputName(),
+                                  ),
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Gagal verifikasi: $error'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                    child: Container(
+                      width: double.infinity,
+                      height: 55,
+                      decoration: BoxDecoration(
+                        color: _isLoading
+                            ? Colors.grey
+                            : AppColors.primaryPetugas,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Center(
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : Text(
+                                'Lanjut',
+                                style: AppTextStyles.title2Bold.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-              ],
+                  const SizedBox(height: 30),
+                ],
+              ),
             ),
           ),
         ),

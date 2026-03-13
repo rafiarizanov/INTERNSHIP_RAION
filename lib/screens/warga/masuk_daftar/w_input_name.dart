@@ -1,3 +1,5 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
@@ -26,10 +28,11 @@ class _WInputNameState extends State<WInputName> {
       child: TextField(
         controller: controller,
         obscureText: isPassword,
+        style: AppTextStyles.bodyMid,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-          prefixIcon: Icon(icon, color: const Color(0xFF004D56)),
+          hintStyle: AppTextStyles.title1.copyWith(color: Colors.grey),
+          prefixIcon: Icon(icon, color: AppColors.primaryPetugas),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 15),
         ),
@@ -58,11 +61,10 @@ class _WInputNameState extends State<WInputName> {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF004D56),
+                          color: AppColors.primaryPetugas,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.arrow_back_ios_new,
-                            color: Colors.white, size: 18),
+                        child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
                       ),
                     ),
                   ),
@@ -72,22 +74,15 @@ class _WInputNameState extends State<WInputName> {
                   height: 180,
                   fit: BoxFit.contain,
                 ),
-                const Text(
+                Text(
                   'Lanjutkan Mendaftar',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56),
-                  ),
+                  style: AppTextStyles.h3Bold.copyWith(fontSize: 22, color: AppColors.primaryPetugas),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Masukkan nama dan kata sandi untuk akun Anda.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF004D56),
-                  ),
+                  style: AppTextStyles.title1.copyWith(fontSize: 13, color: AppColors.primaryPetugas),
                 ),
                 const SizedBox(height: 30),
                 _buildTextField('Nama Depan', Icons.person_outline, _firstNameController),
@@ -118,17 +113,12 @@ class _WInputNameState extends State<WInputName> {
                     if (error == null) {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const W_Homepage(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const W_Homepage()),
                         (route) => false,
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(error),
-                          backgroundColor: Colors.red,
-                        ),
+                        SnackBar(content: Text(error), backgroundColor: Colors.red),
                       );
                     }
                   },
@@ -136,17 +126,13 @@ class _WInputNameState extends State<WInputName> {
                     width: double.infinity,
                     height: 55,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF004D56),
+                      color: AppColors.primaryPetugas,
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'Lanjut',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: AppTextStyles.title2Bold.copyWith(color: Colors.white),
                       ),
                     ),
                   ),
