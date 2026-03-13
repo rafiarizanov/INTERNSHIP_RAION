@@ -211,7 +211,7 @@ class AuthProvider extends ChangeNotifier {
       await _supabaseAuth.verifyOTP(
         email: email,
         token: otp,
-        type: OtpType.recovery, // Ini penanda bahwa OTP ini khusus untuk lupa password
+        type: OtpType.recovery, 
       );
       return null;
     } catch (e) {
@@ -219,7 +219,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // 🌟 [BARU] FUNGSI UNTUK MENYIMPAN SANDI BARU
   Future<String?> updateNewPassword(String newPassword) async {
     try {
       await _supabaseAuth.updateUser(UserAttributes(password: newPassword));
