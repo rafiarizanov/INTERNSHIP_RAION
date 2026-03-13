@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/warga_service.dart';
 
 class W_ReportPage extends StatefulWidget {
   const W_ReportPage({super.key});
@@ -14,10 +16,8 @@ class W_ReportPage extends StatefulWidget {
 class _W_ReportPageState extends State<W_ReportPage> {
   String selectedDaerah = "Pilih Daerah";
   String selectedKategori = "Pilih Kategori";
-
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
-
   XFile? _imageFile;
   bool _isLoading = false;
 
@@ -34,21 +34,6 @@ class _W_ReportPageState extends State<W_ReportPage> {
     "Bantar Gebang",
     "Pondok Gede",
   ];
-
-  final Map<String, String> prefixDaerah = {
-    "Bekasi Barat": "BB",
-    "Bekasi Utara": "BU",
-    "Bekasi Timur": "BT",
-    "Bekasi Selatan": "BS",
-    "Jatiasih": "JA",
-    "Jatisampurna": "JS",
-    "Medan Satria": "MS",
-    "Mustika Jaya": "MJ",
-    "Pondok Melati": "PM",
-    "Bantar Gebang": "BG",
-    "Pondok Gede": "PG",
-  };
-
   final List<String> daftarKategori = ["Waspada", "Siaga", "Darurat"];
 
   Future<void> _selectDate(BuildContext context) async {
@@ -57,40 +42,33 @@ class _W_ReportPageState extends State<W_ReportPage> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF004D56),
-              onPrimary: Colors.white,
-              onSurface: Color(0xFF003D45),
-            ),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: AppColors.blueDarker,
+            onPrimary: Colors.white,
+            onSurface: AppColors.blueDark,
           ),
-          child: child!,
-        );
-      },
+        ),
+        child: child!,
+      ),
     );
     if (picked != null) {
-      setState(() {
-        _dateController.text =
-            "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
-      });
+      setState(
+        () => _dateController.text =
+            "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}",
+      );
     }
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
+    final XFile? image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 70,
     );
-
-    if (image != null) {
-      setState(() {
-        _imageFile = image;
-      });
-    }
+    if (image != null) setState(() => _imageFile = image);
   }
+
 
   Future<void> _submitReport() async {
     if (_dateController.text.isEmpty ||
@@ -100,7 +78,7 @@ class _W_ReportPageState extends State<W_ReportPage> {
         _imageFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Harap lengkapi semua data dan unggah foto."),
+          content: Text("Harap lengkapi semua data dan foto."),
           backgroundColor: Colors.red,
         ),
       );
@@ -108,66 +86,16 @@ class _W_ReportPageState extends State<W_ReportPage> {
     }
 
     setState(() => _isLoading = true);
-
     try {
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
-      final userName = user?.userMetadata?['display_name'] ?? 'Warga Anonim';
-
-      final fileExt = _imageFile!.path.split('.').last;
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
-      final imagePath = 'laporan/$fileName';
-
-      final imageBytes = await _imageFile!.readAsBytes();
-      await supabase.storage
-          .from('report_image')
-          .uploadBinary(
-            imagePath,
-            imageBytes,
-            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
-          );
-
-      final imageUrl = supabase.storage
-          .from('report_image')
-          .getPublicUrl(imagePath);
-
-      final prefix = prefixDaerah[selectedDaerah]!;
-      final countResponse = await supabase
-          .from('reports')
-          .select('id')
-          .eq('lokasi', selectedDaerah);
-      int urutan = (countResponse as List).length + 1;
-      String reportId = "$prefix${urutan.toString().padLeft(3, '0')}";
-
-      await supabase.from('reports').insert({
-        'report_id': reportId,
-        'user_id': user?.id,
-        'user_name': userName,
-        'tanggal': _dateController.text,
-        'lokasi': selectedDaerah,
-        'kategori': selectedKategori,
-        'deskripsi': _descController.text,
-        'image_url': imageUrl,
-      });
-
+      await WargaService().submitReport(
+        tanggal: _dateController.text,
+        lokasi: selectedDaerah,
+        kategori: selectedKategori,
+        deskripsi: _descController.text,
+        imageFile: _imageFile!,
+      );
       if (!mounted) return;
       setState(() => _isLoading = false);
- 
-await supabase.from('notifications').insert({
-  'target_user': user?.id,
-  'title': 'Laporan Terkirim',
-  'message': 'Laporan Anda ($reportId) berhasil dikirim dan masuk antrean.',
-  'icon_type': 'success'
-  
-});
-
-await supabase.from('notifications').insert({
-  'target_user': 'PETUGAS',
-  'title': 'Laporan Baru Masuk',
-  'message': 'Warga melaporkan kendala di $selectedDaerah. Segera cek detailnya.',
-  'icon_type': 'alert',
-  
-});
       _showSuccessDialog();
     } catch (e) {
       setState(() => _isLoading = false);
@@ -201,30 +129,30 @@ await supabase.from('notifications').insert({
                 Container(
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFB2EBF2).withOpacity(0.5),
+                    color: AppColors.blueLightActive.withOpacity(0.5),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.check,
-                    color: Color(0xFF007E94),
+                    color: AppColors.blueDarker,
                     size: 50,
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   "Laporan Telah Dikirim!",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF003D45),
+                  style: AppTextStyles.h2Bold.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   "Terima kasih telah berkontribusi dalam peningkatan kualitas air di Kota Bekasi.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Color(0xFF003D45)),
+                  style: AppTextStyles.title1.copyWith(
+                    color: AppColors.blueDarker,
+                  ),
                 ),
                 const SizedBox(height: 25),
                 SizedBox(
@@ -233,7 +161,6 @@ await supabase.from('notifications').insert({
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-
                       setState(() {
                         _dateController.clear();
                         _descController.clear();
@@ -243,17 +170,15 @@ await supabase.from('notifications').insert({
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF004D56),
+                      backgroundColor: AppColors.blueDarker,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Selesai",
-                      style: TextStyle(
+                      style: AppTextStyles.title2Bold.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -295,10 +220,8 @@ await supabase.from('notifications').insert({
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003D45),
+                    style: AppTextStyles.h2Bold.copyWith(
+                      color: AppColors.blueDarker,
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -311,12 +234,14 @@ await supabase.from('notifications').insert({
                           contentPadding: EdgeInsets.zero,
                           title: Text(
                             items[index],
-                            style: const TextStyle(color: Color(0xFF003D45)),
+                            style: AppTextStyles.title2.copyWith(
+                              color: AppColors.blueDarker,
+                            ),
                           ),
                           leading: Radio<String>(
                             value: items[index],
                             groupValue: tempSelection,
-                            activeColor: const Color(0xFF003D45),
+                            activeColor: AppColors.blueDarker,
                             onChanged: (v) =>
                                 setModalState(() => tempSelection = v!),
                           ),
@@ -335,16 +260,15 @@ await supabase.from('notifications').insert({
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(vertical: 15),
-                            backgroundColor: const Color(0xFFB2EBF2),
+                            backgroundColor: AppColors.blueLightActive,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             "Batal",
-                            style: TextStyle(
-                              color: Color(0xFF003D45),
-                              fontWeight: FontWeight.bold,
+                            style: AppTextStyles.title1Bold.copyWith(
+                              color: AppColors.blueDark,
                             ),
                           ),
                         ),
@@ -359,16 +283,15 @@ await supabase.from('notifications').insert({
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(vertical: 15),
-                            backgroundColor: const Color(0xFF004D56),
+                            backgroundColor: AppColors.blueDarker,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             "Pilih",
-                            style: TextStyle(
+                            style: AppTextStyles.title1Bold.copyWith(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -397,21 +320,13 @@ await supabase.from('notifications').insert({
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Laporkan Masalah Air',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF003D45),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    'Laporkan Masalah Air',
+                    style: AppTextStyles.h2Bold.copyWith(
+                      color: AppColors.blueDark,
+                    ),
                   ),
                   const SizedBox(height: 25),
-
                   _buildLabel("Tanggal"),
                   GestureDetector(
                     onTap: () => _selectDate(context),
@@ -423,7 +338,6 @@ await supabase.from('notifications').insert({
                       ),
                     ),
                   ),
-
                   _buildLabel("Lokasi"),
                   GestureDetector(
                     onTap: () => _showGenericModal(
@@ -437,7 +351,6 @@ await supabase.from('notifications').insert({
                       Icons.location_on_outlined,
                     ),
                   ),
-
                   _buildLabel("Kategori"),
                   GestureDetector(
                     onTap: () => _showGenericModal(
@@ -446,16 +359,13 @@ await supabase.from('notifications').insert({
                       selectedKategori,
                       (val) => setState(() => selectedKategori = val),
                     ),
-
                     child: _buildDropdownField(
                       selectedKategori,
                       Icons.local_offer_outlined,
                     ),
                   ),
-
                   _buildLabel("Deskripsi"),
                   _buildTextAreaField("Jelaskan Keluhan Anda", _descController),
-
                   _buildLabel("Unggah Bukti"),
                   GestureDetector(
                     onTap: _pickImage,
@@ -465,7 +375,6 @@ await supabase.from('notifications').insert({
                           : "Upload Gambar",
                     ),
                   ),
-
                   if (_imageFile != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 10),
@@ -486,9 +395,36 @@ await supabase.from('notifications').insert({
                               ),
                       ),
                     ),
-
                   const SizedBox(height: 30),
-                  _buildSubmitButton(),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: _submitReport,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.blueDarker,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Kirim ',
+                            style: AppTextStyles.title2Bold.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -497,7 +433,7 @@ await supabase.from('notifications').insert({
               Container(
                 color: Colors.black.withOpacity(0.3),
                 child: const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF004D56)),
+                  child: CircularProgressIndicator(color: AppColors.blueDarker),
                 ),
               ),
           ],
@@ -506,40 +442,11 @@ await supabase.from('notifications').insert({
     );
   }
 
-  Widget _buildSubmitButton() => SizedBox(
-    width: double.infinity,
-    height: 55,
-    child: ElevatedButton(
-      onPressed: _submitReport,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF004D56),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Kirim ',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          Icon(Icons.arrow_forward, color: Colors.white, size: 18),
-        ],
-      ),
-    ),
-  );
   Widget _buildLabel(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 8, top: 10),
     child: Text(
       text,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF003D45),
-        fontSize: 15,
-      ),
+      style: AppTextStyles.title1Bold.copyWith(color: AppColors.blueDarker),
     ),
   );
   Widget _buildInputField(
@@ -550,13 +457,14 @@ await supabase.from('notifications').insert({
     margin: const EdgeInsets.only(bottom: 10),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFF709096)),
+      border: Border.all(color: Colors.grey.shade400),
     ),
     child: TextField(
       controller: controller,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: const Color(0xFF003D45)),
+        hintStyle: AppTextStyles.title1.copyWith(color: Colors.grey),
+        prefixIcon: Icon(icon, color: AppColors.blueDarker),
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(vertical: 15),
       ),
@@ -567,27 +475,25 @@ await supabase.from('notifications').insert({
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFF709096)),
+      border: Border.all(color: Colors.grey.shade400),
     ),
     child: Row(
       children: [
-        Icon(icon, color: const Color(0xFF003D45), size: 22),
+        Icon(icon, color: AppColors.blueDarker, size: 22),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
+            style: AppTextStyles.title1.copyWith(
               color: text.startsWith("Pilih")
-                  ? const Color(0xFF709096)
-                  : const Color(0xFF003D45),
-              fontSize: 14,
+                  ? Colors.grey
+                  : AppColors.blueDarker,
             ),
           ),
         ),
-
         const Icon(
           Icons.arrow_drop_down_circle_outlined,
-          color: Color(0xFF80DEEA),
+          color: AppColors.blueDarker,
           size: 22,
         ),
       ],
@@ -598,14 +504,14 @@ await supabase.from('notifications').insert({
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFF709096)),
+          border: Border.all(color: Colors.grey.shade400),
         ),
         child: TextField(
           controller: controller,
           maxLines: 4,
           decoration: InputDecoration(
             hintText: hint,
-
+            hintStyle: AppTextStyles.title1.copyWith(color: Colors.grey),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
@@ -619,25 +525,23 @@ await supabase.from('notifications').insert({
     decoration: BoxDecoration(
       color: hint == "Upload Gambar"
           ? Colors.transparent
-          : const Color(0xFFB2EBF2).withOpacity(0.3),
+          : AppColors.blueLightActive.withOpacity(0.3),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFF709096)),
+      border: Border.all(color: Colors.grey.shade400),
     ),
     child: TextField(
       enabled: false,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(
-          color: hint == "Upload Gambar"
-              ? const Color(0xFF709096)
-              : const Color(0xFF004D56),
+        hintStyle: AppTextStyles.title1.copyWith(
+          color: hint == "Upload Gambar" ? Colors.grey : AppColors.blueDarker,
           fontWeight: hint == "Upload Gambar"
               ? FontWeight.normal
               : FontWeight.bold,
         ),
         prefixIcon: Icon(
           hint == "Upload Gambar" ? Icons.file_upload_outlined : Icons.image,
-          color: const Color(0xFF003D45),
+          color: AppColors.blueDarker,
         ),
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(vertical: 15),

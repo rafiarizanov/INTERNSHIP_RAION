@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 
 
 
-class WTentangAplikasi extends StatelessWidget {
-  const WTentangAplikasi({super.key});
+class TentangAplikasi extends StatelessWidget {
+  const TentangAplikasi({super.key});
 
- 
   final Color primaryTeal = const Color(0xFF003D4C);
 
   @override
@@ -18,7 +17,7 @@ class WTentangAplikasi extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-         
+          
             Container(
               width: 38,
               height: 38,
@@ -50,10 +49,10 @@ class WTentangAplikasi extends StatelessWidget {
           children: [
             const Spacer(flex: 1),
             
-           
+          
             Image.asset(
               'assets/image/logo.png',
-              height: 150,
+              height: 150, 
               fit: BoxFit.contain,
             ),
             
@@ -67,6 +66,7 @@ class WTentangAplikasi extends StatelessWidget {
             
             const SizedBox(height: 30),
             
+          
             Text(
               "Sadar Air adalah platform digital terintegrasi yang memudahkan masyarakat melaporkan kondisi air kotor secara real-time melalui foto dan lokasi, sekaligus menyediakan edukasi sanitasi untuk meningkatkan kesadaran, mempercepat respons petugas, dan mendukung pengelolaan kualitas air berkelanjutan di Kota Bekasi",
               textAlign: TextAlign.justify,
@@ -78,8 +78,7 @@ class WTentangAplikasi extends StatelessWidget {
             ),
             
             const Spacer(flex: 2),
-            
-         
+           
             Text(
               "Made with ♥ by Kelompok 6\nfor Raion Community Internship 2026",
               textAlign: TextAlign.center,
@@ -92,7 +91,7 @@ class WTentangAplikasi extends StatelessWidget {
             
             const SizedBox(height: 20),
             
-         
+           
             SizedBox(
               width: double.infinity,
               height: 55,

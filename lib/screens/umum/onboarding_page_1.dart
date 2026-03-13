@@ -1,3 +1,5 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'onboarding_page_2.dart';
 
@@ -22,59 +24,33 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 50),
-
                 Image.asset(
                   'assets/image/onboarding_1.png',
                   height: 300,
                   fit: BoxFit.contain,
-                  
                   errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: 210,
-                      height: 150,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image, size: 50),
-                    );
+                    return Container(width: 210, height: 150, color: Colors.grey[300], child: const Icon(Icons.broken_image, size: 50));
                   },
                 ),
-
                 const SizedBox(height: 40),
-
-                const Text(
+                Text(
                   'Air Bersih Itu Penting',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56), 
-                  ),
+                  style: AppTextStyles.h3Bold.copyWith(color: AppColors.primaryPetugas),
                 ),
-
                 const SizedBox(height: 15),
-
-          
-                const Text(
+                Text(
                   'Air yang terlihat jernih belum tentu aman. Kontaminasi bakteri dapat membahayakan kesehatan keluarga.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                    height: 1.5,
-                  ),
+                  style: AppTextStyles.title1.copyWith(color: Colors.black54, height: 1.5),
                 ),
-
                 const SizedBox(height: 30),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 30,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF004D56),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      width: 30, height: 8,
+                      decoration: BoxDecoration(color: AppColors.primaryPetugas, borderRadius: BorderRadius.circular(10)),
                     ),
                     const SizedBox(width: 5),
                     const CircleAvatar(radius: 4, backgroundColor: Colors.grey),
@@ -82,34 +58,16 @@ class _OnboardingPage1State extends State<OnboardingPage1> {
                     const CircleAvatar(radius: 4, backgroundColor: Colors.grey),
                   ],
                 ),
-
                 const SizedBox(height: 60),
-
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingPage2(),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const OnboardingPage2()));
                   },
                   child: Container(
-                    width: double.infinity,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF004D56),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Lanjut',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    width: double.infinity, height: 50,
+                    decoration: BoxDecoration(color: AppColors.primaryPetugas, borderRadius: BorderRadius.circular(15)),
+                    child: Center(
+                      child: Text('Lanjut', style: AppTextStyles.title2Bold.copyWith(color: Colors.white)),
                     ),
                   ),
                 ),

@@ -50,7 +50,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // --- STATE UNTUK WARGA TETAP SAMA ---
   final form = GlobalKey<FormState>();
   var islogin = true;
   var enteredEmail = '';
@@ -185,4 +184,26 @@ class AuthProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<String?> resendEmailVerification(String email) async {
+    try {
+      await _supabaseAuth.resend(
+        type: OtpType.signup,
+        email: email,
+      );
+      return null; 
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  Future<String?> sendPasswordResetEmail(String email) async {
+    try {
+      await _supabaseAuth.resetPasswordForEmail(email);
+      return null; 
+    } catch (e) {
+      return e.toString(); 
+    }
+  }
+  
 }

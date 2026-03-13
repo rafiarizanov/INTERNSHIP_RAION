@@ -1,6 +1,8 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/report_service.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'p_detail_laporan.dart'; 
+import 'p_detail_laporan.dart';
 
 class PKegiatan extends StatefulWidget {
   const PKegiatan({super.key});
@@ -11,7 +13,6 @@ class PKegiatan extends StatefulWidget {
 
 class _PKegiatanState extends State<PKegiatan> {
   String _selectedFilter = "Semua";
-  final supabase = Supabase.instance.client;
 
   final List<String> _filters = [
     "Semua",
@@ -33,14 +34,10 @@ class _PKegiatanState extends State<PKegiatan> {
   Future<void> _fetchReports() async {
     setState(() => _isLoading = true);
     try {
-      final data = await supabase
-          .from('reports')
-          .select()
-          .order('created_at', ascending: false);
-
+      final data = await ReportService().fetchAllReports();
       if (mounted) {
         setState(() {
-          _allReports = List<Map<String, dynamic>>.from(data);
+          _allReports = data;
           _isLoading = false;
         });
       }
@@ -50,7 +47,6 @@ class _PKegiatanState extends State<PKegiatan> {
     }
   }
 
-  
   List<Map<String, dynamic>> get _filteredReports {
     if (_selectedFilter == "Semua") {
       return _allReports;
@@ -58,14 +54,10 @@ class _PKegiatanState extends State<PKegiatan> {
     return _allReports.where((report) {
       String status = report["status"] ?? "Belum Dibaca";
       if (_selectedFilter == "Diterima" &&
-          (status == "Belum Dibaca" || status == "Laporan Diterima"))
-        return true;
-      if (_selectedFilter == "Dibaca" && status == "Laporan Dibaca")
-        return true;
-      if (_selectedFilter == "Diproses" && status == "Laporan Diproses")
-        return true;
-      if (_selectedFilter == "Selesai" && status == "Laporan Selesai")
-        return true;
+          (status == "Belum Dibaca" || status == "Laporan Diterima")) return true;
+      if (_selectedFilter == "Dibaca" && status == "Laporan Dibaca") return true;
+      if (_selectedFilter == "Diproses" && status == "Laporan Diproses") return true;
+      if (_selectedFilter == "Selesai" && status == "Laporan Selesai") return true;
       return false;
     }).toList();
   }
@@ -75,18 +67,14 @@ class _PKegiatanState extends State<PKegiatan> {
     final reportsToDisplay = _filteredReports;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFB),
+      backgroundColor: AppColors.bgPetugas,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text(
+        title: Text(
           "Laporan Masalah Air",
-          style: TextStyle(
-            color: Color(0xFF004D56),
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: AppTextStyles.h2Bold.copyWith(color: AppColors.primaryPetugas),
         ),
       ),
       body: Column(
@@ -95,54 +83,40 @@ class _PKegiatanState extends State<PKegiatan> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: Row(
               children: [
-                const Icon(Icons.filter_list_alt, color: Color(0xFF004D56)),
+                const Icon(Icons.filter_list_alt, color: AppColors.primaryPetugas),
                 const SizedBox(width: 10),
                 Text(
                   "Filter Status",
-                  style: TextStyle(
-                    color: Colors.blueGrey.shade700,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.title2Mid.copyWith(color: Colors.blueGrey.shade700),
                 ),
               ],
             ),
           ),
-
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.only(left: 20, bottom: 20),
             child: Row(
               children: _filters.map((filterName) {
-                return _buildFilterChip(
-                  filterName,
-                  _selectedFilter == filterName,
-                );
+                return _buildFilterChip(filterName, _selectedFilter == filterName);
               }).toList(),
             ),
           ),
-
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF004D56)),
-                  )
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primaryPetugas))
                 : reportsToDisplay.isEmpty
-                ? const Center(
-                    child: Text(
-                      "Tidak ada laporan di kategori ini.",
-                      style: TextStyle(color: Colors.blueGrey),
-                    ),
+                ? Center(
+                    child: Text("Tidak ada laporan di kategori ini.", style: AppTextStyles.body.copyWith(color: Colors.blueGrey)),
                   )
                 : RefreshIndicator(
                     onRefresh: _fetchReports,
-                    color: const Color(0xFF004D56),
+                    color: AppColors.primaryPetugas,
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       itemCount: reportsToDisplay.length,
                       itemBuilder: (context, index) {
-                        final rep = reportsToDisplay[index];
-                        return _buildReportCard(rep);
+                        return _buildReportCard(reportsToDisplay[index]);
                       },
                     ),
                   ),
@@ -164,40 +138,30 @@ class _PKegiatanState extends State<PKegiatan> {
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF004D56) : const Color(0xFFE0F2F1),
+          color: isSelected ? AppColors.primaryPetugas : const Color(0xFFE0F2F1),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFF004D56),
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTextStyles.title1Bold.copyWith(color: isSelected ? Colors.white : AppColors.primaryPetugas),
         ),
       ),
     );
   }
 
- 
   Widget _buildReportCard(Map<String, dynamic> report) {
     String status = report['status'] ?? 'Belum Dibaca';
-    Color statusBg = Colors.grey.shade300;
-    Color statusText = Colors.grey.shade800;
+    Color statusBg = AppColors.statusBelumDibacaBg;
+    Color statusText = AppColors.statusBelumDibacaText;
 
-   
     if (status == 'Laporan Dibaca') {
-      statusBg = const Color(0xFFBDE7F1);
-      statusText = const Color(0xFF00838F);
+      statusBg = AppColors.statusDibacaBg; statusText = AppColors.statusDibacaText;
     } else if (status == 'Laporan Diproses') {
-      statusBg = const Color(0xFFFFF1AD);
-      statusText = const Color(0xFFB48A00);
+      statusBg = AppColors.statusDiprosesBg; statusText = AppColors.statusDiprosesText;
     } else if (status == 'Laporan Selesai') {
-      statusBg = const Color(0xFFC8E6C9);
-      statusText = const Color(0xFF2E7D32);
+      statusBg = AppColors.statusSelesaiBg; statusText = AppColors.statusSelesaiText;
     } else {
-      statusBg = const Color(0xFFE0E0E0);
-      statusText = const Color(0xFF616161);
-      status = 'Diterima'; // Alias
+      status = 'Diterima'; 
     }
 
     String judulLaporan = report['deskripsi'] ?? 'Laporan Warga';
@@ -206,13 +170,10 @@ class _PKegiatanState extends State<PKegiatan> {
 
     return GestureDetector(
       onTap: () {
-      
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => PDetailLaporan(report: report),
-          ),
-        ).then((_) => _fetchReports()); 
+          MaterialPageRoute(builder: (context) => PDetailLaporan(report: report)),
+        ).then((_) => _fetchReports());
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 15),
@@ -229,64 +190,30 @@ class _PKegiatanState extends State<PKegiatan> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusBg,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    status,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: statusText,
-                    ),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(10)),
+                  child: Text(status, style: AppTextStyles.captionBold.copyWith(color: statusText)),
                 ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 14,
-                  color: Color(0xFF004D56),
-                ),
+                const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primaryPetugas),
               ],
             ),
             const SizedBox(height: 10),
-            Text(
-              judulLaporan,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF004D56),
-              ),
-            ),
+            Text(judulLaporan, style: AppTextStyles.h1Bold.copyWith(color: AppColors.primaryPetugas)),
             const SizedBox(height: 6),
             Text(
               report['deskripsi'] ?? '-',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.blueGrey.shade600,
-                height: 1.4,
-              ),
+              style: AppTextStyles.body.copyWith(color: Colors.blueGrey.shade600, height: 1.4),
             ),
             const SizedBox(height: 15),
             Row(
               children: [
                 _buildIconText(Icons.tag, report['report_id'] ?? '-'),
                 const SizedBox(width: 15),
-                _buildIconText(
-                  Icons.location_on_outlined,
-                  report['lokasi'] ?? '-',
-                ),
+                _buildIconText(Icons.location_on_outlined, report['lokasi'] ?? '-'),
                 const SizedBox(width: 15),
-                _buildIconText(
-                  Icons.calendar_today_outlined,
-                  report['tanggal'] ?? '-',
-                ),
+                _buildIconText(Icons.calendar_today_outlined, report['tanggal'] ?? '-'),
               ],
             ),
           ],
@@ -298,12 +225,9 @@ class _PKegiatanState extends State<PKegiatan> {
   Widget _buildIconText(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF004D56)),
+        Icon(icon, size: 16, color: AppColors.primaryPetugas),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF004D56)),
-        ),
+        Text(text, style: AppTextStyles.caption.copyWith(color: AppColors.primaryPetugas)),
       ],
     );
   }

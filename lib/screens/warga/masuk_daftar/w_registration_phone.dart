@@ -1,3 +1,6 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/screens/warga/masuk_daftar/w_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
@@ -12,7 +15,6 @@ class WRegistrationPhone extends StatefulWidget {
 }
 
 class _WRegistrationPhoneState extends State<WRegistrationPhone> {
-  bool isHoverEmail = false;
   final TextEditingController _phoneController = TextEditingController();
   bool _isLoading = false;
 
@@ -27,9 +29,10 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
             child: SizedBox(
-              height: MediaQuery.of(context).size.height - 
-                      MediaQuery.of(context).padding.top - 
-                      MediaQuery.of(context).padding.bottom,
+              height:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -42,7 +45,7 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF004D56),
+                            color: AppColors.primaryPetugas,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -60,12 +63,11 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                     height: 180,
                     fit: BoxFit.contain,
                   ),
-                  const Text(
+                  Text(
                     'Daftar Sebagai Warga',
-                    style: TextStyle(
+                    style: AppTextStyles.h3Bold.copyWith(
                       fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF004D56),
+                      color: AppColors.primaryPetugas,
                     ),
                   ),
                   const SizedBox(height: 25),
@@ -75,15 +77,14 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF004D56),
+                            color: AppColors.primaryPetugas,
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
                               'Gunakan No. Telp',
-                              style: TextStyle(
+                              style: AppTextStyles.title1Bold.copyWith(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
@@ -101,15 +102,14 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                           child: Container(
                             height: 50,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFB0E6F3),
+                              color: AppColors.blueLightActive,
                               borderRadius: BorderRadius.circular(15),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Text(
                                 'Gunakan Email',
-                                style: TextStyle(
-                                  color: Color(0xFF004D56),
-                                  fontWeight: FontWeight.bold,
+                                style: AppTextStyles.title1Bold.copyWith(
+                                  color: AppColors.primaryPetugas,
                                 ),
                               ),
                             ),
@@ -127,16 +127,55 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                     child: TextField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
+                      style: AppTextStyles.bodyMid,
+                      decoration: InputDecoration(
                         hintText: 'Nomor Telepon',
-                        hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                        prefixIcon: Icon(Icons.phone_outlined, color: Color(0xFF004D56)),
+                        hintStyle: AppTextStyles.title1.copyWith(
+                          color: Colors.grey,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.phone_outlined,
+                          color: AppColors.primaryPetugas,
+                        ),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 15),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15,
+                        ),
                       ),
                     ),
                   ),
+
                   const Spacer(),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Sudah memiliki akun? ",
+                        style: AppTextStyles.title1.copyWith(fontSize: 13),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WSignIn(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Masuk di sini",
+                          style: AppTextStyles.title1Bold.copyWith(
+                            fontSize: 13,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
                   GestureDetector(
                     onTap: () {
                       if (_phoneController.text.isEmpty) return;
@@ -148,14 +187,18 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => WOtp(phoneNumber: _phoneController.text),
+                              builder: (context) =>
+                                  WOtp(phoneNumber: _phoneController.text),
                             ),
                           );
                         },
                         onError: (pesanError) {
                           setState(() => _isLoading = false);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(pesanError), backgroundColor: Colors.red),
+                            SnackBar(
+                              content: Text(pesanError),
+                              backgroundColor: Colors.red,
+                            ),
                           );
                         },
                       );
@@ -164,42 +207,25 @@ class _WRegistrationPhoneState extends State<WRegistrationPhone> {
                       width: double.infinity,
                       height: 55,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF004D56),
+                        color: AppColors.primaryPetugas,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Center(
                         child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : Text(
                                 'Daftar',
-                                style: TextStyle(
+                                style: AppTextStyles.title2Bold.copyWith(
                                   color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Sudah memiliki akun? ", style: TextStyle(fontSize: 13)),
-                      GestureDetector(
-                        onTap: () {},
-                        child: const Text(
-                          "Masuk di sini",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 143),
+
+                  const SizedBox(height: 30),
                 ],
               ),
             ),

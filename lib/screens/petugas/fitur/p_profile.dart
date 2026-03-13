@@ -1,5 +1,7 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:INTERNSHIP_RAION/providers/auth_provider.dart';
-import 'package:INTERNSHIP_RAION/screens/petugas/fitur/p_tentang_aplikasi.dart';
+import 'package:INTERNSHIP_RAION/screens/umum/tentang_aplikasi.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,11 +13,8 @@ class P_Profil extends StatefulWidget {
 }
 
 class _P_ProfilState extends State<P_Profil> {
-  final Color primaryTeal = const Color(0xFF004D56);
-
   Future<void> _logout() async {
     await Provider.of<AuthProvider>(context, listen: false).logoutPetugas();
-
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
   }
@@ -38,11 +37,7 @@ class _P_ProfilState extends State<P_Profil> {
         automaticallyImplyLeading: false,
         title: Text(
           'Profile',
-          style: TextStyle(
-            color: primaryTeal,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: AppTextStyles.h2Bold.copyWith(color: AppColors.primaryPetugas),
         ),
       ),
       body: LayoutBuilder(
@@ -55,7 +50,6 @@ class _P_ProfilState extends State<P_Profil> {
                 child: Column(
                   children: [
                     const SizedBox(height: 30),
-
                     Center(
                       child: CircleAvatar(
                         radius: 60,
@@ -68,33 +62,25 @@ class _P_ProfilState extends State<P_Profil> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     Text(
                       namaPetugas,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: primaryTeal,
+                      style: AppTextStyles.h3Bold.copyWith(
+                        color: AppColors.primaryPetugas,
                       ),
                     ),
                     const SizedBox(height: 8),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
                         "Petugas Lapangan - $wilayahTugas",
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: primaryTeal,
+                        style: AppTextStyles.title1Mid.copyWith(
+                          color: AppColors.primaryPetugas,
                           height: 1.4,
                         ),
                       ),
                     ),
-
                     const Spacer(),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
@@ -106,7 +92,7 @@ class _P_ProfilState extends State<P_Profil> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PTentangAplikasi(),
+                                  builder: (context) => const TentangAplikasi(),
                                 ),
                               );
                             },
@@ -147,14 +133,12 @@ class _P_ProfilState extends State<P_Profil> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: primaryTeal, size: 28),
+            Icon(icon, color: AppColors.primaryPetugas, size: 28),
             const SizedBox(width: 16),
             Text(
               title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: primaryTeal,
+              style: AppTextStyles.title1Mid.copyWith(
+                color: AppColors.primaryPetugas,
               ),
             ),
           ],

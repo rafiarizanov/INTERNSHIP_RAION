@@ -1,5 +1,7 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/warga_service.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -9,7 +11,6 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _notifList = [];
   bool _isLoading = true;
 
@@ -21,19 +22,10 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Future<void> _fetchNotifications() async {
     try {
-      final userId = supabase.auth.currentUser?.id;
-      if (userId == null) return;
-
-   
-      final data = await supabase
-          .from('notifications')
-          .select()
-          .eq('target_user', userId)
-          .order('created_at', ascending: false);
-
+      final data = await WargaService().fetchNotifications();
       if (mounted) {
         setState(() {
-          _notifList = List<Map<String, dynamic>>.from(data);
+          _notifList = data;
           _isLoading = false;
         });
       }
@@ -53,7 +45,7 @@ class _NotificationPageState extends State<NotificationPage> {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF004D40),
+              color: AppColors.blueDarker,
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
@@ -66,29 +58,25 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Notifikasi',
-          style: TextStyle(
-            color: Color(0xFF004D40),
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+          style: AppTextStyles.h3Bold.copyWith(color: AppColors.blueDarker),
         ),
       ),
       body: RefreshIndicator(
         onRefresh: _fetchNotifications,
-        color: const Color(0xFF004D40),
+        color: AppColors.blueDarker,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _notifList.isEmpty
             ? ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 100),
+                children: [
+                  const SizedBox(height: 100),
                   Center(
                     child: Text(
                       "Belum ada notifikasi.",
-                      style: TextStyle(color: Colors.grey),
+                      style: AppTextStyles.title1.copyWith(color: Colors.grey),
                     ),
                   ),
                 ],
@@ -106,9 +94,8 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   Widget _buildNotificationItem(Map<String, dynamic> notif) {
-   
     IconData iconData = Icons.notifications;
-    Color bgColor = const Color(0xFF00838F);
+    Color bgColor = AppColors.blueDark;
 
     if (notif['icon_type'] == 'success') {
       iconData = Icons.check_circle_outline;
@@ -118,7 +105,7 @@ class _NotificationPageState extends State<NotificationPage> {
       bgColor = Colors.blue;
     } else if (notif['icon_type'] == 'info') {
       iconData = Icons.info_outline;
-      bgColor = const Color(0xFF00838F);
+      bgColor = AppColors.blueDark;
     }
 
     return Container(
@@ -144,17 +131,14 @@ class _NotificationPageState extends State<NotificationPage> {
               children: [
                 Text(
                   notif['title'] ?? '',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Color(0xFF004D40),
+                  style: AppTextStyles.title2Bold.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   notif['message'] ?? '',
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: AppTextStyles.body.copyWith(
                     color: Colors.blueGrey[700],
                     height: 1.4,
                   ),

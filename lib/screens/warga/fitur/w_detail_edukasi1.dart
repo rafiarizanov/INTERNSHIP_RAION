@@ -1,10 +1,9 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class WEdukasiDetail1 extends StatelessWidget {
   const WEdukasiDetail1({super.key});
-
-  final Color primaryTeal = const Color(0xFF003D4C);
-  final Color textDark = const Color(0xFF1A1A1A);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +22,7 @@ class WEdukasiDetail1 extends StatelessWidget {
                 width: 35,
                 height: 35,
                 decoration: BoxDecoration(
-                  color: primaryTeal,
+                  color: AppColors.blueDarker,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -36,11 +35,7 @@ class WEdukasiDetail1 extends StatelessWidget {
             const SizedBox(width: 15),
             Text(
               'Edukasi',
-              style: TextStyle(
-                color: primaryTeal,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h1Bold.copyWith(color: AppColors.blueDarker),
             ),
           ],
         ),
@@ -52,25 +47,19 @@ class WEdukasiDetail1 extends StatelessWidget {
           children: [
             Text(
               'Tiga Hal Ini Menandakan Air Sumur Anda Bermasalah',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: primaryTeal,
+              style: AppTextStyles.h3Bold.copyWith(
+                color: AppColors.blueDarker,
                 height: 1.3,
               ),
             ),
             const SizedBox(height: 10),
-
             Text(
               'Penting untuk mengenali tanda-tanda ini agar dapat segera mengambil tindakan.',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF387A89),
+              style: AppTextStyles.title1Bold.copyWith(
+                color: AppColors.blueDark,
               ),
             ),
             const SizedBox(height: 18),
-
             Container(
               height: 200,
               width: double.infinity,
@@ -78,47 +67,38 @@ class WEdukasiDetail1 extends StatelessWidget {
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(8),
                 image: const DecorationImage(
-                  image: NetworkImage('assets/image/materi1.jpg'),
+                  image: AssetImage('assets/image/materi1.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
             Divider(color: Colors.grey[300], thickness: 1),
-
             const SizedBox(height: 16),
-
             _buildBodyText(
               'Air sumur sering digunakan sebagai sumber air sehari-hari. Namun, kualitasnya bisa berubah karena pencemaran dari lingkungan sekitar. Penting untuk mengenali tanda-tanda air sumur yang bermasalah agar dapat segera mengambil tindakan.',
             ),
             const SizedBox(height: 16),
-
             _buildSubHeading('1. Air Berbau Tidak Sedap'),
             _buildBodyText(
               'Jika air sumur mengeluarkan bau seperti bau tanah, belerang, atau bau busuk, hal ini bisa menjadi tanda adanya kontaminasi bakteri atau zat tertentu di dalam air.',
             ),
             const SizedBox(height: 16),
-
             _buildSubHeading('2. Air Berubah Warna'),
             _buildBodyText(
               'Air sumur yang sehat biasanya jernih dan tidak berwarna. Jika air terlihat keruh, kekuningan, atau kecokelatan, kemungkinan terdapat kandungan logam, lumpur, atau kotoran yang masuk ke dalam sumur.',
             ),
             const SizedBox(height: 16),
-
             _buildSubHeading('3. Menyebabkan Iritasi atau Gangguan Kesehatan'),
             _buildBodyText(
               'Air yang terkontaminasi dapat menyebabkan gatal pada kulit, diare, atau gangguan kesehatan lainnya jika digunakan untuk mandi atau diminum.',
             ),
             const SizedBox(height: 16),
-
             _buildSubHeading('Apa yang Harus Dilakukan?'),
             _buildBodyText(
               'Jika Anda menemukan tanda-tanda di atas, sebaiknya:',
             ),
             const SizedBox(height: 8),
-
             _buildBulletPoint('Hindari menggunakan air tersebut untuk minum.'),
             _buildBulletPoint(
               'Periksa kondisi sumur dan lingkungan sekitarnya.',
@@ -127,7 +107,6 @@ class WEdukasiDetail1 extends StatelessWidget {
               'Laporkan kondisi tersebut melalui aplikasi agar dapat ditindaklanjuti.',
             ),
             const SizedBox(height: 16),
-
             _buildBodyText(
               'Dengan mengenali tanda-tanda ini lebih awal, Anda dapat membantu menjaga kesehatan keluarga dan lingkungan sekitar.',
             ),
@@ -138,49 +117,31 @@ class WEdukasiDetail1 extends StatelessWidget {
     );
   }
 
-  Widget _buildBodyText(String text) {
-    return Text(
+  Widget _buildBodyText(String text) => Text(
+    text,
+    style: AppTextStyles.body.copyWith(color: Colors.black87, height: 1.5),
+  );
+  Widget _buildSubHeading(String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(
       text,
-      style: TextStyle(
-        fontSize: 14,
-        color: textDark.withOpacity(0.9),
-        height: 1.5,
+      style: AppTextStyles.title2Bold.copyWith(
+        color: Colors.black87,
+        height: 1.4,
       ),
-    );
-  }
-
-  Widget _buildSubHeading(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
-          color: textDark,
-          height: 1.4,
+    ),
+  );
+  Widget _buildBulletPoint(String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 8, left: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '•  ',
+          style: AppTextStyles.title1Bold.copyWith(color: Colors.black87),
         ),
-      ),
-    );
-  }
-
-  Widget _buildBulletPoint(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8, left: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '•  ',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: textDark,
-            ),
-          ),
-          Expanded(child: _buildBodyText(text)),
-        ],
-      ),
-    );
-  }
+        Expanded(child: _buildBodyText(text)),
+      ],
+    ),
+  );
 }

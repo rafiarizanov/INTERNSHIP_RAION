@@ -1,5 +1,7 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/report_service.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PNotifikasi extends StatefulWidget {
   const PNotifikasi({super.key});
@@ -9,7 +11,6 @@ class PNotifikasi extends StatefulWidget {
 }
 
 class _PNotifikasiState extends State<PNotifikasi> {
-  final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _notifList = [];
   bool _isLoading = true;
 
@@ -19,18 +20,14 @@ class _PNotifikasiState extends State<PNotifikasi> {
     _fetchNotifications();
   }
 
+ 
   Future<void> _fetchNotifications() async {
     try {
-     
-      final data = await supabase
-          .from('notifications')
-          .select()
-          .eq('target_user', 'PETUGAS')
-          .order('created_at', ascending: false);
+      final data = await ReportService().fetchPetugasNotifications();
 
       if (mounted) {
         setState(() {
-          _notifList = List<Map<String, dynamic>>.from(data);
+          _notifList = data;
           _isLoading = false;
         });
       }
@@ -54,7 +51,7 @@ class _PNotifikasiState extends State<PNotifikasi> {
               height: 45,
               width: 45,
               decoration: BoxDecoration(
-                color: const Color(0xFF003D45),
+                color: AppColors.primaryPetugas,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: IconButton(
@@ -68,29 +65,29 @@ class _PNotifikasiState extends State<PNotifikasi> {
             ),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Notifikasi',
-          style: TextStyle(
-            color: Color(0xFF003D45),
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTextStyles.h2Bold.copyWith(color: AppColors.primaryPetugas),
         ),
       ),
       body: RefreshIndicator(
         onRefresh: _fetchNotifications,
-        color: const Color(0xFF003D45),
+        color: AppColors.primaryPetugas,
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryPetugas,
+                ),
+              )
             : _notifList.isEmpty
             ? ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 100),
+                children: [
+                  const SizedBox(height: 100),
                   Center(
                     child: Text(
                       "Tidak ada notifikasi laporan baru.",
-                      style: TextStyle(color: Colors.grey),
+                      style: AppTextStyles.body.copyWith(color: Colors.grey),
                     ),
                   ),
                 ],
@@ -108,7 +105,7 @@ class _PNotifikasiState extends State<PNotifikasi> {
 
   Widget _buildNotificationItem(Map<String, dynamic> notif) {
     IconData iconData = Icons.error_outline;
-    Color bgColor = const Color(0xFF008394);
+    Color bgColor = AppColors.secondaryPetugas; 
 
     if (notif['icon_type'] == 'alert') {
       iconData = Icons.warning_amber_rounded;
@@ -143,18 +140,15 @@ class _PNotifikasiState extends State<PNotifikasi> {
                 children: [
                   Text(
                     notif['title'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003D45),
+                    style: AppTextStyles.title2Bold.copyWith(
+                      color: AppColors.primaryPetugas,
                     ),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     notif['message'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF006064),
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.primaryPetugas.withOpacity(0.8),
                       height: 1.4,
                     ),
                   ),

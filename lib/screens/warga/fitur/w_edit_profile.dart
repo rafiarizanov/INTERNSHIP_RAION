@@ -1,9 +1,10 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart'
-    show kIsWeb; 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/warga_service.dart';
 
 class W_EditProfil extends StatefulWidget {
   const W_EditProfil({super.key});
@@ -13,16 +14,13 @@ class W_EditProfil extends StatefulWidget {
 }
 
 class _W_EditProfilState extends State<W_EditProfil> {
-  final Color primaryTeal = const Color(0xFF003D4C);
-  final supabase = Supabase.instance.client;
-
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  XFile? _newProfileImage; 
+  XFile? _newProfileImage;
   String _currentAvatarUrl = "";
   bool _isLoading = false;
 
@@ -32,38 +30,29 @@ class _W_EditProfilState extends State<W_EditProfil> {
     _loadCurrentData();
   }
 
-  void _loadCurrentData() {
-    final user = supabase.auth.currentUser;
-    if (user != null) {
-      final metadata = user.userMetadata;
-      String fullName = metadata?['display_name'] ?? '';
-
+  Future<void> _loadCurrentData() async {
+    final userData = await WargaService().getUserProfile();
+    if (userData.isNotEmpty) {
+      String fullName = userData['name'];
       List<String> nameParts = fullName.split(' ');
       _firstNameController.text = nameParts.isNotEmpty ? nameParts.first : '';
       _lastNameController.text = nameParts.length > 1
           ? nameParts.sublist(1).join(' ')
           : '';
-
-      _dobController.text = metadata?['dob'] ?? '';
-      _phoneController.text = metadata?['phone'] ?? '';
-      _emailController.text = user.email ?? '';
-      _currentAvatarUrl = metadata?['avatar_url'] ?? '';
+      _dobController.text = userData['dob'];
+      _phoneController.text = userData['phone'];
+      _emailController.text = userData['email'];
+      _currentAvatarUrl = userData['avatar_url'];
+      setState(() {});
     }
-    setState(() {});
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
+    final XFile? image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 50,
     );
-
-    if (image != null) {
-      setState(() {
-        _newProfileImage = image;
-      });
-    }
+    if (image != null) setState(() => _newProfileImage = image);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -74,8 +63,8 @@ class _W_EditProfilState extends State<W_EditProfil> {
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.light(
-            primary: primaryTeal,
+          colorScheme: const ColorScheme.light(
+            primary: AppColors.blueDarker,
             onPrimary: Colors.white,
           ),
         ),
@@ -83,57 +72,23 @@ class _W_EditProfilState extends State<W_EditProfil> {
       ),
     );
     if (picked != null) {
-      setState(() {
-        _dobController.text =
-            "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
-      });
+      setState(
+        () => _dobController.text =
+            "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}",
+      );
     }
   }
 
-  
   Future<void> _saveProfile() async {
     setState(() => _isLoading = true);
-
     try {
-      String avatarUrlToSave = _currentAvatarUrl;
-
-      if (_newProfileImage != null) {
-        String fileExt = _newProfileImage!.name.split('.').last;
-        if (fileExt.isEmpty || fileExt.length > 4) fileExt = 'png';
-
-        final fileName = '${supabase.auth.currentUser!.id}.$fileExt';
-        final imagePath = 'profiles/$fileName';
-
-        final imageBytes = await _newProfileImage!.readAsBytes();
-
-        await supabase.storage
-            .from('avatars')
-            .uploadBinary(
-              imagePath,
-              imageBytes,
-              fileOptions: const FileOptions(upsert: true),
-            );
-
-        
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        avatarUrlToSave =
-            "${supabase.storage.from('avatars').getPublicUrl(imagePath)}?t=$timestamp";
-      }
-
-      String fullName =
-          "${_firstNameController.text.trim()} ${_lastNameController.text.trim()}"
-              .trim();
-
-      
-      await supabase.auth.updateUser(
-        UserAttributes(
-          data: {
-            'display_name': fullName,
-            'dob': _dobController.text,
-            'phone': _phoneController.text,
-            'avatar_url': avatarUrlToSave,
-          },
-        ),
+      await WargaService().updateProfile(
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
+        dob: _dobController.text,
+        phone: _phoneController.text,
+        currentAvatarUrl: _currentAvatarUrl,
+        newProfileImage: _newProfileImage,
       );
 
       if (!mounted) return;
@@ -143,13 +98,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
           backgroundColor: Colors.green,
         ),
       );
-      await supabase.from('notifications').insert({
-        'target_user': supabase.auth.currentUser!.id,
-        'title': 'Profil Diperbarui',
-        'message':
-            'Perubahan data profil dan foto Anda telah berhasil disimpan.',
-        'icon_type': 'success',
-      });
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -170,35 +118,26 @@ class _W_EditProfilState extends State<W_EditProfil> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: primaryTeal,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.chevron_left,
-                  color: Colors.white,
-                  size: 30,
-                ),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.blueDarker,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.chevron_left,
+                color: Colors.white,
+                size: 24,
               ),
             ),
-            const SizedBox(width: 15),
-            Text(
-              'Edit Profil',
-              style: TextStyle(
-                color: primaryTeal,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+          ),
+        ),
+        title: Text(
+          'Edit Profil',
+          style: AppTextStyles.h2Bold.copyWith(color: AppColors.blueDarker),
         ),
       ),
       body: Stack(
@@ -208,8 +147,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-
-            
                 Center(
                   child: CircleAvatar(
                     radius: 55,
@@ -232,9 +169,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
                         : null,
                   ),
                 ),
-
                 const SizedBox(height: 15),
-
                 GestureDetector(
                   onTap: _pickImage,
                   child: Container(
@@ -243,19 +178,17 @@ class _W_EditProfilState extends State<W_EditProfil> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: primaryTeal,
+                      color: AppColors.blueDarker,
                       borderRadius: BorderRadius.circular(25),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.edit, color: Colors.white, size: 18),
-                        SizedBox(width: 8),
+                        const Icon(Icons.edit, color: Colors.white, size: 18),
+                        const SizedBox(width: 8),
                         Text(
                           "Ubah Foto Profil",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                          style: AppTextStyles.title1Bold.copyWith(
                             color: Colors.white,
                           ),
                         ),
@@ -263,9 +196,7 @@ class _W_EditProfilState extends State<W_EditProfil> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
                 _buildInputLabel("Nama"),
                 Row(
                   children: [
@@ -284,7 +215,6 @@ class _W_EditProfilState extends State<W_EditProfil> {
                     ),
                   ],
                 ),
-
                 _buildInputLabel("Tanggal Lahir"),
                 GestureDetector(
                   onTap: () => _selectDate(context),
@@ -295,38 +225,32 @@ class _W_EditProfilState extends State<W_EditProfil> {
                     ),
                   ),
                 ),
-
                 _buildInputLabel("Nomor Telepon"),
                 _buildInputField(
                   hint: "08XXXXXXX",
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                 ),
-
                 _buildInputLabel("Email"),
                 _buildInputField(
                   hint: "example@email.com",
                   controller: _emailController,
                   readOnly: true,
                 ),
-
                 const SizedBox(height: 50),
-
                 GestureDetector(
                   onTap: _saveProfile,
                   child: Container(
                     width: double.infinity,
                     height: 55,
                     decoration: BoxDecoration(
-                      color: primaryTeal,
+                      color: AppColors.blueDarker,
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         "Simpan",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                        style: AppTextStyles.title2Bold.copyWith(
                           color: Colors.white,
                         ),
                       ),
@@ -337,12 +261,11 @@ class _W_EditProfilState extends State<W_EditProfil> {
               ],
             ),
           ),
-
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
-              child: Center(
-                child: CircularProgressIndicator(color: primaryTeal),
+              child: const Center(
+                child: CircularProgressIndicator(color: AppColors.blueDarker),
               ),
             ),
         ],
@@ -350,58 +273,48 @@ class _W_EditProfilState extends State<W_EditProfil> {
     );
   }
 
-  Widget _buildInputLabel(String label) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8, top: 15),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: primaryTeal,
-          ),
-        ),
+  Widget _buildInputLabel(String label) => Align(
+    alignment: Alignment.centerLeft,
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: 8, top: 15),
+      child: Text(
+        label,
+        style: AppTextStyles.title2Bold.copyWith(color: AppColors.blueDarker),
       ),
-    );
-  }
-
+    ),
+  );
   Widget _buildInputField({
     String hint = "",
     required TextEditingController controller,
     bool readOnly = false,
     TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(
-            color: primaryTeal.withOpacity(0.5),
-            fontSize: 14,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(color: primaryTeal, width: 1.5),
-          ),
+  }) => Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: TextField(
+      controller: controller,
+      readOnly: readOnly,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: AppTextStyles.title1.copyWith(
+          color: AppColors.blueDarker.withOpacity(0.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: AppColors.blueDarker, width: 1.5),
         ),
       ),
-    );
-  }
+    ),
+  );
 }

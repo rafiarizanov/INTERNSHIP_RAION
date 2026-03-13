@@ -1,5 +1,7 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/warga_service.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'w_detail_laporan.dart';
 
 class RiwayatLaporanPage extends StatefulWidget {
@@ -10,38 +12,22 @@ class RiwayatLaporanPage extends StatefulWidget {
 }
 
 class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
-  final supabase = Supabase.instance.client;
-
+  
   Future<List<dynamic>> fetchReports() async {
-    final user = supabase.auth.currentUser;
-    if (user == null) return [];
-
-    final response = await supabase
-        .from('reports')
-        .select()
-        .eq('user_id', user.id)
-        .order('created_at', ascending: false);
-    return response;
+    return await WargaService().fetchAllMyReports();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(
-        0xFFF8F9FA,
-      ), 
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8F9FA),
         elevation: 0,
-        automaticallyImplyLeading:
-            false,
-        title: const Text(
+        automaticallyImplyLeading: false,
+        title: Text(
           'Riwayat Laporan',
-          style: TextStyle(
-            color: Color(0xFF003D4C),
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+          style: AppTextStyles.h3Bold.copyWith(color: AppColors.blueDarker),
         ),
       ),
       body: FutureBuilder<List<dynamic>>(
@@ -49,7 +35,7 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF003D4C)),
+              child: CircularProgressIndicator(color: AppColors.blueDarker),
             );
           }
           if (snapshot.hasError) {
@@ -59,10 +45,12 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
           final reports = snapshot.data ?? [];
 
           if (reports.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'Anda belum memiliki riwayat laporan.',
-                style: TextStyle(color: Color(0xFF003D4C)),
+                style: AppTextStyles.title1.copyWith(
+                  color: AppColors.blueDarker,
+                ),
               ),
             );
           }
@@ -84,26 +72,21 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
   }
 
   Widget _buildReportCard(BuildContext context, Map<String, dynamic> report) {
-    // 1. Aturan Warna Status Sesuai Desain
     String status = report['status'] ?? 'Belum Dibaca';
-    Color statusBgColor = Colors.grey.shade300;
-    Color statusTextColor = Colors.grey.shade800;
+    Color statusBgColor = AppColors.statusBelumDibacaBg;
+    Color statusTextColor = AppColors.statusBelumDibacaText;
 
     if (status == 'Laporan Dibaca') {
-      statusBgColor = const Color(0xFFBDE7F1);
-      statusTextColor = const Color(0xFF00838F);
+      statusBgColor = AppColors.statusDibacaBg;
+      statusTextColor = AppColors.statusDibacaText;
     } else if (status == 'Laporan Diproses') {
-      statusBgColor = const Color(0xFFFFF1AD);
-      statusTextColor = const Color(0xFFB48A00);
+      statusBgColor = AppColors.statusDiprosesBg;
+      statusTextColor = AppColors.statusDiprosesText;
     } else if (status == 'Laporan Selesai') {
-      statusBgColor = const Color(0xFFC8E6C9);
-      statusTextColor = const Color(0xFF2E7D32);
-    } else if (status == 'Belum Dibaca') {
-      statusBgColor = const Color(0xFFE0E0E0);
-      statusTextColor = const Color(0xFF616161);
+      statusBgColor = AppColors.statusSelesaiBg;
+      statusTextColor = AppColors.statusSelesaiText;
     }
 
-   
     String deskripsiAsli = report['deskripsi'] ?? 'Tidak ada deskripsi';
     List<String> kataDeskripsi = deskripsiAsli.split(' ');
     String judulLaporan = kataDeskripsi.length > 4
@@ -125,13 +108,10 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.grey.shade200,
-            width: 1.5,
-          ), 
+          border: Border.all(color: Colors.grey.shade200, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02), 
+              color: Colors.black.withOpacity(0.02),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -141,7 +121,6 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -152,80 +131,67 @@ class _RiwayatLaporanPageState extends State<RiwayatLaporanPage> {
                   ),
                   decoration: BoxDecoration(
                     color: statusBgColor,
-                    borderRadius: BorderRadius.circular(
-                      20,
-                    ),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     status,
-                    style: TextStyle(
+                    style: AppTextStyles.captionBold.copyWith(
                       color: statusTextColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 const Icon(
-                  Icons.keyboard_arrow_right, 
+                  Icons.keyboard_arrow_right,
                   size: 20,
-                  color: Color(0xFF003D4C),
+                  color: AppColors.blueDarker,
                 ),
               ],
             ),
             const SizedBox(height: 12),
-
-           
             Text(
               judulLaporan,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF003D4C),
+              style: AppTextStyles.title2Bold.copyWith(
+                color: AppColors.blueDarker,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 6),
-
             Text(
               deskripsiAsli,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF00838F),
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.blueDark,
                 height: 1.4,
               ),
             ),
             const SizedBox(height: 16),
-
             Row(
               children: [
                 const Icon(
                   Icons.location_on_outlined,
                   size: 14,
-                  color: Color(0xFF003D4C),
+                  color: AppColors.blueDarker,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   report['lokasi'] ?? '-',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF003D4C),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
-                const SizedBox(width: 24), 
+                const SizedBox(width: 24),
                 const Icon(
                   Icons.calendar_today_outlined,
                   size: 14,
-                  color: Color(0xFF003D4C),
+                  color: AppColors.blueDarker,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   report['tanggal'] ?? '-',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF003D4C),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
               ],

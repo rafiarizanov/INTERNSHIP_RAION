@@ -1,8 +1,10 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
+import 'package:INTERNSHIP_RAION/services/warga_service.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_detail_edukasi1.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_edukasi.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_profil.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'w_notifikasi.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_report.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_riwayat_laporan.dart';
@@ -27,11 +29,10 @@ class _W_HomepageState extends State<W_Homepage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
- 
       HalamanBerandaUtama(key: UniqueKey(), onTabChange: _pindahTab),
       const W_ReportPage(),
       const RiwayatLaporanPage(),
-      const WProfil(), 
+      const WProfil(),
     ];
 
     return Scaffold(
@@ -73,7 +74,7 @@ class _W_HomepageState extends State<W_Homepage> {
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF00838F) : Colors.transparent,
+          color: isSelected ? AppColors.blueDark : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
         ),
         child: Column(
@@ -81,17 +82,15 @@ class _W_HomepageState extends State<W_Homepage> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : const Color(0xFF1A1A1A),
+              color: isSelected ? Colors.white : Colors.black87,
               size: 26,
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF1A1A1A),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 12,
-              ),
+              style: isSelected
+                  ? AppTextStyles.bodyBold.copyWith(color: Colors.white)
+                  : AppTextStyles.bodyMid.copyWith(color: Colors.black87),
             ),
           ],
         ),
@@ -111,8 +110,7 @@ class HalamanBerandaUtama extends StatefulWidget {
 
 class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
   String _userName = 'Warga';
-  String _avatarUrl = ''; // 🌟 MENAMBAHKAN VARIABEL URL FOTO
-  final supabase = Supabase.instance.client;
+  String _avatarUrl = '';
 
   @override
   void initState() {
@@ -120,62 +118,42 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
     _getUserData();
   }
 
-  // 🌟 MENGAMBIL NAMA DAN FOTO LANGSUNG DARI SERVER SUPABASE
-  Future<void> _getUserData() async {
-    final response = await supabase.auth.getUser();
-    final user = response.user;
 
-    if (user != null) {
-      final metadata = user.userMetadata;
-      if (mounted) {
-        setState(() {
-          _userName = metadata?['display_name'] ?? 'Warga';
-          _avatarUrl = metadata?['avatar_url'] ?? '';
-        });
-      }
+  Future<void> _getUserData() async {
+    final userData = await WargaService().getUserProfile();
+    if (mounted && userData.isNotEmpty) {
+      setState(() {
+        _userName = userData['name'];
+        _avatarUrl = userData['avatar_url'];
+      });
     }
   }
 
   Future<List<Map<String, dynamic>>> fetchLatestReports() async {
-    final user = supabase.auth.currentUser;
-    if (user == null) return [];
-
-    final response = await supabase
-        .from('reports')
-        .select()
-        .eq('user_id', user.id)
-        .order('created_at', ascending: false)
-        .limit(2);
-
-    return List<Map<String, dynamic>>.from(response);
+    return await WargaService().fetchLatestReports();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // 🌟 DIBUNGKUS RefreshIndicator BIAR BISA DITARIK REFRESH
       body: RefreshIndicator(
         onRefresh: _getUserData,
-        color: const Color(0xFF004D56),
+        color: AppColors.blueDarker,
         backgroundColor: Colors.white,
         child: SafeArea(
           child: SingleChildScrollView(
-            physics:
-                const AlwaysScrollableScrollPhysics(), // Wajib ada agar RefreshIndicator berfungsi
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-
-                // --- HEADER ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        // 🌟 LOGIKA AVATAR MENGGUNAKAN FOTO DARI DATABASE SUPABASE
                         CircleAvatar(
                           radius: 25,
                           backgroundColor: Colors.grey.shade300,
@@ -194,31 +172,27 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Halo,',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF004D56),
+                              style: AppTextStyles.title1.copyWith(
+                                color: AppColors.blueDarker,
                               ),
                             ),
                             Text(
                               _userName,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF004D56),
+                              style: AppTextStyles.h1Bold.copyWith(
+                                color: AppColors.blueDarker,
                               ),
                             ),
                           ],
                         ),
                       ],
                     ),
-
                     IconButton(
                       icon: const Icon(
                         Icons.notifications_none,
                         size: 30,
-                        color: Color(0xFF004D56),
+                        color: AppColors.blueDarker,
                       ),
                       onPressed: () {
                         Navigator.push(
@@ -233,12 +207,10 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                 ),
                 const SizedBox(height: 25),
 
-                const Text(
+                Text(
                   'Edukasi Hari Ini',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56),
+                  style: AppTextStyles.title2Bold.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -246,26 +218,23 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE0F7FA),
+                    color: AppColors.blueLightActive.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '3 Tanda Air Sumur Anda Bermasalah 🚨',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF004D56),
+                      Text(
+                        '3 Tanda Air Sumur Anda Bermasalah 💧',
+                        style: AppTextStyles.title2Bold.copyWith(
+                          color: AppColors.blueDarker,
                         ),
                       ),
                       const SizedBox(height: 5),
-                      const Text(
+                      Text(
                         'Segera laporkan jika air berbau tidak wajar, berubah warna, atau terasa licin di kulit.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF004D56),
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.blueDarker,
                         ),
                       ),
                       const SizedBox(height: 15),
@@ -276,12 +245,12 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => WEdukasiDetail1(),
+                                builder: (context) => const WEdukasiDetail1(),
                               ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF004D56),
+                            backgroundColor: AppColors.blueDarker,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -290,18 +259,17 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                               vertical: 10,
                             ),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Baca Selengkapnya',
-                                style: TextStyle(
+                                style: AppTextStyles.bodyBold.copyWith(
                                   color: Colors.white,
-                                  fontSize: 12,
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Icon(
+                              const SizedBox(width: 8),
+                              const Icon(
                                 Icons.arrow_forward_ios,
                                 size: 12,
                                 color: Colors.white,
@@ -315,12 +283,10 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                 ),
                 const SizedBox(height: 25),
 
-                const Text(
+                Text(
                   'Tindakan Cepat',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56),
+                  style: AppTextStyles.title2Bold.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -330,9 +296,7 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                       child: _buildActionCard(
                         'Buat Laporan Air',
                         Icons.campaign,
-                        () {
-                          widget.onTabChange(1);
-                        },
+                        () => widget.onTabChange(1),
                       ),
                     ),
                     const SizedBox(width: 15),
@@ -354,12 +318,10 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                 ),
                 const SizedBox(height: 25),
 
-                const Text(
+                Text(
                   'Laporan Terbaru',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF004D56),
+                  style: AppTextStyles.title2Bold.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -372,17 +334,15 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                         child: Padding(
                           padding: EdgeInsets.all(20.0),
                           child: CircularProgressIndicator(
-                            color: Color(0xFF004D56),
+                            color: AppColors.blueDarker,
                           ),
                         ),
                       );
                     }
-                    if (snapshot.hasError) {
+                    if (snapshot.hasError)
                       return const Text("Terjadi kesalahan memuat laporan.");
-                    }
 
                     final reports = snapshot.data ?? [];
-
                     if (reports.isEmpty) {
                       return Container(
                         padding: const EdgeInsets.all(20),
@@ -391,21 +351,25 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                           color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             "Belum ada laporan yang dibuat.",
-                            style: TextStyle(color: Colors.grey),
+                            style: AppTextStyles.body.copyWith(
+                              color: Colors.grey,
+                            ),
                           ),
                         ),
                       );
                     }
                     return Column(
-                      children: reports.map((report) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 15.0),
-                          child: _buildLatestReportCard(report),
-                        );
-                      }).toList(),
+                      children: reports
+                          .map(
+                            (report) => Padding(
+                              padding: const EdgeInsets.only(bottom: 15.0),
+                              child: _buildLatestReportCard(report),
+                            ),
+                          )
+                          .toList(),
                     );
                   },
                 ),
@@ -441,10 +405,10 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F7FA),
+                color: AppColors.blueLightActive.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: const Color(0xFF004D56), size: 28),
+              child: Icon(icon, color: AppColors.blueDarker, size: 28),
             ),
             const SizedBox(height: 15),
             Row(
@@ -453,17 +417,15 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                 Flexible(
                   child: Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF004D56),
+                    style: AppTextStyles.bodyBold.copyWith(
+                      color: AppColors.blueDarker,
                     ),
                   ),
                 ),
                 const Icon(
                   Icons.arrow_forward_ios,
                   size: 12,
-                  color: Color(0xFF004D56),
+                  color: AppColors.blueDarker,
                 ),
               ],
             ),
@@ -475,21 +437,18 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
 
   Widget _buildLatestReportCard(Map<String, dynamic> report) {
     String status = report['status'] ?? 'Belum Dibaca';
-    Color statusBgColor = Colors.grey.shade300;
-    Color statusTextColor = Colors.grey.shade800;
+    Color statusBgColor = AppColors.statusBelumDibacaBg;
+    Color statusTextColor = AppColors.statusBelumDibacaText;
 
     if (status == 'Laporan Dibaca') {
-      statusBgColor = const Color(0xFFBDE7F1);
-      statusTextColor = const Color(0xFF00838F);
+      statusBgColor = AppColors.statusDibacaBg;
+      statusTextColor = AppColors.statusDibacaText;
     } else if (status == 'Laporan Diproses') {
-      statusBgColor = const Color(0xFFFFF1AD);
-      statusTextColor = const Color(0xFFB48A00);
+      statusBgColor = AppColors.statusDiprosesBg;
+      statusTextColor = AppColors.statusDiprosesText;
     } else if (status == 'Laporan Selesai') {
-      statusBgColor = const Color(0xFFC8E6C9);
-      statusTextColor = const Color(0xFF2E7D32);
-    } else if (status == 'Belum Dibaca') {
-      statusBgColor = const Color(0xFFE0E0E0);
-      statusTextColor = const Color(0xFF616161);
+      statusBgColor = AppColors.statusSelesaiBg;
+      statusTextColor = AppColors.statusSelesaiText;
     }
 
     String deskripsiAsli = report['deskripsi'] ?? 'Tidak ada deskripsi';
@@ -538,27 +497,23 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                   ),
                   child: Text(
                     status,
-                    style: TextStyle(
+                    style: AppTextStyles.captionBold.copyWith(
                       color: statusTextColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 const Icon(
                   Icons.keyboard_arrow_right,
                   size: 20,
-                  color: Color(0xFF003D4C),
+                  color: AppColors.blueDarker,
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Text(
               judulLaporan,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF003D4C),
+              style: AppTextStyles.title2Bold.copyWith(
+                color: AppColors.blueDarker,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -568,9 +523,8 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
               deskripsiAsli,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF00838F),
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.blueDark,
                 height: 1.4,
               ),
             ),
@@ -580,28 +534,26 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
                 const Icon(
                   Icons.location_on_outlined,
                   size: 14,
-                  color: Color(0xFF003D4C),
+                  color: AppColors.blueDarker,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   report['lokasi'] ?? '-',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF003D4C),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
                 const SizedBox(width: 24),
                 const Icon(
                   Icons.calendar_today_outlined,
                   size: 14,
-                  color: Color(0xFF003D4C),
+                  color: AppColors.blueDarker,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   report['tanggal'] ?? '-',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF003D4C),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
               ],
@@ -612,3 +564,4 @@ class _HalamanBerandaUtamaState extends State<HalamanBerandaUtama> {
     );
   }
 }
+  

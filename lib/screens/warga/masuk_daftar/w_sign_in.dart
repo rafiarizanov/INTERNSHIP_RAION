@@ -1,3 +1,5 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:INTERNSHIP_RAION/screens/umum/choosing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +7,7 @@ import '../../../providers/auth_provider.dart';
 import 'w_registration_email.dart';
 import '../fitur/w_homepage.dart';
 import 'w_OTP.dart';
+import 'w_lupa_password.dart';
 
 class WSignIn extends StatefulWidget {
   const WSignIn({super.key});
@@ -16,6 +19,7 @@ class WSignIn extends StatefulWidget {
 class _WSignInState extends State<WSignIn> {
   bool _isPhoneMode = false;
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -36,11 +40,25 @@ class _WSignInState extends State<WSignIn> {
       ),
       child: TextField(
         controller: controller,
-        obscureText: isPassword,
+        obscureText: isPassword ? _obscurePassword : false,
+        style: AppTextStyles.bodyMid,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-          prefixIcon: Icon(icon, color: const Color(0xFF004D56)),
+          hintStyle: AppTextStyles.title1.copyWith(color: Colors.grey),
+          prefixIcon: Icon(icon, color: AppColors.primaryPetugas),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    color: AppColors.primaryPetugas,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                )
+              : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 15),
         ),
@@ -58,246 +76,283 @@ class _WSignInState extends State<WSignIn> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
-            child: Form(
-              key: authProv.form,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ChoosingPage(),
-                            ),
-                            (route) => false,
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF004D56),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Image.asset(
-                    'assets/image/logo.png',
-                    height: 180,
-                    fit: BoxFit.contain,
-                  ),
-                  const Text(
-                    'Masuk Sebagai Warga',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF004D56),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Masukkan nomor telepon atau email\nserta kata sandi Anda.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 13, color: Color(0xFF004D56)),
-                  ),
-                  const SizedBox(height: 30),
-                  Row(
-                    children: [
-                      Expanded(
+            child: SizedBox(
+              height:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
+              child: Form(
+                key: authProv.form,
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10),
                         child: GestureDetector(
-                          onTap: () => setState(() => _isPhoneMode = true),
-                          child: Container(
-                            height: 45,
-                            decoration: BoxDecoration(
-                              color: _isPhoneMode
-                                  ? const Color(0xFF004D56)
-                                  : const Color(0xFFB0E6F3),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Gunakan No. Telp',
-                                style: TextStyle(
-                                  color: _isPhoneMode
-                                      ? Colors.white
-                                      : const Color(0xFF004D56),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isPhoneMode = false),
-                          child: Container(
-                            height: 45,
-                            decoration: BoxDecoration(
-                              color: !_isPhoneMode
-                                  ? const Color(0xFF004D56)
-                                  : const Color(0xFFB0E6F3),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Gunakan Email',
-                                style: TextStyle(
-                                  color: !_isPhoneMode
-                                      ? Colors.white
-                                      : const Color(0xFF004D56),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 25),
-                  if (_isPhoneMode)
-                    _buildTextField(
-                      'Nomor Telepon',
-                      Icons.phone_outlined,
-                      _phoneController,
-                    )
-                  else
-                    _buildTextField(
-                      'Email',
-                      Icons.email_outlined,
-                      _emailController,
-                    ),
-                  _buildTextField(
-                    'Kata Sandi',
-                    Icons.lock_outline,
-                    _passwordController,
-                    isPassword: true,
-                  ),
-                  const SizedBox(height: 80),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Belum punya akun? ',
-                        style: TextStyle(fontSize: 13),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WRegistrationEmail(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          'Daftar di sini',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () async {
-                      if (!_isPhoneMode) {
-                        authProv.islogin = true;
-                        authProv.enteredEmail = _emailController.text.trim();
-                        authProv.enteredPassword = _passwordController.text
-                            .trim();
-
-                        setState(() => _isLoading = true);
-                        final errorMessage = await authProv.submit();
-                        setState(() => _isLoading = false);
-
-                        if (!context.mounted) return;
-                        if (errorMessage == null) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const W_Homepage(),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(errorMessage),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      } else {
-                        if (_phoneController.text.isEmpty) return;
-                        setState(() => _isLoading = true);
-                        await authProv.sendPhoneOTP(
-                          phone: _phoneController.text.trim(),
-                          onSuccess: () {
-                            setState(() => _isLoading = false);
-                            Navigator.push(
+                          onTap: () {
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => WOtp(
-                                  phoneNumber: _phoneController.text,
-                                  isLogin: true,
+                                builder: (context) => const ChoosingPage(),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryPetugas,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Image.asset(
+                      'assets/image/logo.png',
+                      height: 180,
+                      fit: BoxFit.contain,
+                    ),
+                    Text(
+                      'Masuk Sebagai Warga',
+                      style: AppTextStyles.h3Bold.copyWith(
+                        fontSize: 22,
+                        color: AppColors.primaryPetugas,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    Text(
+                      _isPhoneMode
+                          ? 'Masukkan nomor telepon Anda.\nKami akan mengirimkan kode OTP.'
+                          : 'Masukkan email serta kata sandi\nAnda untuk dapat masuk.',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.title1.copyWith(
+                        fontSize: 13,
+                        color: AppColors.primaryPetugas,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _isPhoneMode = true),
+                            child: Container(
+                              height: 45,
+                              decoration: BoxDecoration(
+                                color: _isPhoneMode
+                                    ? AppColors.primaryPetugas
+                                    : AppColors.blueLightActive,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Gunakan No. Telp',
+                                  style: AppTextStyles.title1Bold.copyWith(
+                                    fontSize: 13,
+                                    color: _isPhoneMode
+                                        ? Colors.white
+                                        : AppColors.primaryPetugas,
+                                  ),
                                 ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _isPhoneMode = false),
+                            child: Container(
+                              height: 45,
+                              decoration: BoxDecoration(
+                                color: !_isPhoneMode
+                                    ? AppColors.primaryPetugas
+                                    : AppColors.blueLightActive,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Gunakan Email',
+                                  style: AppTextStyles.title1Bold.copyWith(
+                                    fontSize: 13,
+                                    color: !_isPhoneMode
+                                        ? Colors.white
+                                        : AppColors.primaryPetugas,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
+
+                    if (_isPhoneMode)
+                      _buildTextField(
+                        'Nomor Telepon',
+                        Icons.phone_outlined,
+                        _phoneController,
+                      )
+                    else ...[
+                      _buildTextField(
+                        'Email',
+                        Icons.email_outlined,
+                        _emailController,
+                      ),
+                      _buildTextField(
+                        'Kata Sandi',
+                        Icons.lock_outline,
+                        _passwordController,
+                        isPassword: true,
+                      ),
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const WLupaPassword(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Lupa Kata Sandi?',
+                              style: AppTextStyles.title1Bold.copyWith(
+                                color: AppColors.primaryPetugas,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    const Spacer(),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Belum punya akun? ',
+                          style: AppTextStyles.title1.copyWith(fontSize: 13),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const WRegistrationEmail(),
                               ),
                             );
                           },
-                          onError: (err) {
-                            setState(() => _isLoading = false);
+                          child: Text(
+                            'Daftar di sini',
+                            style: AppTextStyles.title1Bold.copyWith(
+                              fontSize: 13,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    GestureDetector(
+                      onTap: () async {
+                        if (!_isPhoneMode) {
+                          authProv.islogin = true;
+                          authProv.enteredEmail = _emailController.text.trim();
+                          authProv.enteredPassword = _passwordController.text
+                              .trim();
+
+                          setState(() => _isLoading = true);
+                          final errorMessage = await authProv.submit();
+                          setState(() => _isLoading = false);
+
+                          if (!context.mounted) return;
+                          if (errorMessage == null) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const W_Homepage(),
+                              ),
+                            );
+                          } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(err),
+                                content: Text(errorMessage),
                                 backgroundColor: Colors.red,
                               ),
                             );
-                          },
-                        );
-                      }
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 55,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF004D56),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Center(
-                        child: _isLoading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : const Text(
-                                'Masuk',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                          }
+                        } else {
+                          if (_phoneController.text.isEmpty) return;
+                          setState(() => _isLoading = true);
+                          await authProv.sendPhoneOTP(
+                            phone: _phoneController.text.trim(),
+                            onSuccess: () {
+                              setState(() => _isLoading = false);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WOtp(
+                                    phoneNumber: _phoneController.text,
+                                    isLogin: true,
+                                  ),
                                 ),
-                              ),
+                              );
+                            },
+                            onError: (err) {
+                              setState(() => _isLoading = false);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(err),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 55,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryPetugas,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Center(
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  _isPhoneMode ? 'Masuk' : 'Masuk',
+                                  style: AppTextStyles.title2Bold.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 30),
-                ],
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
           ),

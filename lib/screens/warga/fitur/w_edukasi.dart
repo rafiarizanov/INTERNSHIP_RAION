@@ -1,3 +1,5 @@
+import 'package:INTERNSHIP_RAION/core/constants/app_colors.dart';
+import 'package:INTERNSHIP_RAION/core/constants/app_text_styles.dart';
 import 'package:INTERNSHIP_RAION/screens/warga/fitur/w_detail_edukasi1.dart';
 import 'package:flutter/material.dart';
 
@@ -9,10 +11,6 @@ class WEdukasi extends StatefulWidget {
 }
 
 class _WEdukasiState extends State<WEdukasi> {
-  final Color primaryTeal = const Color(0xFF003D4C);
-  final Color lightBg = const Color(0xFFE0F7FA);
-  final Color activeTagColor = const Color(0xFF00838F);
-
   String _kategoriPilihan = "Semua";
 
   final List<Map<String, dynamic>> semuaArtikel = [
@@ -41,7 +39,7 @@ class _WEdukasiState extends State<WEdukasi> {
       'judul': 'Langkah Kecil yang Penting 🧼',
       'sub':
           'Mencuci tangan dengan sabun dapat mencegah hingga 50% penyakit yang ditularkan melalui air.',
-      'gambar': 'assets/materi/materi3.jpg',
+      'gambar': 'assets/image/materi3.jpg',
     },
   ];
 
@@ -68,7 +66,7 @@ class _WEdukasiState extends State<WEdukasi> {
                 width: 35,
                 height: 35,
                 decoration: BoxDecoration(
-                  color: primaryTeal,
+                  color: AppColors.blueDarker,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -81,11 +79,7 @@ class _WEdukasiState extends State<WEdukasi> {
             const SizedBox(width: 15),
             Text(
               'Edukasi',
-              style: TextStyle(
-                color: primaryTeal,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h1Bold.copyWith(color: AppColors.blueDarker),
             ),
           ],
         ),
@@ -100,10 +94,8 @@ class _WEdukasiState extends State<WEdukasi> {
               children: [
                 Text(
                   "Filter Kategori",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: primaryTeal,
+                  style: AppTextStyles.title1Bold.copyWith(
+                    color: AppColors.blueDarker,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -119,14 +111,12 @@ class _WEdukasiState extends State<WEdukasi> {
               ],
             ),
           ),
-
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               itemCount: artikelDitampilkan.length,
-              itemBuilder: (context, index) {
-                return _buildCardEdukasi(artikelDitampilkan[index]);
-              },
+              itemBuilder: (context, index) =>
+                  _buildCardEdukasi(artikelDitampilkan[index]),
             ),
           ),
         ],
@@ -139,7 +129,7 @@ class _WEdukasiState extends State<WEdukasi> {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: lightBg,
+        color: AppColors.blueLightActive.withOpacity(0.3),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -152,98 +142,72 @@ class _WEdukasiState extends State<WEdukasi> {
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(10),
               image: DecorationImage(
-                image: NetworkImage(data['gambar']!),
+                image: AssetImage(data['gambar']),
                 fit: BoxFit.cover,
               ),
             ),
           ),
-
           const SizedBox(height: 12),
-
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: activeTagColor,
+              color: AppColors.blueDark,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               data['tag']!,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.captionBold.copyWith(color: Colors.white),
             ),
           ),
-
           const SizedBox(height: 12),
           Text(
             data['judul']!,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: primaryTeal,
+            style: AppTextStyles.title2Bold.copyWith(
+              color: AppColors.blueDarker,
             ),
           ),
           const SizedBox(height: 6),
-
           Text(
             data['sub']!,
-            style: TextStyle(
-              fontSize: 12,
-              color: primaryTeal.withOpacity(0.9),
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.blueDarker.withOpacity(0.9),
               height: 1.4,
             ),
           ),
           const SizedBox(height: 16),
-
           SizedBox(
             width: double.infinity,
             height: 42,
             child: ElevatedButton(
               onPressed: () {
-                if (data['id'] == 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WEdukasiDetail1(),
-                    ),
-                  );
-                } else if (data['id'] == 2) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WEdukasiDetail1(),
-                    ),
-                  );
-                } else if (data['id'] == 3) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WEdukasiDetail1(),
-                    ),
-                  );
-                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WEdukasiDetail1(),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryTeal,
+                backgroundColor: AppColors.blueDarker,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
                 elevation: 0,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Baca Selengkapnya ',
-                    style: TextStyle(
+                    style: AppTextStyles.title1Bold.copyWith(
                       color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Icon(Icons.chevron_right, color: Colors.white, size: 18),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ],
               ),
             ),
@@ -255,26 +219,21 @@ class _WEdukasiState extends State<WEdukasi> {
 
   Widget _buildFilterChip(String label) {
     bool isSelected = _kategoriPilihan == label;
-
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _kategoriPilihan = label;
-        });
-      },
+      onTap: () => setState(() => _kategoriPilihan = label),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? primaryTeal : lightBg,
+          color: isSelected
+              ? AppColors.blueDarker
+              : AppColors.blueLightActive.withOpacity(0.5),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Text(
           label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : primaryTeal,
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
+          style: AppTextStyles.title1Bold.copyWith(
+            color: isSelected ? Colors.white : AppColors.blueDarker,
           ),
         ),
       ),
