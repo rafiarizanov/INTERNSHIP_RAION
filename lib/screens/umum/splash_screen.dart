@@ -30,10 +30,23 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset(
-          'assets/image/logo_nama.png',
-          width: 300,
-          fit: BoxFit.contain,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center, 
+          crossAxisAlignment: CrossAxisAlignment.center, 
+          mainAxisSize: MainAxisSize.min, 
+          children: [
+            Image.asset(
+              'assets/image/logo.png',
+              width: 60, 
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 12), 
+            Image.asset(
+              'assets/image/nama.png',
+              width: 200, 
+              fit: BoxFit.contain,
+            ),
+          ],
         ),
       ),
     );
